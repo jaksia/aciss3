@@ -1,0 +1,32 @@
+node_modules
+
+# Output
+.output
+.vercel
+.netlify
+.wrangler
+/.svelte-kit
+/build
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.*
+!.env.example
+!.env.test
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Custom sounds (default dev dir)
+static/sounds/custom/*
+!static/sounds/custom/.gitkeep
+
+# Docker
+Dockerfile.dev
+Dockerfile
+docker-compose.yml

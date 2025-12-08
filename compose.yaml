@@ -1,0 +1,34 @@
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql
+  
+  aciss:
+    build: .
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@db:5432/postgres
+      PORT: 8000
+      SOCKETIO_PORT: 8001
+      SOUND_FILES_PATH: /app/custom_sounds
+      PUBLIC_SOUND_FILES_PATH: /sounds/custom
+    volumes:
+      - ./custom_sounds:/app/custom_sounds
+  
+  nginx:
+    image: nginx:latest
+    ports:
+      - "0.0.0.0:80:80"
+    environment:
+      SOUND_FILES_PATH: /usr/share/nginx/html/sounds/custom
+      PUBLIC_SOUND_FILES_PATH: /sounds/custom
+    volumes:
+      - ./nginx.conf:/etc/nginx/templates/default.conf.template:ro
+      - ./custom_sounds:/usr/share/nginx/html/sounds/custom:ro
+
+volumes:
+  pgdata:

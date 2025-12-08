@@ -1,0 +1,367 @@
+{
+	"id": "3dd0d9d2-4886-447d-9172-6eeb50ae836a",
+	"prevId": "00000000-0000-0000-0000-000000000000",
+	"version": "7",
+	"dialect": "postgresql",
+	"tables": {
+		"public.activities": {
+			"name": "activities",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"event_id": {
+					"name": "event_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"name": {
+					"name": "name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"start_time": {
+					"name": "start_time",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"end_time": {
+					"name": "end_time",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"zvolavanie": {
+					"name": "zvolavanie",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": true
+				},
+				"delay": {
+					"name": "delay",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"type": {
+					"name": "type",
+					"type": "ActivityType",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"location": {
+					"name": "location",
+					"type": "ActivityLocation",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"activities_event_id_events_id_fk": {
+					"name": "activities_event_id_events_id_fk",
+					"tableFrom": "activities",
+					"tableTo": "events",
+					"columnsFrom": ["event_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.activity_additional_infos": {
+			"name": "activity_additional_infos",
+			"schema": "",
+			"columns": {
+				"activity_id": {
+					"name": "activity_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"info": {
+					"name": "info",
+					"type": "AdditionalInfo",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"activity_additional_infos_activity_id_activities_id_fk": {
+					"name": "activity_additional_infos_activity_id_activities_id_fk",
+					"tableFrom": "activity_additional_infos",
+					"tableTo": "activities",
+					"columnsFrom": ["activity_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {
+				"activity_additional_infos_activity_id_info_pk": {
+					"name": "activity_additional_infos_activity_id_info_pk",
+					"columns": ["activity_id", "info"]
+				}
+			},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.activity_alert_times": {
+			"name": "activity_alert_times",
+			"schema": "",
+			"columns": {
+				"activity_id": {
+					"name": "activity_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"minutes": {
+					"name": "minutes",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"activity_alert_times_activity_id_activities_id_fk": {
+					"name": "activity_alert_times_activity_id_activities_id_fk",
+					"tableFrom": "activity_alert_times",
+					"tableTo": "activities",
+					"columnsFrom": ["activity_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {
+				"activity_alert_times_activity_id_minutes_pk": {
+					"name": "activity_alert_times_activity_id_minutes_pk",
+					"columns": ["activity_id", "minutes"]
+				}
+			},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.activity_participant_needs": {
+			"name": "activity_participant_needs",
+			"schema": "",
+			"columns": {
+				"activity_id": {
+					"name": "activity_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"need": {
+					"name": "need",
+					"type": "ParticipantNeeds",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"activity_participant_needs_activity_id_activities_id_fk": {
+					"name": "activity_participant_needs_activity_id_activities_id_fk",
+					"tableFrom": "activity_participant_needs",
+					"tableTo": "activities",
+					"columnsFrom": ["activity_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {
+				"activity_participant_needs_activity_id_need_pk": {
+					"name": "activity_participant_needs_activity_id_need_pk",
+					"columns": ["activity_id", "need"]
+				}
+			},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.event_sounds": {
+			"name": "event_sounds",
+			"schema": "",
+			"columns": {
+				"event_id": {
+					"name": "event_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"type": {
+					"name": "type",
+					"type": "ConfigurableSounds",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"path": {
+					"name": "path",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"event_sounds_event_id_events_id_fk": {
+					"name": "event_sounds_event_id_events_id_fk",
+					"tableFrom": "event_sounds",
+					"tableTo": "events",
+					"columnsFrom": ["event_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {
+				"event_sounds_event_id_type_pk": {
+					"name": "event_sounds_event_id_type_pk",
+					"columns": ["event_id", "type"]
+				}
+			},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.events": {
+			"name": "events",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"name": {
+					"name": "name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"start_date": {
+					"name": "start_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"end_date": {
+					"name": "end_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		}
+	},
+	"enums": {
+		"public.ActivityLocation": {
+			"name": "ActivityLocation",
+			"schema": "public",
+			"values": [
+				"Jedáleň",
+				"Pred hl. vchodom",
+				"Telocvičňa",
+				"Spodné poschodie",
+				"Spoločenská miestnosť",
+				"Vonku"
+			]
+		},
+		"public.ActivityType": {
+			"name": "ActivityType",
+			"schema": "public",
+			"values": [
+				"Budíček",
+				"Rozcvička",
+				"Večierka",
+				"Raňajky",
+				"Obed",
+				"Večera",
+				"Hra na dnu",
+				"Hra vonku",
+				"Športy",
+				"Prednášky",
+				"Semináre",
+				"Vyhodnotenie"
+			]
+		},
+		"public.AdditionalInfo": {
+			"name": "AdditionalInfo",
+			"schema": "public",
+			"values": ["Prezúvanie", "Striedanie kroniky/služ. dňa", "Upracte po sebe", "Kľudový režim"]
+		},
+		"public.ConfigurableSounds": {
+			"name": "ConfigurableSounds",
+			"schema": "public",
+			"values": [
+				"alert_start",
+				"additional_jingle",
+				"alert_end",
+				"delay_start",
+				"delay_end",
+				"zvolavacka",
+				"vecernicek"
+			]
+		},
+		"public.ParticipantNeeds": {
+			"name": "ParticipantNeeds",
+			"schema": "public",
+			"values": [
+				"Pero na osobu",
+				"Papier na osobu",
+				"Šatka na osobu",
+				"Pero na družinku",
+				"Papier na družinku",
+				"Šatka na družinku",
+				"Fyzická sila",
+				"Mentálna sila",
+				"Teplé oblečenie",
+				"Nepremokavé oblečenie",
+				"Športové oblečenie",
+				"Oblečenie na zničenie"
+			]
+		}
+	},
+	"schemas": {},
+	"sequences": {},
+	"roles": {},
+	"policies": {},
+	"views": {},
+	"_meta": {
+		"columns": {},
+		"schemas": {},
+		"tables": {}
+	}
+}

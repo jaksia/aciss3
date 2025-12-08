@@ -1,0 +1,1 @@
+ALTER TABLE "custom_sounds" ADD COLUMN "default" boolean DEFAULT false NOT NULL;
