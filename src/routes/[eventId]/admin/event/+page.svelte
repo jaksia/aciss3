@@ -2,36 +2,20 @@
 	import { EventStyle } from '$lib/themes';
 	import type { EditableEvent } from '$lib/types/db';
 	import { DatePicker } from '@svelte-plugins/datepicker';
-	import { enhance } from '$app/forms';
+	import { applyAction, enhance } from '$app/forms';
 	import type { PageProps } from './$types';
 	import { getContext, untrack } from 'svelte';
 	import { EventState } from '$lib/state.svelte';
+	import type { AddAlert } from '$lib/types/other';
+
+	// Linter removes <> when the type is used in enhance block, this is a workaround
+	// TODO: diagnose
+	type PEditableEvent = Partial<EditableEvent>;
 
 	const eventState = getContext<() => EventState>('getEventState')();
+	const addAlert = getContext<AddAlert>('addAlert');
 
 	const event = $derived(eventState.event);
-
-	let { form }: PageProps = $props();
-
-	$effect(() => {
-		form;
-		if (form?.success && form.newEvent) {
-			eventState.event = form.newEvent;
-		}
-		untrack(() => {
-			editableEvent = {
-				name: (form?.name as string) ?? event.name,
-				location: (form?.location as string) ?? event.location,
-				style: (form?.style as EventStyle) ?? event.style,
-				startDate: form?.startDate
-					? new Date(form.startDate as string).valueOf()
-					: event.startDate.valueOf(),
-				endDate: form?.endDate
-					? new Date(form.endDate as string).valueOf()
-					: event.endDate.valueOf()
-			};
-		});
-	});
 
 	let editableEvent: EditableEvent = $state({} as EditableEvent);
 
@@ -46,12 +30,54 @@
 
 	let formattedStartDate: string = $derived(formatDate(editableEvent.startDate));
 	let formattedEndDate: string = $derived(formatDate(editableEvent.endDate));
+
+	let editPending = $state(false);
+	let passwordPending = $state(false);
 </script>
 
 <div class="flex h-full flex-col p-8">
 	<h2 class="mb-3 text-3xl font-bold">Nastavenia akcie</h2>
 	<div class="flex gap-8">
-		<form class="flex flex-1 flex-col gap-4" method="POST" use:enhance>
+		<form
+			class="flex flex-1 flex-col gap-4"
+			method="POST"
+			action="?/edit"
+			use:enhance={({ formElement, formData, action, cancel }) => {
+				editPending = true;
+
+				return async ({ result, update }) => {
+					if (result.type === 'error' || result.type === 'redirect') {
+						return await update();
+					}
+					if (result.type === 'success') {
+						addAlert({
+							type: 'success',
+							content: `Údaje o akcii boli úspešne upravené.`
+						});
+					} else if (result.type === 'failure') {
+						addAlert({
+							type: 'error',
+							content:
+								(result.data?.error as string | undefined) ??
+								(result.data?.invalid
+									? `Pole "${result.data.invalid}" je neplatné. Skontrolujte prosím zadané údaje.`
+									: 'Nastala neznáma chyba')
+						});
+					}
+					const data = (result.data?.data ?? {}) as PEditableEvent;
+					editableEvent = {
+						name: data.name ?? event.name,
+						location: data.location ?? event.location,
+						style: data.style ?? event.style,
+						startDate: data.startDate
+							? new Date(data.startDate).valueOf()
+							: event.startDate.valueOf(),
+						endDate: data.endDate ? new Date(data.endDate).valueOf() : event.endDate.valueOf()
+					};
+					await update();
+				};
+			}}
+		>
 			<input type="hidden" name="startDate" value={formattedStartDate} />
 			<input type="hidden" name="endDate" value={formattedEndDate} />
 			<div>
@@ -61,7 +87,7 @@
 					name="name"
 					type="text"
 					bind:value={editableEvent.name}
-					class="input-field w-full rounded"
+					class=" w-full rounded"
 				/>
 			</div>
 			<div>
@@ -71,7 +97,7 @@
 					name="location"
 					type="text"
 					bind:value={editableEvent.location}
-					class="input-field w-full rounded"
+					class=" w-full rounded"
 				/>
 			</div>
 			<div>
@@ -79,16 +105,21 @@
 					>Štýl akcie
 					<em class="font-normal">(mení iba vzhľad)</em></label
 				>
-				<select
-					id="style"
-					name="style"
-					bind:value={editableEvent.style}
-					class="input-field w-full rounded"
-				>
+				<select id="style" name="style" bind:value={editableEvent.style} class=" w-full rounded">
 					{#each Object.entries(EventStyle) as [key, name]}
 						<option value={name}>{name}</option>
 					{/each}
 				</select>
+			</div>
+			<div>
+				<h3 class="mb-3 text-xl font-bold">Dátum akcie</h3>
+
+				<DatePicker
+					bind:startDate={editableEvent.startDate}
+					bind:endDate={editableEvent.endDate}
+					isRange
+					isMultipane
+				></DatePicker>
 			</div>
 			<button
 				type="submit"
@@ -102,15 +133,79 @@
 			>
 		</form>
 		<div class="flex flex-1 flex-col">
-			<h3 class="mb-3 text-xl font-bold">Dátum akcie</h3>
-			<DatePicker
-				isOpen
-				alwaysShow
-				bind:startDate={editableEvent.startDate}
-				bind:endDate={editableEvent.endDate}
-				isRange
-				isMultipane
-			></DatePicker>
+			<h3 class="mb-3 text-xl font-bold">Zmena administrátorského hesla</h3>
+			<p class="mb-4">
+				Môžete zmeniť administrátorské heslo potrebné na prístup do administrátorského rozhrania
+				tejto akcie. Ak necháte nové heslo prázdne, heslo sa vymaže a nebude už potrebné na
+				prihlásenie.
+				<br />
+				<strong>
+					{#if event.adminPasswordHash}
+						Aktuálne je nastavené administrátorské heslo.
+					{:else}
+						Aktuálne nie je nastavené žiadne administrátorské heslo.
+					{/if}
+				</strong>
+			</p>
+			<form
+				class="flex flex-col gap-4"
+				method="POST"
+				action="?/password"
+				use:enhance={({ formElement, formData, action, cancel }) => {
+					passwordPending = true;
+
+					return async ({ result, update }) => {
+						passwordPending = false;
+
+						if (result.type === 'success') {
+							addAlert({
+								type: 'success',
+								content: `Administrátorské heslo bolo úspešne zmenené.`
+							});
+						} else if (result.type === 'failure') {
+							addAlert({
+								type: 'error',
+								content: (result.data?.error as string | undefined) ?? 'Nastala neznáma chyba'
+							});
+						}
+						await update();
+					};
+				}}
+			>
+				<div>
+					<label for="currentAdminPassword" class="mb-2 block text-lg font-semibold"
+						>Súčasné administrátorské heslo</label
+					>
+					<input
+						id="currentAdminPassword"
+						name="currentAdminPassword"
+						type="password"
+						placeholder="Zadajte súčasné heslo"
+						class={[' w-full rounded', !event.adminPasswordHash && 'cursor-not-allowed opacity-50']}
+						disabled={!event.adminPasswordHash}
+					/>
+				</div>
+				<div>
+					<label for="adminPassword" class="mb-2 block text-lg font-semibold"
+						>Nové administrátorské heslo</label
+					>
+					<input
+						id="adminPassword"
+						name="adminPassword"
+						type="password"
+						placeholder="Zadajte nové heslo"
+						class="w-full rounded"
+					/>
+					<input
+						id="adminPasswordConfirm"
+						name="adminPasswordConfirm"
+						type="password"
+						placeholder="Zadajte nové heslo znova"
+						class=" mt-2 w-full rounded"
+					/>
+				</div>
+				<button type="submit" class="btn btn-warning mx-auto mt-4">Zmeniť heslo</button>
+			</form>
 		</div>
 	</div>
 </div>

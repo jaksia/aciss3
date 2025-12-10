@@ -18,7 +18,10 @@ export type ActivityAlertTime = typeof schema.activityAlertTimes.$inferSelect;
 export type ActivityParticipantNeed = typeof schema.activityParticipantNeeds.$inferSelect;
 export type ActivityAdditionalInfo = typeof schema.activityAdditionalInfos.$inferSelect;
 
-export type EditableEvent = Omit<BaseEvent, 'id' | 'startDate' | 'endDate'> & {
+export type EditableEvent = Omit<
+	BaseEvent,
+	'id' | 'startDate' | 'endDate' | 'adminPasswordHash'
+> & {
 	startDate: number;
 	endDate: number;
 };
@@ -40,4 +43,10 @@ export type EditableActivityServer = Omit<
 > & {
 	startTime: number;
 	endTime: number;
+};
+
+export type BaseSession = typeof schema.session.$inferSelect;
+export type SessionAllowedEvent = typeof schema.sessionAllowedEvents.$inferSelect;
+export type Session = BaseSession & {
+	allowedEvents: SessionAllowedEvent[];
 };

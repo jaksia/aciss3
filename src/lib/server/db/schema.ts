@@ -1,5 +1,6 @@
 import { relations } from 'drizzle-orm';
 import { EventStyle } from '../../themes';
+
 import {
 	ActivityLocation,
 	ActivityType,
@@ -7,13 +8,13 @@ import {
 	ConfigurableSounds,
 	ParticipantNeeds
 } from '../../types/enums';
+
 import { pgTable } from 'drizzle-orm/pg-core';
 import * as t from 'drizzle-orm/pg-core';
 
 // ------------------------------
 //             EVENTS
 // ------------------------------
-
 export const configurableSoundsEnum = t.pgEnum('ConfigurableSounds', ConfigurableSounds);
 export const eventStylesEnum = t.pgEnum('EventStyles', EventStyle);
 
@@ -31,7 +32,8 @@ export const events = pgTable('events', {
 	name: t.text('name').notNull(),
 	startDate: t.date('start_date').notNull(),
 	endDate: t.date('end_date').notNull(),
-	location: t.text('location')
+	location: t.text('location'),
+	adminPasswordHash: t.text('admin_password_hash')
 });
 
 export const eventsRelations = relations(events, ({ many }) => ({
@@ -52,7 +54,9 @@ export const eventsToSounds = pgTable(
 		soundKey: configurableSoundsEnum('sound_key').notNull()
 	},
 	(table) => [
-		t.primaryKey({ columns: [table.eventId, table.customSoundId] }),
+		t.primaryKey({
+			columns: [table.eventId, table.customSoundId]
+		}),
 		t.unique('one_sound_key_per_event').on(table.eventId, table.soundKey)
 	]
 );
@@ -71,7 +75,6 @@ export const eventsToSoundsRelations = relations(eventsToSounds, ({ one }) => ({
 // ------------------------------
 //           ACTIVITIES
 // ------------------------------
-
 export const activityTypeEnum = t.pgEnum('ActivityType', ActivityType);
 export const activityLocationEnum = t.pgEnum('ActivityLocation', ActivityLocation);
 export const participantNeedsEnum = t.pgEnum('ParticipantNeeds', ParticipantNeeds);
@@ -83,14 +86,11 @@ export const activities = pgTable('activities', {
 		.integer('event_id')
 		.notNull()
 		.references(() => events.id, { onDelete: 'cascade' }),
-
 	name: t.text('name').notNull(),
 	startTime: t.timestamp('start_time').notNull(),
 	endTime: t.timestamp('end_time').notNull(),
-
 	zvolavanie: t.boolean('zvolavanie').notNull().default(true),
 	delay: t.integer('delay'),
-
 	type: activityTypeEnum('type').notNull(),
 	location: activityLocationEnum('location').notNull()
 });
@@ -102,7 +102,6 @@ export const activityAlertTimes = pgTable(
 			.integer('activity_id')
 			.notNull()
 			.references(() => activities.id, { onDelete: 'cascade' }),
-
 		minutes: t.integer('minutes').notNull()
 	},
 	(table) => [t.primaryKey({ columns: [table.activityId, table.minutes] })]
@@ -130,4 +129,25 @@ export const activityAdditionalInfos = pgTable(
 		info: additionalInfoEnum('info').notNull()
 	},
 	(table) => [t.primaryKey({ columns: [table.activityId, table.info] })]
+);
+
+export const session = pgTable('session', {
+	id: t.text('id').primaryKey(),
+	expiresAt: t.timestamp('expires_at', { mode: 'date' }).notNull()
+});
+
+export const sessionAllowedEvents = pgTable(
+	'session_allowed_events',
+	{
+		sessionId: t
+			.text('session_id')
+			.notNull()
+			.references(() => session.id, { onDelete: 'cascade' }),
+		eventId: t
+			.integer('event_id')
+			.notNull()
+			.references(() => events.id, { onDelete: 'cascade' }),
+		expiresAt: t.timestamp('expires_at', { mode: 'date' }).notNull()
+	},
+	(table) => [t.primaryKey({ columns: [table.sessionId, table.eventId] })]
 );

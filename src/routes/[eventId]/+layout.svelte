@@ -9,7 +9,9 @@
 	import { fade, fly } from 'svelte/transition';
 
 	const adminSection = $derived.by(() => {
-		return page.url.pathname.includes('/admin') ? page.url.pathname.split('/admin')[1] : null;
+		return page.url.pathname.includes('/admin') && !page.url.pathname.includes('/login')
+			? page.url.pathname.split('/admin')[1]
+			: null;
 	});
 
 	let { children, data }: LayoutProps = $props();
