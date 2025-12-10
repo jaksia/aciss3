@@ -1,5 +1,6 @@
 import { env } from '$env/dynamic/private';
-import { readFileSync, writeFileSync } from 'fs';
+import { createReadStream, statSync, writeFileSync } from 'fs';
+import { lookup as lookupMime } from 'mime-types';
 
 const rootDir = env.SOUND_FILES_PATH;
 const publicRootDir = env.PUBLIC_SOUND_FILES_PATH;
@@ -51,16 +52,22 @@ export async function saveSoundFiles<T extends string>(toSave: Record<T, File>) 
 	return results;
 }
 
-export function getSoundFile(fileName: string): File | null {
+export function getSoundFile(fileName: string) {
 	if (publicRootDir)
 		throw new Error('getSoundFile is not supported when PUBLIC_SOUND_FILES_PATH is set.');
 	if (!rootDir) throw new Error('SOUND_FILES_PATH environment variable is not set.');
 
 	const filePath = `${rootDir}/${fileName}`;
 	try {
-		const data = readFileSync(filePath);
-		const file = new File([data], fileName);
-		return file;
+		const stat = statSync(filePath);
+		if (!stat.isFile()) return null;
+		const stream = createReadStream(filePath);
+
+		return {
+			stream,
+			size: stat.size,
+			type: lookupMime(filePath) || 'application/octet-stream'
+		};
 	} catch (error) {
 		console.error('Error reading sound file:', error);
 		return null;
