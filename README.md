@@ -2,7 +2,7 @@
 
 **Akustický Časový Informačný Systém Sústredenia v3**
 
-Systém, ktorý je schopný automaticky zvolávať účastníkov sústredenia s predpripraveným programom a o mnoho viac. Z praktických skúseností je potvrdené, že okrem ušetrenia vedúcich zo zvolávania, majú deti tentdenciu viac počúvať pri zvolávaní tento systém ako vedúcich.
+Systém, ktorý je schopný automaticky zvolávať účastníkov sústredenia na program. Z praktických skúseností je potvrdené, že okrem ušetrenia vedúcich zo zvolávania, majú deti tentdenciu viac počúvať pri zvolávaní tento systém ako vedúcich.
 
 Pôvodný AČISS je síce efektívny na zvolávanie účastníkov, ale má veľa nedostatkov, kvôli ktorým vie byť zložité ho efektívne používať. Niekedy po ceste existoval aj AČISS v2, ale ten sa použil iba na jednej akcii a aktuálne je (pravdepodobne) stratený.
 
