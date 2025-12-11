@@ -7,6 +7,7 @@
 	import type { AddAlert, Alert } from '$lib/types/other';
 	import Icon from '@iconify/svelte';
 	import { fade, fly } from 'svelte/transition';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	const adminSection = $derived.by(() => {
 		return page.url.pathname.includes('/admin') && !page.url.pathname.includes('/login')
@@ -23,7 +24,6 @@
 	const event = $derived(eventState.event);
 	const styles = $derived(styleData[event.style]);
 
-	let now = $state(Date.now());
 	let alerts = $state<Alert[]>([]);
 
 	const addAlert: AddAlert = function (alert) {
@@ -37,6 +37,7 @@
 		return id;
 	};
 	setContext('addAlert', addAlert);
+	eventState.setAddAlert(addAlert);
 
 	function dismissAlert(id: string) {
 		alerts = alerts.filter((a) => a.id !== id);
@@ -44,8 +45,9 @@
 
 	onMount(() => {
 		const interval = setInterval(() => {
-			now = Date.now();
+			eventState.now = new SvelteDate();
 		}, 20);
+
 		return () => clearInterval(interval);
 	});
 </script>
@@ -126,7 +128,9 @@
 						alert.type === 'warning' && 'bg-yellow-500',
 						alert.type === 'error' && 'bg-red-500'
 					]}
-					style="width: {(Math.max(alert.dismissedAt - now, 0) / alert.timeout) * 100}%;"
+					style="width: {(Math.max(alert.dismissedAt - eventState.now.valueOf(), 0) /
+						alert.timeout) *
+						100}%;"
 				></div>
 			</div>
 		</div>

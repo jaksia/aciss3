@@ -2,7 +2,6 @@ import type { Activity, Event } from '$lib/types/db';
 import type {
 	ClientToServerEvents,
 	InterServerEvents,
-	PlayerControl,
 	ServerToClientEvents,
 	SocketData
 } from '$lib/types/realtime';
@@ -60,9 +59,13 @@ export async function initSocket(port: number) {
 		});
 
 		// playerControl events originate from admin clients and need to reach sound-playing clients
-		socket.on('playerControl', (data: PlayerControl) => {
-			if (!socket.data.activeEventId) return;
+		socket.on('playerControl', (data, code, callback) => {
+			if (!socket.data.activeEventId)
+				return callback({ success: false, error: 'Not connected to any event' });
+			if (!code) return callback({ success: false, error: 'No code provided' });
+
 			io!.to(`event_${socket.data.activeEventId}`).emit('playerControl', { ...data });
+			callback({ success: true });
 		});
 
 		socket.on('disconnect', () => {

@@ -169,11 +169,12 @@
 			onclick={async () => {
 				if (soundControlPending) return;
 				soundControlPending = true;
-				await eventState.playerControl({ type: 'stopPlaying' });
-				addAlert({
-					type: 'success',
-					content: 'Hlásenie bolo zastavené.'
-				});
+				const result = await eventState.playerControl({ type: 'stopPlaying' });
+				if (result.success)
+					addAlert({
+						type: 'success',
+						content: 'Hlásenie bolo zastavené.'
+					});
 				soundControlPending = false;
 			}}
 		>
@@ -191,14 +192,15 @@
 					soundControlPending = false;
 					return;
 				}
-				await eventState.playerControl({
+				const result = await eventState.playerControl({
 					type: 'customSound',
 					sounds: builder(true).sound(OtherSounds.DESIATA, location).getSounds()
 				});
-				addAlert({
-					type: 'success',
-					content: 'Hlásenie desiaty bolo spustené.'
-				});
+				if (result.success)
+					addAlert({
+						type: 'success',
+						content: 'Hlásenie desiaty bolo spustené.'
+					});
 				soundControlPending = false;
 			}}
 		>
@@ -215,14 +217,15 @@
 					soundControlPending = false;
 					return;
 				}
-				await eventState.playerControl({
+				const result = await eventState.playerControl({
 					type: 'customSound',
 					sounds: builder(true).sound(OtherSounds.OLOVRANT, location).getSounds()
 				});
-				addAlert({
-					type: 'success',
-					content: 'Hlásenie olovrantu bolo spustené.'
-				});
+				if (result.success)
+					addAlert({
+						type: 'success',
+						content: 'Hlásenie olovrantu bolo spustené.'
+					});
 				soundControlPending = false;
 			}}
 		>
@@ -239,14 +242,15 @@
 					soundControlPending = false;
 					return;
 				}
-				await eventState.playerControl({
+				const result = await eventState.playerControl({
 					type: 'customSound',
 					sounds: builder(true).sound(OtherSounds.SECOND_DINNER, location).getSounds()
 				});
-				addAlert({
-					type: 'success',
-					content: 'Hlásenie druhej večere bolo spustené.'
-				});
+				if (result.success)
+					addAlert({
+						type: 'success',
+						content: 'Hlásenie druhej večere bolo spustené.'
+					});
 				soundControlPending = false;
 			}}
 		>

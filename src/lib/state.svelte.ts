@@ -11,6 +11,7 @@ import { builder } from '$lib/sounds/builder';
 import { ConfigurableSounds } from '$lib/types/enums';
 import { SvelteDate } from 'svelte/reactivity';
 import { env } from '$env/dynamic/public';
+import type { AddAlert } from './types/other';
 
 const socketIOHost = env.PUBLIC_SOCKETIO_HOST;
 
@@ -22,6 +23,7 @@ export class EventState {
 	public socketActive: boolean;
 
 	private soundProcessor: SoundProcessor | null = null;
+	private addAlert: AddAlert | null = null;
 
 	constructor(event: Event, activities: Activity[]) {
 		this.event = $state(this.parseJSONEvent(event));
@@ -52,6 +54,7 @@ export class EventState {
 	private socketConnected = $state(false);
 
 	private firstConnect = true;
+	private playerControlCode: string | null = null;
 
 	private listeningEventId: Event['id'] | null = $state(null);
 	private initializing: Promise<void> | null = null;
@@ -204,8 +207,43 @@ export class EventState {
 	}
 
 	public async playerControl(data: PlayerControl) {
-		if (!this.socket) return;
-		await this.socket.emit('playerControl', data);
+		if (!this.socket) {
+			this.addAlert?.({
+				type: 'error',
+				content: 'Nie je možné použiť okamžité hlásenie.<br>Nie je pripojený Socket.IO.'
+			});
+			return { success: false, error: 'Socket.IO not connected' };
+		}
+		// TODO: implement at some point
+		// if (!this.playerControlCode) {
+		// 	this.addAlert?.({
+		// 		type: 'error',
+		// 		content: 'Nie je možné použiť okamžité hlásenie.<br>Server neumožnil ovládanie prehrávača.'
+		// 	});
+		// 	return { success: false, error: 'Player control not allowed' };
+		// }
+
+		const result = await this.socket.emitWithAck(
+			'playerControl',
+			data,
+			this.playerControlCode ?? 'not-implemented'
+		);
+		if (!result.success) {
+			this.addAlert?.({
+				type: 'error',
+				content: `Nepodarilo sa odoslať okamžité hlásenie.<br>${result.error}`
+			});
+		}
+		// success message is handled by the caller
+		return result;
+	}
+
+	public setPlayerControlCode(code: string | null) {
+		this.playerControlCode = code;
+	}
+
+	public setAddAlert(addAlert: AddAlert) {
+		this.addAlert = addAlert;
 	}
 
 	public setEvent(eventData: Event) {

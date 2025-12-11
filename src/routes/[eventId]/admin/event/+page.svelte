@@ -17,7 +17,14 @@
 
 	const event = $derived(eventState.event);
 
-	let editableEvent: EditableEvent = $state({} as EditableEvent);
+	// svelte-ignore state_referenced_locally
+	let editableEvent: EditableEvent = $state({
+		name: event.name,
+		location: event.location,
+		style: event.style,
+		startDate: new Date(event.startDate).valueOf(),
+		endDate: new Date(event.endDate).valueOf()
+	} as EditableEvent);
 
 	function formatDate(date: number | null): string {
 		if (date === null) return '';
@@ -28,6 +35,7 @@
 			.padStart(2, '0')}`;
 	}
 
+	let datePickerOpen = $state(false);
 	let formattedStartDate: string = $derived(formatDate(editableEvent.startDate));
 	let formattedEndDate: string = $derived(formatDate(editableEvent.endDate));
 
@@ -115,11 +123,27 @@
 				<h3 class="mb-3 text-xl font-bold">Dátum akcie</h3>
 
 				<DatePicker
+					isOpen={datePickerOpen}
 					bind:startDate={editableEvent.startDate}
 					bind:endDate={editableEvent.endDate}
+					enableFutureDates={true}
 					isRange
 					isMultipane
-				></DatePicker>
+				>
+					<!-- svelte-ignore a11y_click_events_have_key_events -->
+					<!-- svelte-ignore a11y_no_static_element_interactions -->
+					<div
+						class="form-input rounded"
+						onclick={() => (datePickerOpen = !datePickerOpen)}
+						class:open={datePickerOpen}
+					>
+						<div class="date">
+							{new Date(editableEvent.startDate).toLocaleDateString('sk-SK')} - {new Date(
+								editableEvent.endDate
+							).toLocaleDateString('sk-SK')}
+						</div>
+					</div>
+				</DatePicker>
 			</div>
 			<button
 				type="submit"

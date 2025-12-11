@@ -4,7 +4,6 @@ import type {
 	Event,
 	CustomSound,
 	BaseEvent,
-	EditableActivity,
 	EditableActivityServer
 } from '$lib/types/db';
 import { eq, and, inArray } from 'drizzle-orm';

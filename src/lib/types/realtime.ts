@@ -63,9 +63,14 @@ export interface ClientToServerEvents {
 	joinEvent: (eventId: Event['id'], callback: (response: JoinEventResponse) => void) => void;
 	leaveEvent: (eventId: Event['id'], callback: () => void) => void;
 
-	playerControl: (data: PlayerControl) => void;
+	playerControl: (
+		data: PlayerControl,
+		code: string,
+		callback: (result: { success: boolean; error?: string }) => void
+	) => void;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface InterServerEvents {}
 
 export interface SocketData {

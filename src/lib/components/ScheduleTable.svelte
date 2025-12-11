@@ -3,7 +3,10 @@
 	import { usePinch, type PinchCustomEvent, usePan, type PanCustomEvent } from 'svelte-gestures';
 	import ActivityBlock from './ActivityBlock.svelte';
 	import type { GlobalBlockProps } from '$lib/types/other';
-	import { onMount, tick } from 'svelte';
+	import { getContext, onMount, tick } from 'svelte';
+	import type { EventState } from '$lib/state.svelte';
+
+	const eventState = getContext<() => EventState>('getEventState')();
 
 	// On 1920px width, this shows approx. 7:00 - 22:00
 	const DEFAULT_SCALE = 1.56;
@@ -111,6 +114,20 @@
 			// prevents the number from getting too big
 			viewportReactivityTrigger = 0;
 		}, 60000);
+	});
+
+	const nowDay = $derived.by(() => {
+		const now = eventState.now;
+		return days.findIndex(
+			(day) =>
+				day.getFullYear() === now.getFullYear() &&
+				day.getMonth() === now.getMonth() &&
+				day.getDate() === now.getDate()
+		);
+	});
+	const nowMinutes = $derived.by(() => {
+		const now = eventState.now;
+		return now.getHours() * 60 + now.getMinutes();
 	});
 
 	const tzBufferMinutes = 90; // 1.5 hours buffer around timezone change
@@ -228,6 +245,17 @@
 					{#each Array(24) as _, hour}
 						<div class="border-secondary/50 border-l" style="width: {hourWidth}px;"></div>
 					{/each}
+					{#if dayIndex === nowDay}
+						<div
+							class="absolute top-0 w-0.5 bg-red-500"
+							id="now-time-line"
+							title="Aktuálny čas"
+							style="
+								left: {(nowMinutes / 60) * hourWidth}px;
+								height: {dayRowHeight[dayIndex] + 1}px;
+							"
+						></div>
+					{/if}
 					{#if tzChangeDayIndex !== null && Math.abs(tzChangeDayIndex - dayIndex) <= 1}
 						{@const dayMinDiff = (tzChangeDayIndex - dayIndex) * 24 * 60}
 						{@const blockStartMinutes = tzStartMinutes + dayMinDiff - tzBufferMinutes}
@@ -274,5 +302,26 @@
 			black 10px
 		);
 		opacity: 0.5;
+	}
+
+	#now-time-line::before,
+	#now-time-line::after {
+		content: '';
+		position: absolute;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 8px;
+		height: 8px;
+		background-color: var(--color-red-500);
+	}
+
+	#now-time-line::before {
+		top: 0;
+		clip-path: polygon(50% 100%, 0% 0%, 100% 0%);
+	}
+
+	#now-time-line::after {
+		bottom: 0;
+		clip-path: polygon(0% 100%, 100% 100%, 50% 0%);
 	}
 </style>

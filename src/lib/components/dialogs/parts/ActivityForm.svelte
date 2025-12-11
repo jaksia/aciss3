@@ -125,12 +125,32 @@
 	</div>
 	<div>
 		<label class="mb-2 block font-medium" for="activity-day">Deň akcie</label>
-		{tzOffset}
 		<select
 			id="activity-day"
 			class="form-select w-full rounded"
 			{disabled}
-			bind:value={editableActivity.day}
+			bind:value={
+				() => editableActivity.day,
+				(value: number) => {
+					const dayDate = new Date(value);
+					dayDate.setUTCHours(0, 0, 0, 0);
+					editableActivity.day = dayDate.valueOf();
+					editableActivity.startTime = new Date(
+						new Date(editableActivity.startTime).setFullYear(
+							dayDate.getFullYear(),
+							dayDate.getMonth(),
+							dayDate.getDate()
+						)
+					);
+					editableActivity.endTime = new Date(
+						new Date(editableActivity.endTime).setFullYear(
+							dayDate.getFullYear(),
+							dayDate.getMonth(),
+							dayDate.getDate()
+						)
+					);
+				}
+			}
 		>
 			{#each days as day, index}
 				<option value={day.valueOf()}>
@@ -159,7 +179,9 @@
 					},
 					(value: string) => {
 						const [hours, minutes] = value.split(':').map(Number);
-						editableActivity.startTime.setHours(hours, minutes - tzOffset, 0, 0);
+						const startTime = new Date(editableActivity.day);
+						startTime.setHours(hours, minutes - tzOffset, 0, 0);
+						editableActivity.startTime = startTime;
 					}
 				}
 			/>
@@ -179,7 +201,9 @@
 					},
 					(value: string) => {
 						const [hours, minutes] = value.split(':').map(Number);
-						editableActivity.endTime.setHours(hours, minutes - tzOffset, 0, 0);
+						const endTime = new Date(editableActivity.day);
+						endTime.setHours(hours, minutes - tzOffset, 0, 0);
+						editableActivity.endTime = endTime;
 					}
 				}
 			/>
