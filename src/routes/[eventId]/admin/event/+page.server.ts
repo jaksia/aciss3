@@ -1,4 +1,4 @@
-import { ARGON2_CONFIG } from '$lib/server/auth.js';
+import { ARGON2_CONFIG } from '$lib/server/session.js';
 import { db } from '$lib/server/db/index.js';
 import * as schema from '$lib/server/db/schema.js';
 import { eventExists, getEvent, updateEvent } from '$lib/server/db/utils.js';

@@ -1,8 +1,9 @@
-import * as auth from '$lib/server/auth';
+import * as auth from '$lib/server/session';
 import type { ServerInit, Handle } from '@sveltejs/kit';
 import { initSocket } from '$lib/server/socket';
 import { initDB } from '$lib/server/db';
 import { env } from '$env/dynamic/private';
+import { socketCodeCookieName } from '$lib/state.svelte';
 
 let socketInitialized = false;
 
@@ -30,6 +31,7 @@ export const init: ServerInit = async () => {
 
 const handleAuth: Handle = async ({ event, resolve }) => {
 	const sessionToken = event.cookies.get(auth.sessionCookieName);
+	const socketCode = event.cookies.get(socketCodeCookieName);
 
 	if (!sessionToken) {
 		event.locals.session = null;
@@ -39,9 +41,9 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 	const { session } = await auth.validateSessionToken(sessionToken);
 
 	if (session) {
-		auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);
+		auth.setSessionCookies(event, sessionToken, socketCode, session.expiresAt);
 	} else {
-		auth.deleteSessionTokenCookie(event);
+		auth.deleteSessionCookies(event);
 	}
 
 	event.locals.session = session;

@@ -5,6 +5,7 @@ import { encodeBase64url, encodeHexLowerCase } from '@oslojs/encoding';
 import { db } from '$lib/server/db';
 import * as schema from '$lib/server/db/schema';
 import type { BaseSession, Event, Session } from '$lib/types/db';
+import { socketCodeCookieName } from '$lib/state.svelte';
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 const SESSION_EXPIRATION_MS = DAY_IN_MS * 30;
@@ -22,19 +23,22 @@ export const ARGON2_CONFIG = {
 export const sessionCookieName = 'auth-session';
 
 export function generateSessionToken() {
-	const bytes = crypto.getRandomValues(new Uint8Array(18));
+	const bytes = crypto.getRandomValues(new Uint8Array(24));
 	const token = encodeBase64url(bytes);
 	return token;
 }
 
 export async function createSession(token: string) {
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
+	const socketCode = encodeBase64url(crypto.getRandomValues(new Uint8Array(18)));
+
 	const session: BaseSession = {
 		id: sessionId,
-		expiresAt: new Date(Date.now() + SESSION_EXPIRATION_MS)
+		expiresAt: new Date(Date.now() + SESSION_EXPIRATION_MS),
+		socketCodeHash: encodeHexLowerCase(sha256(new TextEncoder().encode(socketCode)))
 	};
 	await db.insert(schema.session).values(session);
-	return session;
+	return { session, socketCode };
 }
 
 export async function validateSessionToken(token: string): Promise<{ session: Session | null }> {
@@ -84,6 +88,35 @@ export async function validateSessionToken(token: string): Promise<{ session: Se
 	};
 }
 
+export async function validateSocketCode(socketCodeHash: string) {
+	const [baseSession] = await db
+		.select()
+		.from(schema.session)
+		.where(eq(schema.session.socketCodeHash, socketCodeHash));
+
+	if (!baseSession) {
+		return { session: null };
+	}
+
+	const sessionExpired = Date.now() >= baseSession.expiresAt.getTime();
+	if (sessionExpired) {
+		await db.delete(schema.session).where(eq(schema.session.id, baseSession.id));
+		return { session: null };
+	}
+
+	const allowedEvents = await db
+		.select()
+		.from(schema.sessionAllowedEvents)
+		.where(eq(schema.sessionAllowedEvents.sessionId, baseSession.id));
+
+	return {
+		session: {
+			...baseSession,
+			allowedEvents
+		}
+	};
+}
+
 export type SessionValidationResult = Awaited<ReturnType<typeof validateSessionToken>>;
 
 export async function addAllowedEventToSession(
@@ -118,15 +151,30 @@ export async function invalidateSession(sessionId: string) {
 	await db.delete(schema.session).where(eq(schema.session.id, sessionId));
 }
 
-export function setSessionTokenCookie(event: RequestEvent, token: string, expiresAt: Date) {
+export function setSessionCookies(
+	event: RequestEvent,
+	token: string,
+	socketCode: string | undefined,
+	expiresAt: Date
+) {
 	event.cookies.set(sessionCookieName, token, {
 		expires: expiresAt,
 		path: '/'
 	});
+	if (socketCode) {
+		event.cookies.set(socketCodeCookieName, socketCode, {
+			expires: expiresAt,
+			httpOnly: false,
+			path: '/'
+		});
+	}
 }
 
-export function deleteSessionTokenCookie(event: RequestEvent) {
+export function deleteSessionCookies(event: RequestEvent) {
 	event.cookies.delete(sessionCookieName, {
+		path: '/'
+	});
+	event.cookies.delete(socketCodeCookieName, {
 		path: '/'
 	});
 }

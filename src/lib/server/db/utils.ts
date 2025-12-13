@@ -19,7 +19,10 @@ import {
 } from './schema';
 import type { ConfigurableSounds } from '$lib/types/enums';
 
-export async function getEvent(eventId: Event['id']) {
+export async function getEvent(
+	eventId: Event['id'],
+	options: { returnPasswordHash: boolean } | null = null
+) {
 	const [event] = await db.select().from(events).where(eq(events.id, eventId));
 	if (!event) return null;
 	const sounds = await db
@@ -29,6 +32,11 @@ export async function getEvent(eventId: Event['id']) {
 		.innerJoin(customSounds, eq(eventsToSounds.customSoundId, customSounds.id));
 	return {
 		...event,
+		adminPasswordHash: options?.returnPasswordHash
+			? event.adminPasswordHash
+			: event.adminPasswordHash === null
+				? null
+				: '*******',
 		startDate: new Date(event.startDate),
 		endDate: new Date(event.endDate),
 		sounds: sounds.reduce(
@@ -45,6 +53,7 @@ export async function getEvents() {
 	const result: BaseEvent[] = await db.select().from(events);
 	return result.map((event) => ({
 		...event,
+		adminPasswordHash: event.adminPasswordHash === null ? null : '*******',
 		startDate: new Date(event.startDate),
 		endDate: new Date(event.endDate)
 	})) as Omit<Event, 'sounds'>[];

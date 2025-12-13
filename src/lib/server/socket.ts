@@ -7,10 +7,13 @@ import type {
 } from '$lib/types/realtime';
 import { Server } from 'socket.io';
 import { getActivities, getActivity, getEvent } from './db/utils';
+import { getSession, validateSocketCode } from './session';
 
 let io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData> | null =
 	null;
 let initializing: Promise<Server> | null = null;
+
+const updatedSessions = new Set<string>();
 
 export async function initSocket(port: number) {
 	if (initializing) return initializing;
@@ -22,6 +25,21 @@ export async function initSocket(port: number) {
 		cors: {
 			origin: '*'
 		}
+	});
+
+	io.use(async (socket, next) => {
+		socket.data.activeEventId = null;
+		socket.data.session = null;
+
+		if (socket.handshake.auth && socket.handshake.auth.socketCode) {
+			const { session } = await validateSocketCode(socket.handshake.auth.socketCode);
+			if (session) {
+				console.log(`🔑 Session validated for ${socket.id}`);
+				socket.data.session = session;
+			}
+		}
+
+		next();
 	});
 
 	io.on('connection', (socket) => {
@@ -59,10 +77,22 @@ export async function initSocket(port: number) {
 		});
 
 		// playerControl events originate from admin clients and need to reach sound-playing clients
-		socket.on('playerControl', (data, code, callback) => {
+		socket.on('playerControl', async (data, callback) => {
 			if (!socket.data.activeEventId)
 				return callback({ success: false, error: 'Not connected to any event' });
-			if (!code) return callback({ success: false, error: 'No code provided' });
+			if (!socket.data.session) return callback({ success: false, error: 'No active session' });
+
+			if (updatedSessions.has(socket.data.session.id)) {
+				updatedSessions.delete(socket.data.session.id);
+				socket.data.session = await getSession(socket.data.session.id);
+				if (!socket.data.session) {
+					return callback({ success: false, error: 'Session no longer valid' });
+				}
+			}
+
+			if (!socket.data.session.allowedEvents.some((e) => e.eventId === socket.data.activeEventId)) {
+				return callback({ success: false, error: 'No permission for this event' });
+			}
 
 			io!.to(`event_${socket.data.activeEventId}`).emit('playerControl', { ...data });
 			callback({ success: true });
@@ -112,6 +142,11 @@ export async function triggerActivitiesUpdate(eventId: Event['id'], activityId?:
 	}
 }
 
+export function markSessionAsUpdated(sessionId: string) {
+	updatedSessions.add(sessionId);
+}
+
+// Hot Module Replacement (HMR) support
 if (import.meta.hot) {
 	import.meta.hot.on('vite:beforeUpdate', () => {
 		if (io) {

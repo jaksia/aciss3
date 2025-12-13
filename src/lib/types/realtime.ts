@@ -1,4 +1,4 @@
-import type { Activity, Event } from './db';
+import type { Activity, Event, Session } from './db';
 import type { AllSoundTypes } from './sounds';
 
 export type EventUpdateNotification = {
@@ -65,7 +65,6 @@ export interface ClientToServerEvents {
 
 	playerControl: (
 		data: PlayerControl,
-		code: string,
 		callback: (result: { success: boolean; error?: string }) => void
 	) => void;
 }
@@ -75,4 +74,5 @@ export interface InterServerEvents {}
 
 export interface SocketData {
 	activeEventId: Event['id'] | null;
+	session: Session | null;
 }

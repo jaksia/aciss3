@@ -13,6 +13,10 @@ import { SvelteDate, SvelteMap } from 'svelte/reactivity';
 import { env } from '$env/dynamic/public';
 import type { AddAlert } from './types/other';
 import { logFunctions } from './utils';
+import { sha256 } from '@oslojs/crypto/sha2';
+import { encodeHexLowerCase } from '@oslojs/encoding';
+
+export const socketCodeCookieName = 'socket-code';
 
 const socketIOHost = env.PUBLIC_SOCKETIO_HOST;
 
@@ -32,10 +36,8 @@ export class EventState {
 	private socket: Socket<ServerToClientEvents, ClientToServerEvents> | null = null;
 	private initializing: Promise<void> | null = null;
 	private socketConnected = $state(false);
-	private firstConnect = true;
 
 	private listeningEventId: Event['id'] | null = $state(null);
-	private playerControlCode: string | null = null;
 
 	constructor(event: Event, activities: Record<Activity['id'], Activity>) {
 		this.event = $state(this.parseJSONEvent(event));
@@ -93,12 +95,22 @@ export class EventState {
 		let resolve;
 		this.initializing = new Promise((res) => (resolve = res));
 
-		this.socket = io(socketIOHost);
+		const cookieLine = document.cookie
+			.split('; ')
+			.find((row) => row.startsWith(`${socketCodeCookieName}=`));
+		const rawSocketCode = cookieLine ? cookieLine.split('=')[1] : null;
+
+		this.socket = io(socketIOHost, {
+			auth: {
+				socketCode: rawSocketCode
+					? encodeHexLowerCase(sha256(new TextEncoder().encode(rawSocketCode)))
+					: null
+			}
+		});
 
 		this.socket.on('connect', () => {
 			log.debug('Socket.IO connected:', this.socket?.id);
-			this.connectToEvent(this.event.id, this.firstConnect);
-			this.firstConnect = false;
+			this.connectToEvent(this.event.id);
 			this.socketConnected = true;
 		});
 
@@ -156,18 +168,13 @@ export class EventState {
 		this.initializing = null;
 	}
 
-	private async connectToEvent(eventId: Event['id'], skipCheck = false) {
+	private async connectToEvent(eventId: Event['id']) {
 		if (!this.socket) return;
 		if (this.listeningEventId === eventId) return;
 
-		if (!skipCheck) {
-			const activeEventId = await this.socket.emitWithAck('checkActiveEvent');
-			if (activeEventId === eventId) {
-				log.debug('Already connected to event:', eventId);
-				this.listeningEventId = eventId;
-				return;
-			}
-		}
+		// even if the event didnt change, we can assume we got disconnected
+		// we are probably still listening to the same event, but this makes sure
+		// that our data is up to date
 
 		const response = await this.socket.emitWithAck('joinEvent', eventId);
 		if (!response.success) {
@@ -245,20 +252,8 @@ export class EventState {
 			});
 			return { success: false, error: 'Socket.IO not connected' };
 		}
-		// TODO: implement at some point
-		// if (!this.playerControlCode) {
-		// 	this.addAlert?.({
-		// 		type: 'error',
-		// 		content: 'Nie je možné použiť okamžité hlásenie.<br>Server neumožnil ovládanie prehrávača.'
-		// 	});
-		// 	return { success: false, error: 'Player control not allowed' };
-		// }
 
-		const result = await this.socket.emitWithAck(
-			'playerControl',
-			data,
-			this.playerControlCode ?? 'not-implemented'
-		);
+		const result = await this.socket.emitWithAck('playerControl', data);
 		if (!result.success) {
 			this.addAlert?.({
 				type: 'error',
@@ -267,10 +262,6 @@ export class EventState {
 		}
 		// success message is handled by the caller
 		return result;
-	}
-
-	public setPlayerControlCode(code: string | null) {
-		this.playerControlCode = code;
 	}
 
 	public setAddAlert(addAlert: AddAlert) {

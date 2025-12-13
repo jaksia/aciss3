@@ -132,8 +132,9 @@ export const activityAdditionalInfos = pgTable(
 );
 
 export const session = pgTable('session', {
-	id: t.text('id').primaryKey(),
-	expiresAt: t.timestamp('expires_at', { mode: 'date' }).notNull()
+	id: t.varchar('id', { length: 64 }).primaryKey(),
+	expiresAt: t.timestamp('expires_at', { mode: 'date' }).notNull(),
+	socketCodeHash: t.varchar('socket_code_hash', { length: 64 }).notNull()
 });
 
 export const sessionAllowedEvents = pgTable(

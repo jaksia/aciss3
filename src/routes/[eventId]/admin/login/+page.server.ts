@@ -1,9 +1,10 @@
 import { verify } from '@node-rs/argon2';
 import { fail, redirect } from '@sveltejs/kit';
-import * as auth from '$lib/server/auth';
+import * as auth from '$lib/server/session';
 import type { Actions, PageServerLoad } from './$types';
 import { getEvent } from '$lib/server/db/utils';
-import { ARGON2_CONFIG } from '$lib/server/auth';
+import { ARGON2_CONFIG } from '$lib/server/session';
+import { markSessionAsUpdated } from '$lib/server/socket';
 
 export const load: PageServerLoad = async ({ params, locals }) => {
 	if (
@@ -43,7 +44,7 @@ export const actions: Actions = {
 		if (isNaN(eventId)) {
 			throw new Error('Invalid event ID');
 		}
-		const event = await getEvent(eventId);
+		const event = await getEvent(eventId, { returnPasswordHash: true });
 		if (!event) {
 			throw new Error('Event not found');
 		}
@@ -57,10 +58,11 @@ export const actions: Actions = {
 
 		if (locals.session) {
 			auth.addAllowedEventToSession(locals.session.id, event.id);
+			markSessionAsUpdated(locals.session.id);
 		} else {
 			const sessionToken = auth.generateSessionToken();
-			const session = await auth.createSession(sessionToken);
-			auth.setSessionTokenCookie(requestEvent, sessionToken, session.expiresAt);
+			const { session, socketCode } = await auth.createSession(sessionToken);
+			auth.setSessionCookies(requestEvent, sessionToken, socketCode, session.expiresAt);
 			auth.addAllowedEventToSession(session.id, event.id, remember);
 		}
 
