@@ -14,6 +14,7 @@ export const GET = async ({ request }) => {
 		const sounds = await getAvailableSounds(key as ConfigurableSounds);
 		return jsonResponse({ sounds });
 	} catch (error) {
+		console.error('Error fetching sounds:', error);
 		return jsonError('Failed to fetch sounds', 500);
 	}
 };

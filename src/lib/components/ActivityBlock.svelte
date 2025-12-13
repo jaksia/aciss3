@@ -6,6 +6,7 @@
 	import { browser } from '$app/environment';
 	import { getContext } from 'svelte';
 	import type { EventState } from '$lib/state.svelte';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	const eventState = getContext<() => EventState>('getEventState')();
 
@@ -25,7 +26,7 @@
 		eventState.now.getTimezoneOffset() - activity.startTime.getTimezoneOffset()
 	);
 	const actualStartTime = $derived.by(() => {
-		const startTime = new Date(activity.startTime);
+		const startTime = new SvelteDate(activity.startTime);
 		startTime.setMinutes(activity.startTime.getMinutes() + (activity.delay ?? 0) + tzOffset);
 		return startTime;
 	});
@@ -49,6 +50,7 @@
 	let expandElement = $state(null) as HTMLDivElement | null;
 	let expandedWidth = $state(0);
 	const rightEdge = $derived.by(() => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 		viewportReactivityTrigger; // to trigger reactivity
 		if (!htmlElement) return 0;
 		return htmlElement.getBoundingClientRect().right;
@@ -69,7 +71,7 @@
 	></div>
 {/if}
 
-{#each alertTimes as [alertTime, minutes]}
+{#each alertTimes as [alertTime, minutes] (alertTime)}
 	<div
 		class="absolute top-0 h-full -translate-x-1/2"
 		style="left: {(alertTime / 60) * hourWidth}px; background-color: {color}; width: {Math.max(

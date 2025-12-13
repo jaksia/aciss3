@@ -1,5 +1,5 @@
-import type { ActivityAdditionalInfo, ActivityParticipantNeed, CustomSound } from '$lib/types/db';
-import { ConfigurableSounds, type ParticipantNeeds } from '$lib/types/enums';
+import type { ActivityAdditionalInfo, ActivityParticipantNeed } from '$lib/types/db';
+import { ConfigurableSounds } from '$lib/types/enums';
 import {
 	NumberSounds,
 	OtherSounds,

@@ -15,11 +15,11 @@
 	<form
 		action="?/login"
 		method="POST"
-		class="flex flex-col gap-3 items-center"
-		use:enhance={({ formElement, formData, action, cancel }) => {
+		class="flex flex-col items-center gap-3"
+		use:enhance={() => {
 			pending = true;
 
-			return async ({ result, update }) => {
+			return async ({ update }) => {
 				pending = false;
 				await update();
 			};

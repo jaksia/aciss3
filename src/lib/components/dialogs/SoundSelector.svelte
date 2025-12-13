@@ -100,7 +100,7 @@
 				<Icon icon="eos-icons:loading" class="size-16" />
 			</div>
 		{:then availableSounds}
-			{#each availableSounds.sounds as sound}
+			{#each availableSounds.sounds as sound (sound.id)}
 				<div class="sound-selector-block">
 					<strong>{sound.description}</strong>
 					<audio controls src={sound.path} class="w-full"></audio>

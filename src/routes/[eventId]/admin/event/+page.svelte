@@ -2,9 +2,8 @@
 	import { EventStyle } from '$lib/themes';
 	import type { EditableEvent } from '$lib/types/db';
 	import { DatePicker } from '@svelte-plugins/datepicker';
-	import { applyAction, enhance } from '$app/forms';
-	import type { PageProps } from './$types';
-	import { getContext, untrack } from 'svelte';
+	import { enhance } from '$app/forms';
+	import { getContext } from 'svelte';
 	import { EventState } from '$lib/state.svelte';
 	import type { AddAlert } from '$lib/types/other';
 
@@ -50,7 +49,7 @@
 			class="flex flex-1 flex-col gap-4"
 			method="POST"
 			action="?/edit"
-			use:enhance={({ formElement, formData, action, cancel }) => {
+			use:enhance={() => {
 				editPending = true;
 
 				return async ({ result, update }) => {
@@ -114,7 +113,7 @@
 					<em class="font-normal">(mení iba vzhľad)</em></label
 				>
 				<select id="style" name="style" bind:value={editableEvent.style} class=" w-full rounded">
-					{#each Object.entries(EventStyle) as [key, name]}
+					{#each Object.values(EventStyle) as name (name)}
 						<option value={name}>{name}</option>
 					{/each}
 				</select>
@@ -153,7 +152,8 @@
 					editableEvent.style === event.style &&
 					editableEvent.startDate === new Date(event.startDate).valueOf() &&
 					editableEvent.endDate === new Date(event.endDate).valueOf()) ||
-					editableEvent.endDate === null}>Uložiť zmeny</button
+					editableEvent.endDate === null ||
+					editPending}>Uložiť zmeny</button
 			>
 		</form>
 		<div class="flex flex-1 flex-col">
@@ -175,7 +175,7 @@
 				class="flex flex-col gap-4"
 				method="POST"
 				action="?/password"
-				use:enhance={({ formElement, formData, action, cancel }) => {
+				use:enhance={() => {
 					passwordPending = true;
 
 					return async ({ result, update }) => {
@@ -228,7 +228,9 @@
 						class=" mt-2 w-full rounded"
 					/>
 				</div>
-				<button type="submit" class="btn btn-warning mx-auto mt-4">Zmeniť heslo</button>
+				<button type="submit" disabled={passwordPending} class="btn btn-warning mx-auto mt-4"
+					>Zmeniť heslo</button
+				>
 			</form>
 		</div>
 	</div>

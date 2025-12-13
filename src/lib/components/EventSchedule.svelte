@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Activity, Event } from '$lib/types/db';
 	import type { GlobalBlockProps } from '$lib/types/other';
+	import { SvelteDate } from 'svelte/reactivity';
 	import ScheduleTable from './ScheduleTable.svelte';
 
 	const {
@@ -14,8 +15,8 @@
 	const days = $derived.by(() => {
 		if (!event) return [];
 		const days = [];
-		for (let d = new Date(event.startDate); d <= event.endDate; d.setDate(d.getDate() + 1)) {
-			days.push(new Date(d));
+		for (let d = new SvelteDate(event.startDate); d <= event.endDate; d.setDate(d.getDate() + 1)) {
+			days.push(new SvelteDate(d));
 		}
 		return days;
 	});

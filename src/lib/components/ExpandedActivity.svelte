@@ -6,6 +6,7 @@
 	import ActivityDelay from './ActivityDelay.svelte';
 	import { fly } from 'svelte/transition';
 	import type { EventState } from '$lib/state.svelte';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	const eventState = getContext<() => EventState>('getEventState')();
 	const openActivityEditor: (activityId: Activity['id']) => void = getContext('openActivityEditor');
@@ -32,12 +33,12 @@
 		eventState.now.getTimezoneOffset() - activity.startTime.getTimezoneOffset()
 	);
 	const actualStartTime = $derived.by(() => {
-		const startTime = new Date(activity.startTime);
+		const startTime = new SvelteDate(activity.startTime);
 		startTime.setMinutes(activity.startTime.getMinutes() + tzOffset);
 		return startTime;
 	});
 	const actualEndTime = $derived.by(() => {
-		const endTime = new Date(activity.endTime);
+		const endTime = new SvelteDate(activity.endTime);
 		endTime.setMinutes(activity.endTime.getMinutes() + tzOffset);
 		return endTime;
 	});
@@ -117,7 +118,7 @@
 			<div class="p-4">
 				<h5 class="mb-2 font-bold">Účastníci potrebujú:</h5>
 				<div class="text-sm">
-					{#each activity.participantNeeds as need, i}
+					{#each activity.participantNeeds as need, i ([need, i])}
 						{i > 0 ? ', ' : ''}
 						<span class="text-nowrap">{need.need}</span>
 					{/each}
@@ -128,7 +129,7 @@
 			<div class="p-4">
 				<h5 class="mb-2 font-bold">Dodatočné informácie:</h5>
 				<div class="text-sm">
-					{#each activity.additionalInfos as info, i}
+					{#each activity.additionalInfos as info, i ([info, i])}
 						{i > 0 ? ', ' : ''}
 						<span class="text-nowrap">{info.info}</span>
 					{/each}

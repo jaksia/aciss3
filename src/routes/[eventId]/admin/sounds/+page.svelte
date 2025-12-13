@@ -45,7 +45,7 @@
 			{event}
 			soundKey={soundSelectorKey}
 			onclose={() => (soundSelectorKey = null)}
-			setUpdatedEvent={(newEvent) => (eventState.setEvent(newEvent))}
+			setUpdatedEvent={(newEvent) => eventState.setEvent(newEvent)}
 		/>
 	</div>
 {/if}
@@ -54,7 +54,7 @@
 	<div class="flex flex-1 flex-col">
 		<h2 class="mb-3 text-3xl font-bold">Nastaviteľné zvuky</h2>
 		<div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
-			{#each Object.values(ConfigurableSounds) as soundKey}
+			{#each Object.values(ConfigurableSounds) as soundKey (soundKey)}
 				{@const soundData = configurableSoundsData[soundKey]}
 				<div class="mt-2 flex flex-col space-y-2">
 					<strong
@@ -88,10 +88,10 @@
 	<div class="flex flex-1 flex-col">
 		<h2 class="mb-3 text-3xl font-bold">Fixné zvuky</h2>
 		<div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
-			{#each fixedSoundSections as [sectionTitle, soundKeys]}
+			{#each fixedSoundSections as [sectionTitle, soundKeys] (sectionTitle)}
 				<div class="mt-2 flex flex-col space-y-2">
 					<h3 class="text-2xl font-semibold">{sectionTitle}</h3>
-					{#each soundKeys as soundKey}
+					{#each soundKeys as soundKey (soundKey)}
 						{@const sound = fixedSounds[soundKey as unknown as FixedSounds]}
 						<div class="flex-col items-center space-x-4">
 							{#if sound}

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import Icon from '@iconify/svelte';
 
 	const { data } = $props();
@@ -8,7 +9,7 @@
 	<h1 class="text-4xl font-bold">Dostupné akcie</h1>
 
 	<ul class="mt-8 divide-y rounded border">
-		{#each data.events as event}
+		{#each data.events as event (event.id)}
 			<li class="flex gap-10 p-4 first:rounded-t last:rounded-b">
 				<div class="flex flex-col justify-between">
 					<h4 class="text-xl font-medium">{event.name}</h4>
@@ -24,14 +25,14 @@
 				</div>
 				<div class="ml-auto flex flex-col gap-2">
 					<a
-						href="/{event.id}/admin"
+						href={resolve('/[eventId]/admin', { eventId: event.id.toString() })}
 						class="flex items-center gap-2 rounded-full bg-gray-200 px-2 py-0.5 hover:bg-gray-300"
 					>
 						<span>Admin</span>
 						<Icon icon="mdi:cog-outline" class="text-xl" />
 					</a>
 					<a
-						href="/{event.id}/visual"
+						href={resolve('/[eventId]/visual', { eventId: event.id.toString() })}
 						class="flex items-center gap-2 rounded-full bg-gray-200 px-2 py-0.5 hover:bg-gray-300"
 					>
 						<span>Visual</span>
@@ -41,7 +42,10 @@
 			</li>
 		{/each}
 		<li>
-			<a href="/create" class="flex items-center justify-center gap-2 p-4 hover:bg-gray-100">
+			<a
+				href={resolve('/create')}
+				class="flex items-center justify-center gap-2 p-4 hover:bg-gray-100"
+			>
 				<Icon icon="mdi:plus-circle-outline" class="text-2xl" />
 				<span class="text-lg font-medium">Vytvoriť novú akciu</span>
 			</a>

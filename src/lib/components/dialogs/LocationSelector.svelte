@@ -19,7 +19,7 @@
 	<div class="flex gap-2">
 		<select class="form-input grow rounded pr-8" bind:value={locationInput}>
 			<option value={null} disabled selected>-- Vyberte umiestnenie --</option>
-			{#each Object.entries(ActivityLocation) as [key, val]}
+			{#each Object.values(ActivityLocation) as val (val)}
 				<option value={val}>{val}</option>
 			{/each}
 		</select>

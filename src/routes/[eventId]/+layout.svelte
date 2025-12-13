@@ -8,6 +8,7 @@
 	import Icon from '@iconify/svelte';
 	import { fade, fly } from 'svelte/transition';
 	import { SvelteDate } from 'svelte/reactivity';
+	import { resolve } from '$app/paths';
 
 	const adminSection = $derived.by(() => {
 		return page.url.pathname.includes('/admin') && !page.url.pathname.includes('/login')
@@ -72,14 +73,15 @@
 		{#if adminSection !== null}
 			<div class="mr-4 flex grow items-center justify-end space-x-4">
 				<a
-					href="/{event.id}/admin/sounds"
+					href={resolve('/[eventId]/admin/sounds', { eventId: event.id.toString() })}
 					class={['navbar-btn text-lg', adminSection === '/sounds' && 'active']}>Zvuky</a
 				>
-				<a href="/{event.id}/admin" class={['navbar-btn text-lg', adminSection === '' && 'active']}
-					>Program</a
+				<a
+					href={resolve('/[eventId]/admin', { eventId: event.id.toString() })}
+					class={['navbar-btn text-lg', adminSection === '' && 'active']}>Program</a
 				>
 				<a
-					href="/{event.id}/admin/event"
+					href={resolve('/[eventId]/admin/event', { eventId: event.id.toString() })}
 					class={['navbar-btn text-lg', adminSection === '/event' && 'active']}>Nastavenia akcie</a
 				>
 			</div>
@@ -117,6 +119,7 @@
 				</button>
 			</div>
 			<div class="mt-1">
+				<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 				{@html alert.content}
 			</div>
 			<div class="-mx-4 mt-4">

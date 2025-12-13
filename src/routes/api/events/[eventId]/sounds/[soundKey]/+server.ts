@@ -70,7 +70,7 @@ export const PUT = async ({ request, params }) => {
 	return jsonResponse({ event: await getEvent(event.id) });
 };
 
-export const DELETE = async ({ request, params }) => {
+export const DELETE = async ({ params }) => {
 	const eventId = Number.parseInt(params.eventId);
 	if (isNaN(eventId)) {
 		return jsonError('Invalid event ID or event not found', 404);

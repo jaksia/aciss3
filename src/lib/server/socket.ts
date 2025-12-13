@@ -7,7 +7,7 @@ import type {
 } from '$lib/types/realtime';
 import { Server } from 'socket.io';
 import { getActivities, getActivity, getEvent } from './db/utils';
-import { getSession, validateSocketCode } from './session';
+import { validateSocketCode } from './session';
 
 let io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData> | null =
 	null;
@@ -84,10 +84,11 @@ export async function initSocket(port: number) {
 
 			if (updatedSessions.has(socket.data.session.id)) {
 				updatedSessions.delete(socket.data.session.id);
-				socket.data.session = await getSession(socket.data.session.id);
-				if (!socket.data.session) {
+				const { session } = await validateSocketCode(socket.data.session.socketCodeHash);
+				if (!session) {
 					return callback({ success: false, error: 'Session no longer valid' });
 				}
+				socket.data.session = session;
 			}
 
 			if (!socket.data.session.allowedEvents.some((e) => e.eventId === socket.data.activeEventId)) {

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Activity, EditableActivity, Event } from '$lib/types/db';
+	import type { EditableActivity, Event } from '$lib/types/db';
 	import ActivityForm from './parts/ActivityForm.svelte';
 
 	const {

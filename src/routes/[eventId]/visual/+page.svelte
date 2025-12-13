@@ -3,7 +3,7 @@
 	import { page } from '$app/state';
 	import type { EventState } from '$lib/state.svelte';
 	import { SoundProcessor } from '$lib/sounds/processor.svelte';
-	import type { Activity, Event } from '$lib/types/db';
+	import type { Activity } from '$lib/types/db';
 	import { ConfigurableSounds } from '$lib/types/enums';
 	import { getContext, untrack } from 'svelte';
 
@@ -118,13 +118,13 @@
 	>
 		<h3 class="p-4 text-2xl font-bold">Sound Alert Schedule</h3>
 		<div class="flex-1 overflow-y-auto p-4">
-			{#each soundProcessor._scheduledAlerts.entries() as [timestamp, alerts]}
+			{#each soundProcessor._scheduledAlerts.entries() as [timestamp, alerts] (timestamp)}
 				<div class="mb-4">
 					<div class="mb-2 font-bold">
 						{new Date(timestamp).toLocaleString('sk-SK')}
 					</div>
 					<ul class="list-inside list-disc">
-						{#each alerts as alert}
+						{#each alerts as alert (alert.id)}
 							<li>
 								{alert.id} - Sounds: <i>{alert.sounds.map((s) => s.content).join(' ')}</i>
 							</li>
@@ -139,9 +139,9 @@
 		class="fixed bottom-4 mx-[5%] flex h-28 w-9/10 flex-col border-2 border-green-500 text-green-500"
 	>
 		<div class="flex-1 overflow-y-auto p-4">
-			{#each soundProcessor._alertQueue as alert, index}
+			{#each soundProcessor._alertQueue as alert (alert.id)}
 				<div class="mb-0.5 border-b border-dotted border-green-300 pb-0.5">
-					{#each alert.sounds as sound}
+					{#each alert.sounds as sound (sound)}
 						<span class={['mr-1', sound.done && 'italic', sound.active && 'flashing']}
 							>{sound.content}</span
 						>

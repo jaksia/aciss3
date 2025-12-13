@@ -15,6 +15,7 @@
 	import { builder } from '$lib/sounds/builder';
 	import { ConfigurableSounds, type ActivityLocation } from '$lib/types/enums';
 	import LocationSelector from '$lib/components/dialogs/LocationSelector.svelte';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	const eventState = getContext<() => EventState>('getEventState')();
 	const addAlert = getContext<AddAlert>('addAlert');
@@ -123,7 +124,7 @@
 	let orphanedDialogShown = $state(false);
 	const orphanedActivities = $derived.by(() => {
 		if (!eventState.event) return [];
-		const eventEndDate = new Date(eventState.event.endDate).setUTCHours(23, 59, 59, 999);
+		const eventEndDate = new SvelteDate(eventState.event.endDate).setUTCHours(23, 59, 59, 999);
 		return eventState.activityList.filter((a) => {
 			return a.endTime < eventState.event.startDate || a.startTime.valueOf() > eventEndDate;
 		});
@@ -144,7 +145,7 @@
 	});
 
 	onMount(() => {
-		const endDate = new Date(event.endDate);
+		const endDate = new SvelteDate(event.endDate);
 		endDate.setHours(12, 0, 0, 0); // set to noon to avoid DST issues
 		const matches = event.startDate.getTimezoneOffset() === endDate.getTimezoneOffset();
 

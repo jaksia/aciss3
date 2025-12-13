@@ -1,6 +1,6 @@
 import { createOrUpdateActivity, eventExists } from '$lib/server/db/utils';
 import { triggerActivitiesUpdate } from '$lib/server/socket';
-import type { EditableActivity, EditableActivityServer } from '$lib/types/db';
+import type { EditableActivityServer } from '$lib/types/db';
 import { checkValidActivityData, jsonError, jsonResponse } from '$lib/utils';
 
 export const POST = async ({ params, request }) => {

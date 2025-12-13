@@ -5,6 +5,7 @@
 	import type { GlobalBlockProps } from '$lib/types/other';
 	import { getContext, onMount, tick } from 'svelte';
 	import type { EventState } from '$lib/state.svelte';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	const eventState = getContext<() => EventState>('getEventState')();
 
@@ -132,8 +133,8 @@
 
 	const tzBufferMinutes = 90; // 1.5 hours buffer around timezone change
 	const tzChangePoint = $derived.by(() => {
-		let beg = new Date(days[0]),
-			end = new Date(days[days.length - 1]);
+		let beg = new SvelteDate(days[0]),
+			end = new SvelteDate(days[days.length - 1]);
 		end.setHours(23, 59, 59, 999);
 		if (beg.getTimezoneOffset() === end.getTimezoneOffset()) {
 			return null;
@@ -141,7 +142,7 @@
 
 		// binary search for timezone change point
 		while (end.getTime() - beg.getTime() > 1000) {
-			const mid = new Date((beg.getTime() + end.getTime()) / 2);
+			const mid = new SvelteDate((beg.getTime() + end.getTime()) / 2);
 			if (beg.getTimezoneOffset() !== mid.getTimezoneOffset()) {
 				end = mid;
 			} else {
@@ -207,7 +208,7 @@
 				class="absolute top-1/2 right-0 -translate-y-1/2 font-mono">Time</span
 			>
 		</div>
-		{#each days as day, index}
+		{#each days as day, index ([day, index])}
 			<div
 				class="border-secondary/50 flex grow flex-col items-center border-b p-2"
 				bind:clientHeight={dayRowHeight[index]}
@@ -228,7 +229,8 @@
 	<div class="relative grow" bind:clientWidth={chartWidth} bind:this={chartElement}>
 		<div class="absolute" style="left: {-leftPx}px; top: 0;">
 			<div class="flex border-b" bind:clientHeight={timeRowHeight}>
-				{#each Array(24) as _, hour}
+				<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
+				{#each Array(24) as _, hour (hour)}
 					<div
 						class="border-secondary/50 relative border-l px-2 py-0.5 text-center font-mono"
 						style="width: {hourWidth}px; writing-mode: sideways-lr;"
@@ -237,12 +239,13 @@
 					</div>
 				{/each}
 			</div>
-			{#each days as _, dayIndex}
+			{#each days as day, dayIndex (day)}
 				<div
 					class="border-secondary/50 relative flex border-b"
 					style="height: {dayRowHeight[dayIndex] + 1}px;"
 				>
-					{#each Array(24) as _, hour}
+					<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
+					{#each Array(24) as _, hour (hour)}
 						<div class="border-secondary/50 border-l" style="width: {hourWidth}px;"></div>
 					{/each}
 					{#if dayIndex === nowDay}

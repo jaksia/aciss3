@@ -3,8 +3,8 @@ import postgres from 'postgres';
 import * as schema from './schema';
 
 export let db: PostgresJsDatabase<typeof schema> & {
-	$client: postgres.Sql<{}>;
-} = null as any;
+	$client: postgres.Sql;
+} = null as never;
 
 export function initDB(db_url: string) {
 	const client = postgres(db_url);

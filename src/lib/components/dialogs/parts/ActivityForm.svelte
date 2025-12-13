@@ -9,6 +9,7 @@
 	} from '$lib/types/enums';
 	import Icon from '@iconify/svelte';
 	import { getContext } from 'svelte';
+	import { SvelteDate } from 'svelte/reactivity';
 
 	const eventState = getContext<() => EventState>('getEventState')();
 
@@ -28,7 +29,7 @@
 
 	// svelte-ignore state_referenced_locally
 	const initDay = initialActivity
-		? new Date(initialActivity.startTime).setUTCHours(0, 0, 0, 0).valueOf()
+		? new SvelteDate(initialActivity.startTime).setHours(0, 0, 0, 0).valueOf()
 		: event.startDate.valueOf();
 
 	// svelte-ignore state_referenced_locally
@@ -39,11 +40,11 @@
 
 		day: initDay,
 		startTime: initialActivity
-			? new Date(initialActivity.startTime)
-			: new Date(new Date(initDay).setHours(8, 0, 0, 0)),
+			? new SvelteDate(initialActivity.startTime)
+			: new SvelteDate(new SvelteDate(initDay).setHours(8, 0, 0, 0)),
 		endTime: initialActivity
-			? new Date(initialActivity.endTime)
-			: new Date(new Date(initDay).setHours(9, 0, 0, 0)),
+			? new SvelteDate(initialActivity.endTime)
+			: new SvelteDate(new SvelteDate(initDay).setHours(9, 0, 0, 0)),
 
 		delay: initialActivity?.delay || null,
 		zvolavanie: initialActivity?.zvolavanie || true,
@@ -56,14 +57,14 @@
 	const days = $derived.by(() => {
 		if (!event) return [];
 		const days = [];
-		for (let d = new Date(event.startDate); d <= event.endDate; d.setDate(d.getDate() + 1)) {
-			days.push(new Date(d));
+		for (let d = new SvelteDate(event.startDate); d <= event.endDate; d.setDate(d.getDate() + 1)) {
+			days.push(new SvelteDate(d));
 		}
 		return days;
 	});
 
 	const tzOffset = $derived.by(() => {
-		const dayDate = new Date(editableActivity.day);
+		const dayDate = new SvelteDate(editableActivity.day);
 		dayDate.setUTCHours(12, 0, 0, 0); // set to noon to avoid DST issues
 		return eventState.now.getTimezoneOffset() - dayDate.getTimezoneOffset();
 	});
@@ -74,12 +75,12 @@
 		if (editableActivity.endTime <= editableActivity.startTime) isValid = false;
 
 		// check that day is within event dates
-		const dayDate = new Date(editableActivity.day);
-		const eventStartDate = new Date(event.startDate);
-		const eventEndDate = new Date(event.endDate);
-		dayDate.setUTCHours(0, 0, 0, 0);
-		eventStartDate.setUTCHours(0, 0, 0, 0);
-		eventEndDate.setUTCHours(0, 0, 0, 0);
+		const dayDate = new SvelteDate(editableActivity.day);
+		const eventStartDate = new SvelteDate(event.startDate);
+		const eventEndDate = new SvelteDate(event.endDate);
+		dayDate.setHours(0, 0, 0, 0);
+		eventStartDate.setHours(0, 0, 0, 0);
+		eventEndDate.setHours(0, 0, 0, 0);
 		if (dayDate < eventStartDate || dayDate > eventEndDate) isValid = false;
 
 		valid = isValid;
@@ -105,7 +106,7 @@
 			{disabled}
 			bind:value={editableActivity.type}
 		>
-			{#each Object.values(ActivityType) as type}
+			{#each Object.values(ActivityType) as type (type)}
 				<option value={type}>{type}</option>
 			{/each}
 		</select>
@@ -118,7 +119,7 @@
 			{disabled}
 			bind:value={editableActivity.location}
 		>
-			{#each Object.values(ActivityLocation) as location}
+			{#each Object.values(ActivityLocation) as location (location)}
 				<option value={location}>{location}</option>
 			{/each}
 		</select>
@@ -132,27 +133,23 @@
 			bind:value={
 				() => editableActivity.day,
 				(value: number) => {
-					const dayDate = new Date(value);
-					dayDate.setUTCHours(0, 0, 0, 0);
+					const dayDate = new SvelteDate(value);
+					dayDate.setHours(0, 0, 0, 0);
 					editableActivity.day = dayDate.valueOf();
-					editableActivity.startTime = new Date(
-						new Date(editableActivity.startTime).setFullYear(
-							dayDate.getFullYear(),
-							dayDate.getMonth(),
-							dayDate.getDate()
-						)
+					editableActivity.startTime.setFullYear(
+						dayDate.getFullYear(),
+						dayDate.getMonth(),
+						dayDate.getDate()
 					);
-					editableActivity.endTime = new Date(
-						new Date(editableActivity.endTime).setFullYear(
-							dayDate.getFullYear(),
-							dayDate.getMonth(),
-							dayDate.getDate()
-						)
+					editableActivity.endTime.setFullYear(
+						dayDate.getFullYear(),
+						dayDate.getMonth(),
+						dayDate.getDate()
 					);
 				}
 			}
 		>
-			{#each days as day, index}
+			{#each days as day, index (day)}
 				<option value={day.valueOf()}>
 					Deň {index} - {day.toLocaleDateString('sk-SK')}
 				</option>
@@ -169,7 +166,7 @@
 				{disabled}
 				bind:value={
 					() => {
-						const startTime = new Date(editableActivity.startTime);
+						const startTime = new SvelteDate(editableActivity.startTime);
 						startTime.setMinutes(
 							startTime.getMinutes() + tzOffset
 						); /* adjust for timezone offset */
@@ -179,9 +176,7 @@
 					},
 					(value: string) => {
 						const [hours, minutes] = value.split(':').map(Number);
-						const startTime = new Date(editableActivity.day);
-						startTime.setHours(hours, minutes - tzOffset, 0, 0);
-						editableActivity.startTime = startTime;
+						editableActivity.startTime.setHours(hours, minutes - tzOffset, 0, 0);
 					}
 				}
 			/>
@@ -193,7 +188,7 @@
 				{disabled}
 				bind:value={
 					() => {
-						const endTime = new Date(editableActivity.endTime);
+						const endTime = new SvelteDate(editableActivity.endTime);
 						endTime.setMinutes(endTime.getMinutes() + tzOffset); /* adjust for timezone offset */
 						const hours = endTime.getHours().toString().padStart(2, '0');
 						const minutes = endTime.getMinutes().toString().padStart(2, '0');
@@ -201,9 +196,7 @@
 					},
 					(value: string) => {
 						const [hours, minutes] = value.split(':').map(Number);
-						const endTime = new Date(editableActivity.day);
-						endTime.setHours(hours, minutes - tzOffset, 0, 0);
-						editableActivity.endTime = endTime;
+						editableActivity.endTime.setHours(hours, minutes - tzOffset, 0, 0);
 					}
 				}
 			/>
@@ -244,7 +237,7 @@
 		<p class="text-sm text-gray-600">V minútach pred začiatkom aktivity.</p>
 	</div>
 	<div class="ml-4 flex flex-wrap gap-2">
-		{#each editableActivity.alertTimes as alertTime, index}
+		{#each editableActivity.alertTimes as alertTime, index ([alertTime, index])}
 			<div class="flex items-center gap-2 rounded bg-gray-200 px-1.5 py-1">
 				<input
 					type="number"
@@ -278,7 +271,7 @@
 	<div class="p-4">
 		<h3 class="mb-2 text-lg font-semibold">Potreby účastníkov</h3>
 		<ul class="list-disc px-5">
-			{#each editableActivity.participantNeeds as need, index}
+			{#each editableActivity.participantNeeds as need, index ([need, index])}
 				<li>
 					<div class="flex w-full items-center">
 						<span>{need}</span>
@@ -305,7 +298,7 @@
 				}
 				class="form-select w-full rounded"
 			>
-				{#each Object.entries(ParticipantNeeds) as [key, need]}
+				{#each Object.values(ParticipantNeeds) as need (need)}
 					<option value={need} disabled={editableActivity.participantNeeds.includes(need)}
 						>{need}</option
 					>
@@ -316,7 +309,7 @@
 	<div>
 		<h3 class="mt-4 mb-2 text-lg font-semibold">Dodatočné informácie</h3>
 		<ul class="list-disc px-5">
-			{#each editableActivity.additionalInfos as info, index}
+			{#each editableActivity.additionalInfos as info, index ([info, index])}
 				<li>
 					<div class="flex w-full items-center">
 						<span>{info}</span>
@@ -343,7 +336,7 @@
 				}
 				class="form-select w-full rounded"
 			>
-				{#each Object.entries(AdditionalInfo) as [key, info]}
+				{#each Object.values(AdditionalInfo) as info (info)}
 					<option value={info} disabled={editableActivity.additionalInfos.includes(info)}
 						>{info}</option
 					>

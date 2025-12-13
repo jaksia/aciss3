@@ -1,590 +1,530 @@
 {
-  "id": "9bad97a8-3870-4e68-9d07-045a54b7ec9c",
-  "prevId": "ab71d723-ad40-47d8-92c9-372daa3017ee",
-  "version": "7",
-  "dialect": "postgresql",
-  "tables": {
-    "public.activities": {
-      "name": "activities",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "event_id": {
-          "name": "event_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "start_time": {
-          "name": "start_time",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "end_time": {
-          "name": "end_time",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "zvolavanie": {
-          "name": "zvolavanie",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        },
-        "delay": {
-          "name": "delay",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "type": {
-          "name": "type",
-          "type": "ActivityType",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "location": {
-          "name": "location",
-          "type": "ActivityLocation",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "activities_event_id_events_id_fk": {
-          "name": "activities_event_id_events_id_fk",
-          "tableFrom": "activities",
-          "tableTo": "events",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.activity_additional_infos": {
-      "name": "activity_additional_infos",
-      "schema": "",
-      "columns": {
-        "activity_id": {
-          "name": "activity_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "info": {
-          "name": "info",
-          "type": "AdditionalInfo",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "activity_additional_infos_activity_id_activities_id_fk": {
-          "name": "activity_additional_infos_activity_id_activities_id_fk",
-          "tableFrom": "activity_additional_infos",
-          "tableTo": "activities",
-          "columnsFrom": [
-            "activity_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "activity_additional_infos_activity_id_info_pk": {
-          "name": "activity_additional_infos_activity_id_info_pk",
-          "columns": [
-            "activity_id",
-            "info"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.activity_alert_times": {
-      "name": "activity_alert_times",
-      "schema": "",
-      "columns": {
-        "activity_id": {
-          "name": "activity_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "minutes": {
-          "name": "minutes",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "activity_alert_times_activity_id_activities_id_fk": {
-          "name": "activity_alert_times_activity_id_activities_id_fk",
-          "tableFrom": "activity_alert_times",
-          "tableTo": "activities",
-          "columnsFrom": [
-            "activity_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "activity_alert_times_activity_id_minutes_pk": {
-          "name": "activity_alert_times_activity_id_minutes_pk",
-          "columns": [
-            "activity_id",
-            "minutes"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.activity_participant_needs": {
-      "name": "activity_participant_needs",
-      "schema": "",
-      "columns": {
-        "activity_id": {
-          "name": "activity_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "need": {
-          "name": "need",
-          "type": "ParticipantNeeds",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "activity_participant_needs_activity_id_activities_id_fk": {
-          "name": "activity_participant_needs_activity_id_activities_id_fk",
-          "tableFrom": "activity_participant_needs",
-          "tableTo": "activities",
-          "columnsFrom": [
-            "activity_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "activity_participant_needs_activity_id_need_pk": {
-          "name": "activity_participant_needs_activity_id_need_pk",
-          "columns": [
-            "activity_id",
-            "need"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.custom_sounds": {
-      "name": "custom_sounds",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "key": {
-          "name": "key",
-          "type": "ConfigurableSounds",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "char(64)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "path": {
-          "name": "path",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "default": {
-          "name": "default",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.events": {
-      "name": "events",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "style": {
-          "name": "style",
-          "type": "EventStyles",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'default'"
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "start_date": {
-          "name": "start_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "end_date": {
-          "name": "end_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "location": {
-          "name": "location",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "admin_password_hash": {
-          "name": "admin_password_hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.events_to_sounds": {
-      "name": "events_to_sounds",
-      "schema": "",
-      "columns": {
-        "event_id": {
-          "name": "event_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "custom_sound_id": {
-          "name": "custom_sound_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "sound_key": {
-          "name": "sound_key",
-          "type": "ConfigurableSounds",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "events_to_sounds_event_id_events_id_fk": {
-          "name": "events_to_sounds_event_id_events_id_fk",
-          "tableFrom": "events_to_sounds",
-          "tableTo": "events",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "events_to_sounds_custom_sound_id_custom_sounds_id_fk": {
-          "name": "events_to_sounds_custom_sound_id_custom_sounds_id_fk",
-          "tableFrom": "events_to_sounds",
-          "tableTo": "custom_sounds",
-          "columnsFrom": [
-            "custom_sound_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "events_to_sounds_event_id_custom_sound_id_pk": {
-          "name": "events_to_sounds_event_id_custom_sound_id_pk",
-          "columns": [
-            "event_id",
-            "custom_sound_id"
-          ]
-        }
-      },
-      "uniqueConstraints": {
-        "one_sound_key_per_event": {
-          "name": "one_sound_key_per_event",
-          "nullsNotDistinct": false,
-          "columns": [
-            "event_id",
-            "sound_key"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.session": {
-      "name": "session",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "expires_at": {
-          "name": "expires_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.session_allowed_events": {
-      "name": "session_allowed_events",
-      "schema": "",
-      "columns": {
-        "session_id": {
-          "name": "session_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "event_id": {
-          "name": "event_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "expires_at": {
-          "name": "expires_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "session_allowed_events_session_id_session_id_fk": {
-          "name": "session_allowed_events_session_id_session_id_fk",
-          "tableFrom": "session_allowed_events",
-          "tableTo": "session",
-          "columnsFrom": [
-            "session_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "session_allowed_events_event_id_events_id_fk": {
-          "name": "session_allowed_events_event_id_events_id_fk",
-          "tableFrom": "session_allowed_events",
-          "tableTo": "events",
-          "columnsFrom": [
-            "event_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "session_allowed_events_session_id_event_id_pk": {
-          "name": "session_allowed_events_session_id_event_id_pk",
-          "columns": [
-            "session_id",
-            "event_id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    }
-  },
-  "enums": {
-    "public.ActivityLocation": {
-      "name": "ActivityLocation",
-      "schema": "public",
-      "values": [
-        "Jedáleň",
-        "Pred hl. vchodom",
-        "Telocvičňa",
-        "Spodné poschodie",
-        "Spoločenská miestnosť",
-        "Vonku"
-      ]
-    },
-    "public.ActivityType": {
-      "name": "ActivityType",
-      "schema": "public",
-      "values": [
-        "Budíček",
-        "Rozcvička",
-        "Večierka",
-        "Raňajky",
-        "Obed",
-        "Večera",
-        "Hra na dnu",
-        "Hra vonku",
-        "Športy",
-        "Prednášky",
-        "Semináre",
-        "Vyhodnotenie"
-      ]
-    },
-    "public.AdditionalInfo": {
-      "name": "AdditionalInfo",
-      "schema": "public",
-      "values": [
-        "Prezúvanie",
-        "Striedanie kroniky/služ. dňa",
-        "Upracte po sebe",
-        "Kľudový režim"
-      ]
-    },
-    "public.ConfigurableSounds": {
-      "name": "ConfigurableSounds",
-      "schema": "public",
-      "values": [
-        "alert_start",
-        "additional_jingle",
-        "alert_end",
-        "delay_start",
-        "delay_end",
-        "zvolavacka",
-        "vecernicek"
-      ]
-    },
-    "public.EventStyles": {
-      "name": "EventStyles",
-      "schema": "public",
-      "values": [
-        "default",
-        "Pikomat",
-        "Pikofyz",
-        "Kockatý víkend"
-      ]
-    },
-    "public.ParticipantNeeds": {
-      "name": "ParticipantNeeds",
-      "schema": "public",
-      "values": [
-        "Pero na osobu",
-        "Papier na osobu",
-        "Šatka na osobu",
-        "Pero na družinku",
-        "Papier na družinku",
-        "Šatka na družinku",
-        "Fyzická sila",
-        "Mentálna sila",
-        "Teplé oblečenie",
-        "Nepremokavé oblečenie",
-        "Športové oblečenie",
-        "Oblečenie na zničenie"
-      ]
-    }
-  },
-  "schemas": {},
-  "sequences": {},
-  "roles": {},
-  "policies": {},
-  "views": {},
-  "_meta": {
-    "columns": {},
-    "schemas": {},
-    "tables": {}
-  }
+	"id": "9bad97a8-3870-4e68-9d07-045a54b7ec9c",
+	"prevId": "ab71d723-ad40-47d8-92c9-372daa3017ee",
+	"version": "7",
+	"dialect": "postgresql",
+	"tables": {
+		"public.activities": {
+			"name": "activities",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"event_id": {
+					"name": "event_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"name": {
+					"name": "name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"start_time": {
+					"name": "start_time",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"end_time": {
+					"name": "end_time",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"zvolavanie": {
+					"name": "zvolavanie",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": true
+				},
+				"delay": {
+					"name": "delay",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"type": {
+					"name": "type",
+					"type": "ActivityType",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"location": {
+					"name": "location",
+					"type": "ActivityLocation",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"activities_event_id_events_id_fk": {
+					"name": "activities_event_id_events_id_fk",
+					"tableFrom": "activities",
+					"tableTo": "events",
+					"columnsFrom": ["event_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.activity_additional_infos": {
+			"name": "activity_additional_infos",
+			"schema": "",
+			"columns": {
+				"activity_id": {
+					"name": "activity_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"info": {
+					"name": "info",
+					"type": "AdditionalInfo",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"activity_additional_infos_activity_id_activities_id_fk": {
+					"name": "activity_additional_infos_activity_id_activities_id_fk",
+					"tableFrom": "activity_additional_infos",
+					"tableTo": "activities",
+					"columnsFrom": ["activity_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {
+				"activity_additional_infos_activity_id_info_pk": {
+					"name": "activity_additional_infos_activity_id_info_pk",
+					"columns": ["activity_id", "info"]
+				}
+			},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.activity_alert_times": {
+			"name": "activity_alert_times",
+			"schema": "",
+			"columns": {
+				"activity_id": {
+					"name": "activity_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"minutes": {
+					"name": "minutes",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"activity_alert_times_activity_id_activities_id_fk": {
+					"name": "activity_alert_times_activity_id_activities_id_fk",
+					"tableFrom": "activity_alert_times",
+					"tableTo": "activities",
+					"columnsFrom": ["activity_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {
+				"activity_alert_times_activity_id_minutes_pk": {
+					"name": "activity_alert_times_activity_id_minutes_pk",
+					"columns": ["activity_id", "minutes"]
+				}
+			},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.activity_participant_needs": {
+			"name": "activity_participant_needs",
+			"schema": "",
+			"columns": {
+				"activity_id": {
+					"name": "activity_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"need": {
+					"name": "need",
+					"type": "ParticipantNeeds",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"activity_participant_needs_activity_id_activities_id_fk": {
+					"name": "activity_participant_needs_activity_id_activities_id_fk",
+					"tableFrom": "activity_participant_needs",
+					"tableTo": "activities",
+					"columnsFrom": ["activity_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {
+				"activity_participant_needs_activity_id_need_pk": {
+					"name": "activity_participant_needs_activity_id_need_pk",
+					"columns": ["activity_id", "need"]
+				}
+			},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.custom_sounds": {
+			"name": "custom_sounds",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"key": {
+					"name": "key",
+					"type": "ConfigurableSounds",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"description": {
+					"name": "description",
+					"type": "char(64)",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"path": {
+					"name": "path",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"default": {
+					"name": "default",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": false
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.events": {
+			"name": "events",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "serial",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"style": {
+					"name": "style",
+					"type": "EventStyles",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "'default'"
+				},
+				"name": {
+					"name": "name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"start_date": {
+					"name": "start_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"end_date": {
+					"name": "end_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"location": {
+					"name": "location",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"admin_password_hash": {
+					"name": "admin_password_hash",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.events_to_sounds": {
+			"name": "events_to_sounds",
+			"schema": "",
+			"columns": {
+				"event_id": {
+					"name": "event_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"custom_sound_id": {
+					"name": "custom_sound_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"sound_key": {
+					"name": "sound_key",
+					"type": "ConfigurableSounds",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"events_to_sounds_event_id_events_id_fk": {
+					"name": "events_to_sounds_event_id_events_id_fk",
+					"tableFrom": "events_to_sounds",
+					"tableTo": "events",
+					"columnsFrom": ["event_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"events_to_sounds_custom_sound_id_custom_sounds_id_fk": {
+					"name": "events_to_sounds_custom_sound_id_custom_sounds_id_fk",
+					"tableFrom": "events_to_sounds",
+					"tableTo": "custom_sounds",
+					"columnsFrom": ["custom_sound_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {
+				"events_to_sounds_event_id_custom_sound_id_pk": {
+					"name": "events_to_sounds_event_id_custom_sound_id_pk",
+					"columns": ["event_id", "custom_sound_id"]
+				}
+			},
+			"uniqueConstraints": {
+				"one_sound_key_per_event": {
+					"name": "one_sound_key_per_event",
+					"nullsNotDistinct": false,
+					"columns": ["event_id", "sound_key"]
+				}
+			},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.session": {
+			"name": "session",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"expires_at": {
+					"name": "expires_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.session_allowed_events": {
+			"name": "session_allowed_events",
+			"schema": "",
+			"columns": {
+				"session_id": {
+					"name": "session_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"event_id": {
+					"name": "event_id",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"expires_at": {
+					"name": "expires_at",
+					"type": "timestamp",
+					"primaryKey": false,
+					"notNull": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"session_allowed_events_session_id_session_id_fk": {
+					"name": "session_allowed_events_session_id_session_id_fk",
+					"tableFrom": "session_allowed_events",
+					"tableTo": "session",
+					"columnsFrom": ["session_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"session_allowed_events_event_id_events_id_fk": {
+					"name": "session_allowed_events_event_id_events_id_fk",
+					"tableFrom": "session_allowed_events",
+					"tableTo": "events",
+					"columnsFrom": ["event_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {
+				"session_allowed_events_session_id_event_id_pk": {
+					"name": "session_allowed_events_session_id_event_id_pk",
+					"columns": ["session_id", "event_id"]
+				}
+			},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		}
+	},
+	"enums": {
+		"public.ActivityLocation": {
+			"name": "ActivityLocation",
+			"schema": "public",
+			"values": [
+				"Jedáleň",
+				"Pred hl. vchodom",
+				"Telocvičňa",
+				"Spodné poschodie",
+				"Spoločenská miestnosť",
+				"Vonku"
+			]
+		},
+		"public.ActivityType": {
+			"name": "ActivityType",
+			"schema": "public",
+			"values": [
+				"Budíček",
+				"Rozcvička",
+				"Večierka",
+				"Raňajky",
+				"Obed",
+				"Večera",
+				"Hra na dnu",
+				"Hra vonku",
+				"Športy",
+				"Prednášky",
+				"Semináre",
+				"Vyhodnotenie"
+			]
+		},
+		"public.AdditionalInfo": {
+			"name": "AdditionalInfo",
+			"schema": "public",
+			"values": ["Prezúvanie", "Striedanie kroniky/služ. dňa", "Upracte po sebe", "Kľudový režim"]
+		},
+		"public.ConfigurableSounds": {
+			"name": "ConfigurableSounds",
+			"schema": "public",
+			"values": [
+				"alert_start",
+				"additional_jingle",
+				"alert_end",
+				"delay_start",
+				"delay_end",
+				"zvolavacka",
+				"vecernicek"
+			]
+		},
+		"public.EventStyles": {
+			"name": "EventStyles",
+			"schema": "public",
+			"values": ["default", "Pikomat", "Pikofyz", "Kockatý víkend"]
+		},
+		"public.ParticipantNeeds": {
+			"name": "ParticipantNeeds",
+			"schema": "public",
+			"values": [
+				"Pero na osobu",
+				"Papier na osobu",
+				"Šatka na osobu",
+				"Pero na družinku",
+				"Papier na družinku",
+				"Šatka na družinku",
+				"Fyzická sila",
+				"Mentálna sila",
+				"Teplé oblečenie",
+				"Nepremokavé oblečenie",
+				"Športové oblečenie",
+				"Oblečenie na zničenie"
+			]
+		}
+	},
+	"schemas": {},
+	"sequences": {},
+	"roles": {},
+	"policies": {},
+	"views": {},
+	"_meta": {
+		"columns": {},
+		"schemas": {},
+		"tables": {}
+	}
 }
