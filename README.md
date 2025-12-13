@@ -26,6 +26,38 @@ Preto som vyrobil novú verzia AČISSu a to v3. Oproti pôvodnej verzii obsahuje
 
 ## Používanie
 
+Vo všeobecnosti odporúčam používať lokálne hostovanú verziu, ale verejná vie slúžiť ako dobrá záloha alebo ak nie je čas/zariadenie na nastavenie serveru.
+
+V oboch prípadoch sa v ľavom dolnom rohu nachádza indikátor stacu spojenia. Ak je zelený, AČISS je pripojený k serveru a všetky zmeny sa budú okamžite prejavovať. Ak je oranžový, spojenie je aktuálne prerušené. AČISS sa bude pokúšať pripojiť znova a akonáhle sa to podarí, všetky vymeškané zmeny by sa mali prejaviť.
+
+### Verejne hostovaná verzia
+
+_Zatiaľ nie je dostupná._
+
+- **Výhody:**
+  - Stačí otvoriť stránku a vytvoriť akciu
+  - Nevyžaduje hostovanie AČISS serveru
+  - Môžeš využiť zvuky z iných akcií
+- **Nevýhody:**
+  - Vyžaduje aktívny internet
+    - AČISS by mal zvládať krátkodobé výpadky alebo nestabilný internet, ale je to neideálne
+  - Môže reagovať o niečo pomalšie na zmeny
+
+### Lokálne hostovaná verzia
+
+- **Výhody:**
+  - Funguje nezávisiac od dostupnosti/kvality internetu
+  - O čosi rýchlejšie ovládanie a lepší výkon
+- **Nevýhody:**
+  - Vyžaduje PC na ktorom bude bežať server AČISSu
+
+#### Ako použiť
+
+1. Zapni server podľa inštrukcií v sekcii [Spúšťanie](#spúšťanie)
+2. Otvor v prehliadači `http://localhost/` (alebo IP počítača, kde beží AČISS)
+3. Vytvor novú akciu, nastav jej zvuky a pridaj aktivity
+   - Netreba na akcii používať heslo (za predpokladu, že k wifi nemajú prístup účastníci)
+
 ## Spúšťanie
 
 Najjednoduchší spôsob ako spustiť AČISS je pomocou `docker`u.
