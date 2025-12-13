@@ -11,6 +11,9 @@ import { SvelteMap } from 'svelte/reactivity';
 import { fixedSounds } from './fixed';
 import { configurableSoundsData, getConfigurableSoundRoot } from './configurable';
 import { builder as builder, SoundBuilder } from './builder';
+import { logFunctions } from '$lib/utils';
+
+const log = logFunctions('SoundProcessor');
 
 const requiredConfigurableSounds: ConfigurableSounds[] = [
 	ConfigurableSounds.ALERT_START,
@@ -20,15 +23,28 @@ const requiredConfigurableSounds: ConfigurableSounds[] = [
 const configurableSoundsRoot = getConfigurableSoundRoot();
 
 export class SoundProcessor {
-	private volume: number = 1.0;
-	private eventSounds: Map<ConfigurableSounds, Sound> = new Map();
+	private eventSounds: Map<ConfigurableSounds, Sound> = new SvelteMap();
 	private validConfiguration = $state(true);
-	public _validConfiguration = $derived(this.validConfiguration);
 	private audioContext: AudioContext | null = null;
 
 	// cached by sound path
-	private soundCache: Map<string, AudioBuffer> = new Map();
-	private loadingSounds: Map<string, Promise<AudioBuffer>> = new Map();
+	private soundCache: Map<string, AudioBuffer> = new SvelteMap();
+	private loadingSounds: Map<string, Promise<AudioBuffer>> = new SvelteMap();
+
+	private isPlaying: boolean = $state(false);
+	private alertQueue: CompiledAlert[] = $state([]);
+	private currentAlert: CompiledAlert | null = $state(null);
+	private currentSound: CompiledSound | null = $state(null);
+	private scheduledAlerts: Map<number, CompiledAlert[]> = new SvelteMap();
+
+	private alertSchedulerTimeout: number | null = null;
+
+	public _validConfiguration = $derived(this.validConfiguration);
+	public _isPlaying = $derived(this.isPlaying);
+	public _alertQueue = $derived(this.alertQueue);
+	public _currentAlert = $derived(this.currentAlert);
+	public _currentSound = $derived(this.currentSound);
+	public _scheduledAlerts = $derived(this.scheduledAlerts);
 
 	constructor(event: Event) {
 		// Load configurable sounds from event
@@ -45,18 +61,38 @@ export class SoundProcessor {
 			}
 		});
 
-		// TODO: Optimize, dont check every second forever
-		setInterval(() => this.checkScheduledAlerts(), 1000);
+		$effect(() => {
+			if (this.alertSchedulerTimeout) {
+				clearTimeout(this.alertSchedulerTimeout);
+				this.alertSchedulerTimeout = null;
+			}
+			if (this.scheduledAlerts.size === 0) return;
+
+			const nextAlertTime = Math.min(...Array.from(this.scheduledAlerts.keys()));
+			const delay = Math.max(0, nextAlertTime - Date.now());
+
+			this.alertSchedulerTimeout = window.setTimeout(() => {
+				this.checkScheduledAlerts();
+			}, delay);
+		});
+
+		if (import.meta.hot) {
+			import.meta.hot.on('vite:beforeUpdate', () => {
+				log.info('HMR update detected, stopping playback and clearing queue');
+				this.stopAndClear();
+				this.audioContext?.close();
+				this.audioContext = null;
+				if (this.alertSchedulerTimeout) {
+					clearTimeout(this.alertSchedulerTimeout);
+					this.alertSchedulerTimeout = null;
+				}
+			});
+		}
 	}
 
 	public setAudioContext(audioContext: AudioContext) {
+		log.debug('Audio context set');
 		this.audioContext = audioContext;
-	}
-
-	public preloadSounds() {
-		if (!this.audioContext) throw new Error('Audio context must be set before preloading sounds');
-		(Object.values(fixedSounds) as Sound[]).forEach((sound) => this.loadSound(sound.path, false));
-		this.eventSounds.forEach((sound) => this.loadSound(sound.path, true));
 	}
 
 	private async fetchAndDecodeSound(path: string, isConfigurable: boolean) {
@@ -84,15 +120,22 @@ export class SoundProcessor {
 		return loadPromise;
 	}
 
-	private isPlaying: boolean = $state(false);
-	private alertQueue: CompiledAlert[] = $state([]);
-	private currentAlert: CompiledAlert | null = $state(null);
-	private currentSound: CompiledSound | null = $state(null);
+	public preloadSounds() {
+		if (!this.audioContext) throw new Error('Audio context must be set before preloading sounds');
+		(Object.values(fixedSounds) as Sound[]).forEach((sound) => this.loadSound(sound.path, false));
+		this.eventSounds.forEach((sound) => this.loadSound(sound.path, true));
+	}
 
-	public _isPlaying = $derived(this.isPlaying);
-	public _alertQueue = $derived(this.alertQueue);
-	public _currentAlert = $derived(this.currentAlert);
-	public _currentSound = $derived(this.currentSound);
+	public playSounds(name: string, sounds: SoundBuilder) {
+		const alert: CompiledAlert = {
+			activityId: null,
+			id: `${name}-${Math.random().toString(36).substring(2, 5)}`,
+			sounds: sounds.build(this.eventSounds, this.loadSound.bind(this)),
+			active: false
+		};
+		this.addAlert(alert);
+		this.startPlaying();
+	}
 
 	private async playAlert(alert: CompiledAlert) {
 		if (!this.audioContext) return;
@@ -148,6 +191,14 @@ export class SoundProcessor {
 		this.isPlaying = false;
 	}
 
+	private clearQueue() {
+		this.alertQueue = [];
+	}
+
+	public clearSchedule() {
+		this.scheduledAlerts.clear();
+	}
+
 	private stopPlaying() {
 		this.isPlaying = false;
 		if (this.currentSound && this.currentSound.source) {
@@ -163,24 +214,9 @@ export class SoundProcessor {
 		}
 	}
 
-	private clearQueue() {
-		this.alertQueue = [];
-	}
-
 	public stopAndClear() {
 		this.stopPlaying();
 		this.clearQueue();
-	}
-
-	public playSounds(name: string, sounds: SoundBuilder) {
-		const alert: CompiledAlert = {
-			activityId: null,
-			id: `${name}-${Math.random().toString(36).substring(2, 5)}`,
-			sounds: sounds.build(this.eventSounds, this.loadSound.bind(this)),
-			active: false
-		};
-		this.addAlert(alert);
-		this.startPlaying();
 	}
 
 	public addAlert(alert: CompiledAlert) {
@@ -247,7 +283,9 @@ export class SoundProcessor {
 					true
 				);
 				zvolavanieTime -= zvolavanieBuffer.duration * 1000;
-			} catch {}
+			} catch (e) {
+				log.warn('Failed to load zvolavanie sound for activity', activity.id, e);
+			}
 
 			compiledAlerts[zvolavanieTime] = {
 				activityId: activity.id,
@@ -260,9 +298,6 @@ export class SoundProcessor {
 		return compiledAlerts;
 	}
 
-	private scheduledAlerts: Map<number, CompiledAlert[]> = new SvelteMap();
-	public _scheduledAlerts = $derived(this.scheduledAlerts);
-
 	public scheduleAlerts(timedAlerts: TimedAlerts) {
 		const discardTime = Date.now() - 5 * 1000; // 5 seconds grace period
 		for (const [time, alert] of Object.entries(timedAlerts)) {
@@ -273,10 +308,6 @@ export class SoundProcessor {
 			}
 			this.scheduledAlerts.get(alertTime)!.push(alert);
 		}
-	}
-
-	public clearSchedule() {
-		this.scheduledAlerts.clear();
 	}
 
 	public async compileAndScheduleActivity(activity: Activity) {

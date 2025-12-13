@@ -9,25 +9,40 @@ import type {
 import type { SoundProcessor } from '$lib/sounds/processor.svelte';
 import { builder } from '$lib/sounds/builder';
 import { ConfigurableSounds } from '$lib/types/enums';
-import { SvelteDate } from 'svelte/reactivity';
+import { SvelteDate, SvelteMap } from 'svelte/reactivity';
 import { env } from '$env/dynamic/public';
 import type { AddAlert } from './types/other';
+import { logFunctions } from './utils';
 
 const socketIOHost = env.PUBLIC_SOCKETIO_HOST;
+
+const log = logFunctions('EventState');
 
 export class EventState {
 	public now = $state(new SvelteDate());
 
 	public event: Event;
-	public activities: Activity[];
+	public activities: Map<Activity['id'], Activity> = new SvelteMap();
+	public activityList: Activity[] = $derived(Array.from(this.activities.values()));
 	public socketActive: boolean;
 
 	private soundProcessor: SoundProcessor | null = null;
 	private addAlert: AddAlert | null = null;
 
-	constructor(event: Event, activities: Activity[]) {
+	private socket: Socket<ServerToClientEvents, ClientToServerEvents> | null = null;
+	private initializing: Promise<void> | null = null;
+	private socketConnected = $state(false);
+	private firstConnect = true;
+
+	private listeningEventId: Event['id'] | null = $state(null);
+	private playerControlCode: string | null = null;
+
+	constructor(event: Event, activities: Record<Activity['id'], Activity>) {
 		this.event = $state(this.parseJSONEvent(event));
-		this.activities = $state(activities.map(this.parseJSONActivity));
+		Object.values(activities).forEach((a) => {
+			const activity = this.parseJSONActivity(a);
+			this.activities.set(activity.id, activity);
+		});
 
 		if (browser) {
 			this.connectSocketIO();
@@ -36,28 +51,39 @@ export class EventState {
 		$effect(() => {
 			if (!browser || !this.socket) return;
 			if (this.listeningEventId !== this.event.id) {
+				log.debug('Event ID changed, connecting to event:', this.event.id);
 				this.connectToEvent(this.event.id);
 			}
 		});
 
 		$effect(() => {
-			if (!this.socket || !this.soundProcessor) return;
+			// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+			this.activityList;
+			if (!this.soundProcessor) return;
 
-			this.soundProcessor.clearSchedule();
-			this.activities.forEach((a) => this.soundProcessor!.compileAndScheduleActivity(a));
+			log.debug('Activities changed, updating sound processor schedule');
+
+			this.soundProcessor!.clearSchedule();
+			this.activityList.forEach((a) => this.soundProcessor!.compileAndScheduleActivity(a));
 		});
 
 		this.socketActive = $derived(this.socketConnected && this.listeningEventId === this.event.id);
+
+		setInterval(() => {
+			this.now = new SvelteDate();
+		}, 20);
+
+		if (import.meta.hot) {
+			import.meta.hot.on('vite:beforeUpdate', () => {
+				log.info('HMR update detected, disconnecting Socket.IO, detaching sound processor');
+				this.socket?.disconnect();
+				this.socket = null;
+				this.soundProcessor = null;
+				this.listeningEventId = null;
+				this.socketConnected = false;
+			});
+		}
 	}
-
-	private socket: Socket<ServerToClientEvents, ClientToServerEvents> | null = null;
-	private socketConnected = $state(false);
-
-	private firstConnect = true;
-	private playerControlCode: string | null = null;
-
-	private listeningEventId: Event['id'] | null = $state(null);
-	private initializing: Promise<void> | null = null;
 
 	private async connectSocketIO() {
 		if (!browser) throw new Error('Socket.IO can only be initialized in the browser');
@@ -70,18 +96,18 @@ export class EventState {
 		this.socket = io(socketIOHost);
 
 		this.socket.on('connect', () => {
-			console.log('Socket.IO connected:', this.socket?.id);
+			log.debug('Socket.IO connected:', this.socket?.id);
 			this.connectToEvent(this.event.id, this.firstConnect);
 			this.firstConnect = false;
 			this.socketConnected = true;
 		});
 
 		this.socket.onAny((event, ...args) => {
-			console.debug(`Socket.IO event: ${event}`, ...args);
+			log.debug(`Socket.IO event: ${event}`, ...args);
 		});
 
 		this.socket.on('disconnect', () => {
-			console.log('Socket.IO disconnected');
+			log.debug('Socket.IO disconnected');
 			this.socketConnected = false;
 		});
 
@@ -99,12 +125,7 @@ export class EventState {
 				return;
 			}
 			const newActivity = this.parseJSONActivity(update.activity);
-			const index = this.activities.findIndex((a) => a.id === update.activityId);
-			if (index !== -1) {
-				this.activities[index] = newActivity;
-			} else {
-				this.activities.push(newActivity);
-			}
+			this.activities.set(newActivity.id, newActivity);
 		});
 
 		this.socket.on('activityDelete', (update) => {
@@ -112,7 +133,7 @@ export class EventState {
 				this.connectToEvent(this.event.id);
 				return;
 			}
-			this.activities = this.activities.filter((a) => a.id !== update.activityId);
+			this.activities.delete(update.activityId);
 		});
 
 		this.socket.on('activityListUpdate', (update) => {
@@ -120,7 +141,11 @@ export class EventState {
 				this.connectToEvent(this.event.id);
 				return;
 			}
-			this.activities = update.activities.map(this.parseJSONActivity);
+			this.activities.clear();
+			Object.values(update.activities).forEach((a) => {
+				const activity = this.parseJSONActivity(a);
+				this.activities.set(activity.id, activity);
+			});
 		});
 
 		if (this.soundProcessor) {
@@ -138,7 +163,7 @@ export class EventState {
 		if (!skipCheck) {
 			const activeEventId = await this.socket.emitWithAck('checkActiveEvent');
 			if (activeEventId === eventId) {
-				console.log('Already connected to event:', eventId);
+				log.debug('Already connected to event:', eventId);
 				this.listeningEventId = eventId;
 				return;
 			}
@@ -146,12 +171,16 @@ export class EventState {
 
 		const response = await this.socket.emitWithAck('joinEvent', eventId);
 		if (!response.success) {
-			console.error('Failed to join event:', response.error);
+			log.error('Failed to join event:', response.error);
 			return;
 		}
 		this.event = this.parseJSONEvent(response.event);
-		this.activities = response.activities.map(this.parseJSONActivity);
-		console.log('Connected to event:', eventId);
+		this.activities.clear();
+		Object.values(response.activities).forEach((a) => {
+			const activity = this.parseJSONActivity(a);
+			this.activities.set(activity.id, activity);
+		});
+		log.debug('Connected to event:', eventId);
 		this.listeningEventId = eventId;
 	}
 
@@ -178,10 +207,12 @@ export class EventState {
 	}
 
 	private attachSoundEvents() {
-		console.log('Attaching sound processor events');
-		if (!this.socket || !this.soundProcessor) return;
+		if (!this.socket || !this.soundProcessor) {
+			log.debug('Cannot attach sound events: Socket.IO or SoundProcessor not initialized');
+			return;
+		}
 
-		console.log('Attaching sound events to socket');
+		log.debug('Attaching sound events to socket');
 
 		this.socket.on('playerControl', (data) => {
 			switch (data.type) {
@@ -252,15 +283,10 @@ export class EventState {
 
 	public setActivity(id: number, activityData: Activity | null) {
 		if (activityData == null) {
-			this.activities = this.activities.filter((a) => a.id !== id);
+			this.activities.delete(id);
 		} else {
 			const activity = this.parseJSONActivity(activityData);
-			const index = this.activities.findIndex((a) => a.id === id);
-			if (index !== -1) {
-				this.activities[index] = activity;
-			} else {
-				this.activities.push(activity);
-			}
+			this.activities.set(activity.id, activity);
 		}
 	}
 }

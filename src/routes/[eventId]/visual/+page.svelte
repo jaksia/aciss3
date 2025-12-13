@@ -5,7 +5,7 @@
 	import { SoundProcessor } from '$lib/sounds/processor.svelte';
 	import type { Activity, Event } from '$lib/types/db';
 	import { ConfigurableSounds } from '$lib/types/enums';
-	import { getContext } from 'svelte';
+	import { getContext, untrack } from 'svelte';
 
 	const debug = dev || page.url.searchParams.has('debug');
 
@@ -13,7 +13,22 @@
 
 	const soundProcessor = new SoundProcessor(eventState.event);
 
-	let nextActivity: Activity | null = $state(null);
+	const nextActivity: Activity | null = $derived.by(() => {
+		let activities = eventState.activityList.sort(
+			(a, b) =>
+				a.startTime.valueOf() +
+				(a.delay ?? 0) * 60000 -
+				(b.startTime.valueOf() + (b.delay ?? 0) * 60000)
+		);
+
+		const now = untrack(() => eventState.now);
+		activities = activities.filter((a) => a.startTime.toDateString() === now.toDateString());
+		const upcoming = activities.find((a) => {
+			const activityTime = new Date(a.startTime.valueOf() + (a.delay ?? 0) * 60000);
+			return activityTime > now;
+		});
+		return upcoming ?? null;
+	});
 
 	const activityStartTime = $derived.by(() => {
 		if (!nextActivity) return null;
@@ -27,22 +42,6 @@
 		soundProcessor.setAudioContext(new AudioContext());
 		soundProcessor.preloadSounds();
 		eventState.attachSoundProcessor(soundProcessor);
-
-		setInterval(() => {
-			let act = eventState.activities.sort(
-				(a, b) =>
-					a.startTime.valueOf() +
-					(a.delay ?? 0) * 60000 -
-					(b.startTime.valueOf() + (b.delay ?? 0) * 60000)
-			);
-			const now = new Date();
-			act = act.filter((a) => a.startTime.toDateString() === now.toDateString());
-			const upcoming = act.find((a) => {
-				const activityTime = new Date(a.startTime.valueOf() + (a.delay ?? 0) * 60000);
-				return activityTime > now;
-			});
-			nextActivity = upcoming ?? null;
-		}, 1000);
 	}
 </script>
 

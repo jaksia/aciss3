@@ -19,7 +19,7 @@ export type ActivityDeleteNotification = {
 
 export type ActivityListUpdateNotification = {
 	eventId: number;
-	activities: Activity[];
+	activities: Record<Activity['id'], Activity>;
 };
 
 export type StopPlaying = {
@@ -55,7 +55,7 @@ export type JoinEventResponse =
 	| {
 			success: true;
 			event: Event;
-			activities: Activity[];
+			activities: Record<Activity['id'], Activity>;
 	  };
 
 export interface ClientToServerEvents {

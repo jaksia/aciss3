@@ -43,7 +43,7 @@ export async function initSocket(port: number) {
 			socket.data.activeEventId = eventId;
 			console.log(`➡️ User ${socket.id} joined event ${eventId}`);
 
-			callback({ success: true, event, activities: Object.values(await getActivities(eventId)) });
+			callback({ success: true, event, activities: await getActivities(eventId) });
 		});
 
 		socket.on('leaveEvent', async (eventId) => {
@@ -107,7 +107,17 @@ export async function triggerActivitiesUpdate(eventId: Event['id'], activityId?:
 	} else {
 		io.to(`event_${eventId}`).emit('activityListUpdate', {
 			eventId,
-			activities: Object.values(await getActivities(eventId))
+			activities: await getActivities(eventId)
 		});
 	}
+}
+
+if (import.meta.hot) {
+	import.meta.hot.on('vite:beforeUpdate', () => {
+		if (io) {
+			io.close();
+			io = null;
+			console.log('🛑 Socket.IO server stopped');
+		}
+	});
 }

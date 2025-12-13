@@ -18,7 +18,7 @@
 	let { children, data }: LayoutProps = $props();
 
 	// svelte-ignore state_referenced_locally
-	const eventState = new EventState(data.event, data.activities);
+	const eventState = new EventState(data.event, Object.values(data.activities));
 	setContext('getEventState', () => eventState);
 
 	const event = $derived(eventState.event);

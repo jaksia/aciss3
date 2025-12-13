@@ -20,7 +20,6 @@
 	const addAlert = getContext<AddAlert>('addAlert');
 
 	const event = $derived(eventState.event);
-	const activities = $derived(eventState.activities);
 
 	let submitPending = $state(false);
 
@@ -47,7 +46,7 @@
 			});
 			console.error(await response.json());
 		} else {
-			eventState.activities = eventState.activities.filter((a) => a.id !== activityId);
+			eventState.setActivity(activityId, null);
 			addAlert({
 				type: 'success',
 				content: `Aktivita bola úspešne zmazaná.`
@@ -125,7 +124,7 @@
 	const orphanedActivities = $derived.by(() => {
 		if (!eventState.event) return [];
 		const eventEndDate = new Date(eventState.event.endDate).setUTCHours(23, 59, 59, 999);
-		return eventState.activities.filter((a) => {
+		return eventState.activityList.filter((a) => {
 			return a.endTime < eventState.event.startDate || a.startTime.valueOf() > eventEndDate;
 		});
 	});
@@ -327,7 +326,7 @@
 	<div class="overlay" transition:fade={{ duration: 200 }}>
 		<ConfirmActivityDeletion
 			disabled={submitPending}
-			activity={activities.find((a) => a.id === deletorActivityId)!}
+			activity={eventState.activityList.find((a) => a.id === deletorActivityId)!}
 			oncancel={() => (deletorActivityId = null)}
 			onconfirm={() => {
 				deleteActivity(deletorActivityId!);
@@ -341,7 +340,7 @@
 		<EditActivity
 			{event}
 			disabled={submitPending}
-			activity={activities.find((a) => a.id === editorActivityId)!}
+			activity={eventState.activityList.find((a) => a.id === editorActivityId)!}
 			oncancel={() => (editorActivityId = null)}
 			onsave={(changedActivity: EditableActivity) => {
 				createUpdateActivity(changedActivity, editorActivityId!);
@@ -395,6 +394,6 @@
 
 <div class="flex grow overflow-x-hidden">
 	<div class="my-auto w-full">
-		<EventSchedule {event} {activities} />
+		<EventSchedule {event} activities={eventState.activityList} />
 	</div>
 </div>

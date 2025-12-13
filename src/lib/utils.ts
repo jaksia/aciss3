@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Action } from 'svelte/action';
-import type { EditableActivity, EditableActivityServer } from './types/db';
+import type { EditableActivityServer } from './types/db';
 import { ActivityLocation, ActivityType, AdditionalInfo, ParticipantNeeds } from './types/enums';
 
 export const clickOutside: Action<HTMLElement, { callback: (e: MouseEvent) => void }> = function (
@@ -93,4 +94,13 @@ export function activityDataErrors(data: any): string[] {
 		errors.push('Invalid zvolavanie value');
 	}
 	return errors;
+}
+
+export function logFunctions(prefix: string) {
+	return {
+		debug: (...args: any[]) => console.debug(`[${prefix}]`, ...args),
+		info: (...args: any[]) => console.info(`[${prefix}]`, ...args),
+		warn: (...args: any[]) => console.warn(`[${prefix}]`, ...args),
+		error: (...args: any[]) => console.error(`[${prefix}]`, ...args)
+	};
 }

@@ -8,10 +8,8 @@ export const load: LayoutServerLoad = async ({ params }) => {
 	const event = await getEvent(eventId);
 	if (!event) error(404);
 
-	const activities = Object.values(await getActivities(event.id));
-
 	return {
 		event,
-		activities
+		activities: await getActivities(event.id)
 	};
 };
