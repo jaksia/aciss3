@@ -9,7 +9,7 @@
 	<h1 class="text-4xl font-bold">Dostupné akcie</h1>
 
 	<ul class="mt-8 divide-y rounded border">
-		{#each data.events as event (event.id)}
+		{#each data.events as event (event)}
 			<li class="flex gap-10 p-4 first:rounded-t last:rounded-b">
 				<div class="flex flex-col justify-between">
 					<h4 class="text-xl font-medium">{event.name}</h4>

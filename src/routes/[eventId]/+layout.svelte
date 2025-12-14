@@ -43,14 +43,6 @@
 	function dismissAlert(id: string) {
 		alerts = alerts.filter((a) => a.id !== id);
 	}
-
-	onMount(() => {
-		const interval = setInterval(() => {
-			eventState.now = new SvelteDate();
-		}, 20);
-
-		return () => clearInterval(interval);
-	});
 </script>
 
 <div class="text-secondary flex min-h-screen flex-col">

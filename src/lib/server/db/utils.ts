@@ -4,9 +4,10 @@ import type {
 	Event,
 	CustomSound,
 	BaseEvent,
-	EditableActivityServer
+	EditableActivityServer,
+	EditableEvent
 } from '$lib/types/db';
-import { eq, and, inArray } from 'drizzle-orm';
+import { eq, and, inArray, min } from 'drizzle-orm';
 import { db } from '.';
 import {
 	activities,
@@ -57,6 +58,36 @@ export async function getEvents() {
 		startDate: new Date(event.startDate),
 		endDate: new Date(event.endDate)
 	})) as Omit<Event, 'sounds'>[];
+}
+
+export async function createEvent(eventData: Omit<BaseEvent, 'id'>): Promise<Event['id']> {
+	const defaultSounds = (
+		await db
+			.select({
+				key: customSounds.key,
+				id: min(customSounds.id)
+			})
+			.from(customSounds)
+			.groupBy(customSounds.key)
+			.where(eq(customSounds.default, true))
+	).filter((s) => s.id !== null);
+
+	const event = await db.transaction(async (tx) => {
+		const [event] = await tx.insert(events).values(eventData).returning();
+
+		for (const sound of defaultSounds) {
+			if (!sound.id) continue;
+			await tx.insert(eventsToSounds).values({
+				eventId: event.id,
+				customSoundId: sound.id,
+				soundKey: sound.key
+			});
+		}
+
+		return event;
+	});
+
+	return event.id;
 }
 
 export async function eventExists(eventId: Event['id']): Promise<boolean> {

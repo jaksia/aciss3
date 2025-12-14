@@ -118,7 +118,7 @@
 			<div class="p-4">
 				<h5 class="mb-2 font-bold">Účastníci potrebujú:</h5>
 				<div class="text-sm">
-					{#each activity.participantNeeds as need, i ([need, i])}
+					{#each activity.participantNeeds as need, i (i)}
 						{i > 0 ? ', ' : ''}
 						<span class="text-nowrap">{need.need}</span>
 					{/each}
@@ -129,7 +129,7 @@
 			<div class="p-4">
 				<h5 class="mb-2 font-bold">Dodatočné informácie:</h5>
 				<div class="text-sm">
-					{#each activity.additionalInfos as info, i ([info, i])}
+					{#each activity.additionalInfos as info, i (i)}
 						{i > 0 ? ', ' : ''}
 						<span class="text-nowrap">{info.info}</span>
 					{/each}

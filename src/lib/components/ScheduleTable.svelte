@@ -1,4 +1,6 @@
 <script lang="ts">
+	/* eslint-disable svelte/require-each-key */
+
 	import type { Activity } from '$lib/types/db';
 	import { usePinch, type PinchCustomEvent, usePan, type PanCustomEvent } from 'svelte-gestures';
 	import ActivityBlock from './ActivityBlock.svelte';
@@ -208,7 +210,7 @@
 				class="absolute top-1/2 right-0 -translate-y-1/2 font-mono">Time</span
 			>
 		</div>
-		{#each days as day, index ([day, index])}
+		{#each days as day, index}
 			<div
 				class="border-secondary/50 flex grow flex-col items-center border-b p-2"
 				bind:clientHeight={dayRowHeight[index]}
@@ -230,7 +232,7 @@
 		<div class="absolute" style="left: {-leftPx}px; top: 0;">
 			<div class="flex border-b" bind:clientHeight={timeRowHeight}>
 				<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
-				{#each Array(24) as _, hour (hour)}
+				{#each Array(24) as _, hour}
 					<div
 						class="border-secondary/50 relative border-l px-2 py-0.5 text-center font-mono"
 						style="width: {hourWidth}px; writing-mode: sideways-lr;"
@@ -239,13 +241,13 @@
 					</div>
 				{/each}
 			</div>
-			{#each days as day, dayIndex (day)}
+			{#each days as day, dayIndex}
 				<div
 					class="border-secondary/50 relative flex border-b"
 					style="height: {dayRowHeight[dayIndex] + 1}px;"
 				>
 					<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
-					{#each Array(24) as _, hour (hour)}
+					{#each Array(24) as _, hour}
 						<div class="border-secondary/50 border-l" style="width: {hourWidth}px;"></div>
 					{/each}
 					{#if dayIndex === nowDay}
@@ -281,7 +283,7 @@
 							"
 						></div>
 					{/if}
-					{#each perDayActivities[dayIndex] as activity (activity.id)}
+					{#each perDayActivities[dayIndex] as activity (activity)}
 						<ActivityBlock
 							{activity}
 							{hourWidth}

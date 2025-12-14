@@ -124,7 +124,7 @@
 						{new Date(timestamp).toLocaleString('sk-SK')}
 					</div>
 					<ul class="list-inside list-disc">
-						{#each alerts as alert (alert.id)}
+						{#each alerts as alert (alert)}
 							<li>
 								{alert.id} - Sounds: <i>{alert.sounds.map((s) => s.content).join(' ')}</i>
 							</li>
@@ -139,7 +139,7 @@
 		class="fixed bottom-4 mx-[5%] flex h-28 w-9/10 flex-col border-2 border-green-500 text-green-500"
 	>
 		<div class="flex-1 overflow-y-auto p-4">
-			{#each soundProcessor._alertQueue as alert (alert.id)}
+			{#each soundProcessor._alertQueue as alert (alert)}
 				<div class="mb-0.5 border-b border-dotted border-green-300 pb-0.5">
 					{#each alert.sounds as sound (sound)}
 						<span class={['mr-1', sound.done && 'italic', sound.active && 'flashing']}

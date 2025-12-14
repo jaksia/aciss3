@@ -237,7 +237,7 @@
 		<p class="text-sm text-gray-600">V minútach pred začiatkom aktivity.</p>
 	</div>
 	<div class="ml-4 flex flex-wrap gap-2">
-		{#each editableActivity.alertTimes as alertTime, index ([alertTime, index])}
+		{#each editableActivity.alertTimes as alertTime, index (index)}
 			<div class="flex items-center gap-2 rounded bg-gray-200 px-1.5 py-1">
 				<input
 					type="number"
@@ -271,7 +271,7 @@
 	<div class="p-4">
 		<h3 class="mb-2 text-lg font-semibold">Potreby účastníkov</h3>
 		<ul class="list-disc px-5">
-			{#each editableActivity.participantNeeds as need, index ([need, index])}
+			{#each editableActivity.participantNeeds as need, index (index)}
 				<li>
 					<div class="flex w-full items-center">
 						<span>{need}</span>
@@ -309,7 +309,7 @@
 	<div>
 		<h3 class="mt-4 mb-2 text-lg font-semibold">Dodatočné informácie</h3>
 		<ul class="list-disc px-5">
-			{#each editableActivity.additionalInfos as info, index ([info, index])}
+			{#each editableActivity.additionalInfos as info, index (index)}
 				<li>
 					<div class="flex w-full items-center">
 						<span>{info}</span>

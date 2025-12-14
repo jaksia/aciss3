@@ -14,6 +14,7 @@ let io: Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, So
 let initializing: Promise<Server> | null = null;
 
 const updatedSessions = new Set<string>();
+const protectedEvents = new Set<Event['id']>();
 
 export async function initSocket(port: number) {
 	if (initializing) return initializing;
@@ -52,6 +53,12 @@ export async function initSocket(port: number) {
 				return;
 			}
 
+			if (event.adminPasswordHash !== null) {
+				protectedEvents.add(event.id);
+			} else {
+				protectedEvents.delete(event.id);
+			}
+
 			if (socket.data.activeEventId) {
 				await socket.leave(`event_${socket.data.activeEventId}`);
 				console.log(`⬅️ User ${socket.id} left event ${socket.data.activeEventId}`);
@@ -80,19 +87,26 @@ export async function initSocket(port: number) {
 		socket.on('playerControl', async (data, callback) => {
 			if (!socket.data.activeEventId)
 				return callback({ success: false, error: 'Not connected to any event' });
-			if (!socket.data.session) return callback({ success: false, error: 'No active session' });
 
-			if (updatedSessions.has(socket.data.session.id)) {
-				updatedSessions.delete(socket.data.session.id);
-				const { session } = await validateSocketCode(socket.data.session.socketCodeHash);
-				if (!session) {
-					return callback({ success: false, error: 'Session no longer valid' });
+			if (protectedEvents.has(socket.data.activeEventId)) {
+				if (!socket.data.session) {
+					return callback({ success: false, error: 'No active session' });
 				}
-				socket.data.session = session;
-			}
 
-			if (!socket.data.session.allowedEvents.some((e) => e.eventId === socket.data.activeEventId)) {
-				return callback({ success: false, error: 'No permission for this event' });
+				if (updatedSessions.has(socket.data.session.id)) {
+					updatedSessions.delete(socket.data.session.id);
+					const { session } = await validateSocketCode(socket.data.session.socketCodeHash);
+					if (!session) {
+						return callback({ success: false, error: 'Session no longer valid' });
+					}
+					socket.data.session = session;
+				}
+
+				if (
+					!socket.data.session.allowedEvents.some((e) => e.eventId === socket.data.activeEventId)
+				) {
+					return callback({ success: false, error: 'No permission for this event' });
+				}
 			}
 
 			io!.to(`event_${socket.data.activeEventId}`).emit('playerControl', { ...data });
@@ -122,7 +136,10 @@ export function getIO() {
 
 export async function triggerEventUpdate(eventId: Event['id']) {
 	const event = await getEvent(eventId);
-	if (!event) return;
+	if (!event) {
+		protectedEvents.delete(eventId);
+		return;
+	}
 	getIO().to(`event_${eventId}`).emit('eventUpdate', { eventId, event });
 }
 

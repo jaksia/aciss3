@@ -30,7 +30,7 @@
 		<ul
 			class="mb-4 max-h-96 divide-x divide-gray-300 overflow-y-auto rounded border border-gray-300"
 		>
-			{#each orphanedActivities as activity (activity.id)}
+			{#each orphanedActivities as activity (activity)}
 				<li class="flex items-center justify-between px-4 py-2 even:bg-gray-100">
 					<div>
 						<strong>{activity.name}</strong><br />
