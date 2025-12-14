@@ -19,4 +19,6 @@ FROM base
 
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=build /app/build ./build
-CMD ["pnpm", "start"]
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
