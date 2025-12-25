@@ -1,6 +1,6 @@
 import { browser } from '$app/environment';
 import { io, type Socket } from 'socket.io-client';
-import type { Activity, Event } from '$lib/types/db';
+import type { Activity, ActivityLocation, Event } from '$lib/types/db';
 import type {
 	ClientToServerEvents,
 	PlayerControl,
@@ -26,7 +26,8 @@ export class EventState {
 	public now = $state(new SvelteDate());
 
 	public event: Event;
-	public activities: Map<Activity['id'], Activity> = new SvelteMap();
+	public activities = new SvelteMap<Activity['id'], Activity>();
+	public locations = new SvelteMap<ActivityLocation['id'], ActivityLocation>();
 	public activityList: Activity[] = $derived(Array.from(this.activities.values()));
 	public socketActive: boolean;
 
@@ -39,11 +40,18 @@ export class EventState {
 
 	private listeningEventId: Event['id'] | null = $state(null);
 
-	constructor(event: Event, activities: Record<Activity['id'], Activity>) {
+	constructor(
+		event: Event,
+		activities: Record<Activity['id'], Activity>,
+		locations: Record<ActivityLocation['id'], ActivityLocation>
+	) {
 		this.event = $state(this.parseJSONEvent(event));
 		Object.values(activities).forEach((a) => {
 			const activity = this.parseJSONActivity(a);
 			this.activities.set(activity.id, activity);
+		});
+		Object.values(locations).forEach((loc) => {
+			this.locations.set(loc.id, loc);
 		});
 
 		if (browser) {

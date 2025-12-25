@@ -8,8 +8,11 @@ export type Event = Omit<BaseEvent, 'startDate' | 'endDate'> & {
 };
 export type CustomSound = typeof schema.customSounds.$inferSelect;
 
+export type ActivityLocation = typeof schema.locations.$inferSelect;
+
 export type BaseActivity = typeof schema.activities.$inferSelect;
 export type Activity = BaseActivity & {
+	location: ActivityLocation;
 	alertTimes: ActivityAlertTime[];
 	participantNeeds: ActivityParticipantNeed[];
 	additionalInfos: ActivityAdditionalInfo[];
@@ -31,6 +34,8 @@ export type EditableActivity = Omit<
 	'id' | 'eventId' | 'alertTimes' | 'participantNeeds' | 'additionalInfos'
 > & {
 	day: number;
+
+	locationId: ActivityLocation['id'];
 
 	alertTimes: ActivityAlertTime['minutes'][];
 	participantNeeds: ActivityParticipantNeed['need'][];

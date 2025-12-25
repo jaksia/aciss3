@@ -252,7 +252,7 @@ export class SoundProcessor {
 			let sounds = startSounds
 				.sound(activity.type, OtherSounds.ACTIVITY_START)
 				.time(time.minutes)
-				.sound(activity.location);
+				.location(activity.location);
 
 			if (activity.participantNeeds) {
 				sounds = sounds.participantNeeds(activity.participantNeeds);

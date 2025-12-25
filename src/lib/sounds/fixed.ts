@@ -1,4 +1,4 @@
-import { ActivityType, ActivityLocation, ParticipantNeeds, AdditionalInfo } from '$lib/types/enums';
+import { ActivityType, ParticipantNeeds, AdditionalInfo } from '$lib/types/enums';
 import { type FixedSoundMap, NumberSounds, OtherSounds } from '$lib/types/sounds';
 
 export const fixedSounds: FixedSoundMap = {
@@ -104,31 +104,6 @@ export const fixedSounds: FixedSoundMap = {
 	[ActivityType.VYHODNOTENIE]: {
 		path: '/sounds/activities/types/vyhodnotenie.mp3',
 		content: 'Vyhodnotenie'
-	},
-
-	[ActivityLocation.CANTEEN]: {
-		path: '/sounds/activities/locations/canteen.mp3',
-		content: 'v jedáleni'
-	},
-	[ActivityLocation.MAIN_ENTRANCE]: {
-		path: '/sounds/activities/locations/main_entrance.mp3',
-		content: 'pred hl. vchodom'
-	},
-	[ActivityLocation.GYM]: {
-		path: '/sounds/activities/locations/gym.mp3',
-		content: 'v telocvični'
-	},
-	[ActivityLocation.BOTTOM_FLOOR]: {
-		path: '/sounds/activities/locations/bottom_floor.mp3',
-		content: 'na spodnom poschodí'
-	},
-	[ActivityLocation.SPOLOCENSKA]: {
-		path: '/sounds/activities/locations/spolocenska.mp3',
-		content: 'v spoločenskej miestnosti'
-	},
-	[ActivityLocation.OUTSIDE]: {
-		path: '/sounds/activities/locations/outside.mp3',
-		content: 'vonku'
 	},
 
 	[ParticipantNeeds.PEN_PER_PERSON]: {

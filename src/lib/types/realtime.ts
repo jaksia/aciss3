@@ -1,5 +1,5 @@
 import type { Activity, Event, Session } from './db';
-import type { AllSoundTypes } from './sounds';
+import type { AllSoundTypes, SoundBuilderSound } from './sounds';
 
 export type EventUpdateNotification = {
 	eventId: number;
@@ -33,7 +33,7 @@ export type DelayAnnouncement = {
 
 export type CustomSound = {
 	type: 'customSound';
-	sounds: AllSoundTypes[];
+	sounds: SoundBuilderSound[];
 };
 
 export type PlayerControl = StopPlaying | DelayAnnouncement | CustomSound;

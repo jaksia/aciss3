@@ -1,4 +1,4 @@
-import { getEvent, getActivities } from '$lib/server/db/utils';
+import { getEvent, getActivities, getEventLocations } from '$lib/server/db/utils';
 import { error } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 
@@ -10,6 +10,7 @@ export const load: LayoutServerLoad = async ({ params }) => {
 
 	return {
 		event,
+		locations: await getEventLocations(event.id),
 		activities: await getActivities(event.id)
 	};
 };

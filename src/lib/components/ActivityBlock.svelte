@@ -61,7 +61,10 @@
 	});
 
 	const bgBlockStart = $derived(
-		alertTimes.toSorted((a, b) => a[0] - b[0])[0][0] || startMinutes - (activity.delay || 0)
+		alertTimes
+			.map((a) => a[0])
+			.concat([startMinutes - (activity.delay || 0)])
+			.toSorted()[0]
 	);
 	const bgBlockEnd = $derived(startMinutes + duration);
 </script>

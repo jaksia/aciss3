@@ -1,5 +1,9 @@
 <script lang="ts">
-	import { ActivityLocation } from '$lib/types/enums';
+	import type { EventState } from '$lib/state.svelte';
+	import type { ActivityLocation } from '$lib/types/db';
+	import { getContext } from 'svelte';
+
+	const eventState = getContext<() => EventState>('getEventState')();
 
 	let {
 		purpose,
@@ -19,8 +23,8 @@
 	<div class="flex gap-2">
 		<select class="form-input grow rounded pr-8" bind:value={locationInput}>
 			<option value={null} disabled selected>-- Vyberte umiestnenie --</option>
-			{#each Object.values(ActivityLocation) as val (val)}
-				<option value={val}>{val}</option>
+			{#each eventState.locations as [id, location] (location)}
+				<option value={id}>{location.name}</option>
 			{/each}
 		</select>
 		<button

@@ -1,12 +1,7 @@
 <script lang="ts">
 	import type { EventState } from '$lib/state.svelte';
 	import type { Activity, EditableActivity, Event } from '$lib/types/db';
-	import {
-		ActivityLocation,
-		ActivityType,
-		AdditionalInfo,
-		ParticipantNeeds
-	} from '$lib/types/enums';
+	import { ActivityType, AdditionalInfo, ParticipantNeeds } from '$lib/types/enums';
 	import Icon from '@iconify/svelte';
 	import { getContext } from 'svelte';
 	import { SvelteDate } from 'svelte/reactivity';
@@ -31,13 +26,13 @@
 	const initDay = initialActivity
 		? new SvelteDate(initialActivity.startTime).setHours(0, 0, 0, 0).valueOf()
 		: event.startDate.valueOf();
-	console.log('initDay', initDay);
 
 	// svelte-ignore state_referenced_locally
 	editableActivity = {
 		name: initialActivity?.name || '',
 		type: initialActivity?.type || ActivityType.GAME_INSIDE,
-		location: initialActivity?.location || ActivityLocation.SPOLOCENSKA,
+
+		locationId: initialActivity?.locationId || Array.from(eventState.locations.keys())[0],
 
 		day: initDay,
 		startTime: initialActivity
@@ -119,10 +114,10 @@
 			id="activity-location"
 			class="form-select w-full rounded"
 			{disabled}
-			bind:value={editableActivity.location}
+			bind:value={editableActivity.locationId}
 		>
-			{#each Object.values(ActivityLocation) as location (location)}
-				<option value={location}>{location}</option>
+			{#each eventState.locations as [id, location] (location)}
+				<option value={id}>{location.name}</option>
 			{/each}
 		</select>
 	</div>

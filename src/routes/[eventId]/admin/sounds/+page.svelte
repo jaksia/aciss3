@@ -4,7 +4,6 @@
 	import {
 		ActivityType,
 		AdditionalInfo,
-		ActivityLocation,
 		ConfigurableSounds,
 		ParticipantNeeds
 	} from '$lib/types/enums';
@@ -24,8 +23,7 @@
 		['Iné zvuky', Object.values(OtherSounds)],
 		['Potrebné veci pre účastníkov', Object.values(ParticipantNeeds)],
 		['Typy aktivít', Object.values(ActivityType)],
-		['Doplnkové informácie', Object.values(AdditionalInfo)],
-		['Miesta aktivít', Object.values(ActivityLocation)]
+		['Doplnkové informácie', Object.values(AdditionalInfo)]
 	];
 
 	let soundSelectorKey: ConfigurableSounds | null = $state(null);

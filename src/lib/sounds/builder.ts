@@ -1,14 +1,36 @@
-import type { ActivityAdditionalInfo, ActivityParticipantNeed } from '$lib/types/db';
-import { ConfigurableSounds } from '$lib/types/enums';
+import type {
+	ActivityAdditionalInfo,
+	ActivityLocation,
+	ActivityParticipantNeed
+} from '$lib/types/db';
+import {
+	ActivityType,
+	AdditionalInfo,
+	ConfigurableSounds,
+	ParticipantNeeds
+} from '$lib/types/enums';
 import {
 	NumberSounds,
 	OtherSounds,
 	type AllSoundTypes,
 	type CompiledSound,
 	type FixedSounds,
-	type Sound
+	type Sound,
+	type SoundBuilderSound
 } from '$lib/types/sounds';
 import { fixedSounds } from './fixed';
+
+if (
+	Object.values<AllSoundTypes>(NumberSounds)
+		.concat(Object.values(OtherSounds))
+		.concat(Object.values(ConfigurableSounds))
+		.concat(Object.values(ActivityType))
+		.concat(Object.values(ParticipantNeeds))
+		.concat(Object.values(AdditionalInfo))
+		.some((value) => typeof value === 'string' && value.startsWith('loc;'))
+) {
+	throw new Error('no sound key may start with "loc;", as this is reserved for location sounds');
+}
 
 export class SoundBuilder {
 	private readonly soundAlternatives: Partial<Record<ConfigurableSounds, AllSoundTypes>> = {
@@ -17,7 +39,7 @@ export class SoundBuilder {
 	};
 
 	private constructor(
-		private sounds: AllSoundTypes[],
+		private sounds: SoundBuilderSound[],
 		private alertEnd: boolean
 	) {}
 
@@ -25,7 +47,7 @@ export class SoundBuilder {
 		return new SoundBuilder(startEnd ? [ConfigurableSounds.ALERT_START] : [], startEnd);
 	}
 
-	private clone(additionalSounds: AllSoundTypes[] = []) {
+	private clone(additionalSounds: SoundBuilderSound[] = []) {
 		return new SoundBuilder([...this.sounds, ...additionalSounds], this.alertEnd);
 	}
 
@@ -74,7 +96,12 @@ export class SoundBuilder {
 		return sounds;
 	}
 
-	public sound(...sounds: AllSoundTypes[]) {
+	private buildLocation(location: ActivityLocation) {
+		const locSoundKey: SoundBuilderSound = `loc;${location.name};${location.content};${location.path};${location.isStatic}`;
+		return [locSoundKey];
+	}
+
+	public sound(...sounds: SoundBuilderSound[]) {
 		return this.clone(sounds);
 	}
 
@@ -84,6 +111,10 @@ export class SoundBuilder {
 
 	public time(minutes: number) {
 		return this.clone(this.buildTime(minutes));
+	}
+
+	public location(location: ActivityLocation) {
+		return this.clone(this.buildLocation(location));
 	}
 
 	public participantNeeds(needs: ActivityParticipantNeed[]) {
@@ -124,26 +155,41 @@ export class SoundBuilder {
 			this.sounds.push(ConfigurableSounds.ALERT_END);
 		}
 		return this.sounds
-			.map((soundKey) => {
-				const sound = this.resolveSoundKey(soundKey, eventSounds);
+			.map((soundEntry) => {
+				if (typeof soundEntry === 'string' && soundEntry.startsWith('loc;')) {
+					const [, name, content, path, isStaticStr] = soundEntry.split(';');
+					const isStatic = isStaticStr === 'true';
+					return {
+						content,
+						path,
+						key: name as AllSoundTypes,
+						audioPromise: loadSound(path, !isStatic),
+						source: undefined,
+						active: false,
+						done: false
+					};
+				} else {
+					const soundKey = soundEntry as AllSoundTypes;
+					const sound = this.resolveSoundKey(soundKey, eventSounds);
 
-				if (!sound) {
-					console.warn('Sound not found for key:', soundKey, typeof soundKey);
-					return null;
+					if (!sound) {
+						console.warn('Sound not found for key:', soundKey, typeof soundKey);
+						return null;
+					}
+
+					return {
+						content: sound.content,
+						path: sound.path,
+						key: soundKey,
+						audioPromise: loadSound(
+							sound.path,
+							Object.values<string>(ConfigurableSounds).includes(soundKey)
+						),
+						source: undefined,
+						active: false,
+						done: false
+					};
 				}
-
-				return {
-					content: sound.content,
-					path: sound.path,
-					key: soundKey,
-					audioPromise: loadSound(
-						sound.path,
-						Object.values<string>(ConfigurableSounds).includes(soundKey)
-					),
-					source: undefined,
-					active: false,
-					done: false
-				};
 			})
 			.filter((s) => s !== null);
 	}

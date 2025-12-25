@@ -2,12 +2,11 @@
 	import { styleData } from '$lib/themes';
 	import type { LayoutProps } from './$types';
 	import { page } from '$app/state';
-	import { onMount, setContext } from 'svelte';
+	import { setContext } from 'svelte';
 	import { EventState } from '$lib/state.svelte';
 	import type { AddAlert, Alert } from '$lib/types/other';
 	import Icon from '@iconify/svelte';
 	import { fade, fly } from 'svelte/transition';
-	import { SvelteDate } from 'svelte/reactivity';
 	import { resolve } from '$app/paths';
 
 	const adminSection = $derived.by(() => {
@@ -19,7 +18,7 @@
 	let { children, data }: LayoutProps = $props();
 
 	// svelte-ignore state_referenced_locally
-	const eventState = new EventState(data.event, Object.values(data.activities));
+	const eventState = new EventState(data.event, Object.values(data.activities), data.locations);
 	setContext('getEventState', () => eventState);
 
 	const event = $derived(eventState.event);

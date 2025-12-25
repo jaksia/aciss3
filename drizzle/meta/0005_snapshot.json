@@ -70,8 +70,12 @@
 					"name": "activities_event_id_events_id_fk",
 					"tableFrom": "activities",
 					"tableTo": "events",
-					"columnsFrom": ["event_id"],
-					"columnsTo": ["id"],
+					"columnsFrom": [
+						"event_id"
+					],
+					"columnsTo": [
+						"id"
+					],
 					"onDelete": "cascade",
 					"onUpdate": "no action"
 				}
@@ -105,8 +109,12 @@
 					"name": "activity_additional_infos_activity_id_activities_id_fk",
 					"tableFrom": "activity_additional_infos",
 					"tableTo": "activities",
-					"columnsFrom": ["activity_id"],
-					"columnsTo": ["id"],
+					"columnsFrom": [
+						"activity_id"
+					],
+					"columnsTo": [
+						"id"
+					],
 					"onDelete": "cascade",
 					"onUpdate": "no action"
 				}
@@ -114,7 +122,10 @@
 			"compositePrimaryKeys": {
 				"activity_additional_infos_activity_id_info_pk": {
 					"name": "activity_additional_infos_activity_id_info_pk",
-					"columns": ["activity_id", "info"]
+					"columns": [
+						"activity_id",
+						"info"
+					]
 				}
 			},
 			"uniqueConstraints": {},
@@ -145,8 +156,12 @@
 					"name": "activity_alert_times_activity_id_activities_id_fk",
 					"tableFrom": "activity_alert_times",
 					"tableTo": "activities",
-					"columnsFrom": ["activity_id"],
-					"columnsTo": ["id"],
+					"columnsFrom": [
+						"activity_id"
+					],
+					"columnsTo": [
+						"id"
+					],
 					"onDelete": "cascade",
 					"onUpdate": "no action"
 				}
@@ -154,7 +169,10 @@
 			"compositePrimaryKeys": {
 				"activity_alert_times_activity_id_minutes_pk": {
 					"name": "activity_alert_times_activity_id_minutes_pk",
-					"columns": ["activity_id", "minutes"]
+					"columns": [
+						"activity_id",
+						"minutes"
+					]
 				}
 			},
 			"uniqueConstraints": {},
@@ -185,8 +203,12 @@
 					"name": "activity_participant_needs_activity_id_activities_id_fk",
 					"tableFrom": "activity_participant_needs",
 					"tableTo": "activities",
-					"columnsFrom": ["activity_id"],
-					"columnsTo": ["id"],
+					"columnsFrom": [
+						"activity_id"
+					],
+					"columnsTo": [
+						"id"
+					],
 					"onDelete": "cascade",
 					"onUpdate": "no action"
 				}
@@ -194,7 +216,10 @@
 			"compositePrimaryKeys": {
 				"activity_participant_needs_activity_id_need_pk": {
 					"name": "activity_participant_needs_activity_id_need_pk",
-					"columns": ["activity_id", "need"]
+					"columns": [
+						"activity_id",
+						"need"
+					]
 				}
 			},
 			"uniqueConstraints": {},
@@ -331,8 +356,12 @@
 					"name": "events_to_sounds_event_id_events_id_fk",
 					"tableFrom": "events_to_sounds",
 					"tableTo": "events",
-					"columnsFrom": ["event_id"],
-					"columnsTo": ["id"],
+					"columnsFrom": [
+						"event_id"
+					],
+					"columnsTo": [
+						"id"
+					],
 					"onDelete": "cascade",
 					"onUpdate": "no action"
 				},
@@ -340,8 +369,12 @@
 					"name": "events_to_sounds_custom_sound_id_custom_sounds_id_fk",
 					"tableFrom": "events_to_sounds",
 					"tableTo": "custom_sounds",
-					"columnsFrom": ["custom_sound_id"],
-					"columnsTo": ["id"],
+					"columnsFrom": [
+						"custom_sound_id"
+					],
+					"columnsTo": [
+						"id"
+					],
 					"onDelete": "cascade",
 					"onUpdate": "no action"
 				}
@@ -349,14 +382,20 @@
 			"compositePrimaryKeys": {
 				"events_to_sounds_event_id_custom_sound_id_pk": {
 					"name": "events_to_sounds_event_id_custom_sound_id_pk",
-					"columns": ["event_id", "custom_sound_id"]
+					"columns": [
+						"event_id",
+						"custom_sound_id"
+					]
 				}
 			},
 			"uniqueConstraints": {
 				"one_sound_key_per_event": {
 					"name": "one_sound_key_per_event",
 					"nullsNotDistinct": false,
-					"columns": ["event_id", "sound_key"]
+					"columns": [
+						"event_id",
+						"sound_key"
+					]
 				}
 			},
 			"policies": {},
@@ -423,8 +462,12 @@
 					"name": "session_allowed_events_session_id_session_id_fk",
 					"tableFrom": "session_allowed_events",
 					"tableTo": "session",
-					"columnsFrom": ["session_id"],
-					"columnsTo": ["id"],
+					"columnsFrom": [
+						"session_id"
+					],
+					"columnsTo": [
+						"id"
+					],
 					"onDelete": "cascade",
 					"onUpdate": "no action"
 				},
@@ -432,8 +475,12 @@
 					"name": "session_allowed_events_event_id_events_id_fk",
 					"tableFrom": "session_allowed_events",
 					"tableTo": "events",
-					"columnsFrom": ["event_id"],
-					"columnsTo": ["id"],
+					"columnsFrom": [
+						"event_id"
+					],
+					"columnsTo": [
+						"id"
+					],
 					"onDelete": "cascade",
 					"onUpdate": "no action"
 				}
@@ -441,7 +488,10 @@
 			"compositePrimaryKeys": {
 				"session_allowed_events_session_id_event_id_pk": {
 					"name": "session_allowed_events_session_id_event_id_pk",
-					"columns": ["session_id", "event_id"]
+					"columns": [
+						"session_id",
+						"event_id"
+					]
 				}
 			},
 			"uniqueConstraints": {},
@@ -484,7 +534,12 @@
 		"public.AdditionalInfo": {
 			"name": "AdditionalInfo",
 			"schema": "public",
-			"values": ["Prezúvanie", "Striedanie kroniky/služ. dňa", "Upracte po sebe", "Kľudový režim"]
+			"values": [
+				"Prezúvanie",
+				"Striedanie kroniky/služ. dňa",
+				"Upracte po sebe",
+				"Kľudový režim"
+			]
 		},
 		"public.ConfigurableSounds": {
 			"name": "ConfigurableSounds",
@@ -502,7 +557,12 @@
 		"public.EventStyles": {
 			"name": "EventStyles",
 			"schema": "public",
-			"values": ["default", "Pikomat", "Pikofyz", "Kockatý víkend"]
+			"values": [
+				"default",
+				"Pikomat",
+				"Pikofyz",
+				"Kockatý víkend"
+			]
 		},
 		"public.ParticipantNeeds": {
 			"name": "ParticipantNeeds",

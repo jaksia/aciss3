@@ -7,7 +7,7 @@ import {
 } from '$lib/server/db/utils';
 import { triggerActivitiesUpdate } from '$lib/server/socket';
 import type { EditableActivityServer } from '$lib/types/db';
-import { activityDataErrors, jsonError, jsonResponse } from '$lib/utils';
+import { activityDataErrors, jsonError, jsonResponse } from '$lib/server/utils';
 
 export const DELETE = async ({ params }) => {
 	const eventId = parseInt(params.eventId);
@@ -44,7 +44,7 @@ export const PUT = async ({ params, request }) => {
 	}
 
 	const data = await request.json();
-	const errors = activityDataErrors(data);
+	const errors = await activityDataErrors(data);
 	if (errors.length > 0) {
 		return jsonResponse({ error: 'Invalid activity data', details: errors }, 400);
 	}

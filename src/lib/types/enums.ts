@@ -16,15 +16,6 @@ export enum ActivityType {
 	VYHODNOTENIE = 'Vyhodnotenie'
 }
 
-export enum ActivityLocation {
-	CANTEEN = 'Jedáleň',
-	MAIN_ENTRANCE = 'Pred hl. vchodom',
-	GYM = 'Telocvičňa',
-	BOTTOM_FLOOR = 'Spodné poschodie',
-	SPOLOCENSKA = 'Spoločenská miestnosť',
-	OUTSIDE = 'Vonku'
-}
-
 export enum ParticipantNeeds {
 	PEN_PER_PERSON = 'Pero na osobu',
 	PAPER_PER_PERSON = 'Papier na osobu',

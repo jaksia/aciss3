@@ -107,7 +107,7 @@
 			</div>
 			<li>
 				<Icon icon="mdi:map-marker" class="mr-0.5 inline-block text-xl" />
-				<span>{activity.location}</span>
+				<span>{activity.location?.name ?? activity.locationId}</span>
 			</li>
 			<li>
 				<Icon icon="mdi:question-box-multiple-outline" class="mr-0.5 inline-block text-xl" />

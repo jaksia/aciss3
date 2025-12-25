@@ -5,7 +5,7 @@
 	import EventSchedule from '$lib/components/EventSchedule.svelte';
 	import type { EventState } from '$lib/state.svelte';
 	import { styleData } from '$lib/themes';
-	import type { Activity, EditableActivity } from '$lib/types/db';
+	import type { Activity, ActivityLocation, EditableActivity } from '$lib/types/db';
 	import Icon from '@iconify/svelte';
 	import { getContext, onMount, setContext } from 'svelte';
 	import { fade, slide } from 'svelte/transition';
@@ -13,7 +13,7 @@
 	import OrphanedActivities from '$lib/components/dialogs/OrphanedActivities.svelte';
 	import { OtherSounds } from '$lib/types/sounds';
 	import { builder } from '$lib/sounds/builder';
-	import { ConfigurableSounds, type ActivityLocation } from '$lib/types/enums';
+	import { ConfigurableSounds } from '$lib/types/enums';
 	import LocationSelector from '$lib/components/dialogs/LocationSelector.svelte';
 	import { SvelteDate } from 'svelte/reactivity';
 
@@ -202,7 +202,7 @@
 				}
 				const result = await eventState.playerControl({
 					type: 'customSound',
-					sounds: builder(true).sound(OtherSounds.DESIATA, location).getSounds()
+					sounds: builder(true).sound(OtherSounds.DESIATA).location(location).getSounds()
 				});
 				if (result.success)
 					addAlert({
@@ -227,7 +227,7 @@
 				}
 				const result = await eventState.playerControl({
 					type: 'customSound',
-					sounds: builder(true).sound(OtherSounds.OLOVRANT, location).getSounds()
+					sounds: builder(true).sound(OtherSounds.OLOVRANT).location(location).getSounds()
 				});
 				if (result.success)
 					addAlert({
@@ -252,7 +252,7 @@
 				}
 				const result = await eventState.playerControl({
 					type: 'customSound',
-					sounds: builder(true).sound(OtherSounds.SECOND_DINNER, location).getSounds()
+					sounds: builder(true).sound(OtherSounds.SECOND_DINNER).location(location).getSounds()
 				});
 				if (result.success)
 					addAlert({

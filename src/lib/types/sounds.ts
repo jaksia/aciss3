@@ -1,11 +1,5 @@
-import type { Activity } from './db';
-import type {
-	ActivityLocation,
-	ActivityType,
-	AdditionalInfo,
-	ConfigurableSounds,
-	ParticipantNeeds
-} from './enums';
+import type { Activity, ActivityLocation } from './db';
+import { ActivityType, AdditionalInfo, ConfigurableSounds, ParticipantNeeds } from './enums';
 
 export type Sound = {
 	path: string;
@@ -71,7 +65,6 @@ export type FixedSounds =
 	| NumberSounds
 	| OtherSounds
 	| Exclude<ActivityType, ActivityType.BUDICEK>
-	| ActivityLocation
 	| ParticipantNeeds
 	| AdditionalInfo;
 
@@ -82,7 +75,6 @@ export type AllSoundTypes =
 	| OtherSounds
 	| ConfigurableSounds
 	| ActivityType
-	| ActivityLocation
 	| ParticipantNeeds
 	| AdditionalInfo;
 
@@ -107,3 +99,7 @@ export type CompiledAlert = {
 export type TimedAlerts = {
 	[timestamp: number]: CompiledAlert;
 };
+
+export type SoundBuilderSound =
+	| AllSoundTypes
+	| `loc;${ActivityLocation['name']};${ActivityLocation['content']};${ActivityLocation['path']};${ActivityLocation['isStatic']}`;

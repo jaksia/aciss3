@@ -5,9 +5,9 @@ import type {
 	CustomSound,
 	BaseEvent,
 	EditableActivityServer,
-	EditableEvent
+	ActivityLocation
 } from '$lib/types/db';
-import { eq, and, inArray, min } from 'drizzle-orm';
+import { eq, and, or, inArray, min } from 'drizzle-orm';
 import { db } from '.';
 import {
 	activities,
@@ -16,30 +16,32 @@ import {
 	activityParticipantNeeds,
 	events,
 	customSounds,
-	eventsToSounds
+	eventsToSounds,
+	eventsToLocations,
+	locations
 } from './schema';
 import type { ConfigurableSounds } from '$lib/types/enums';
 
 export async function getEvent(
 	eventId: Event['id'],
-	options: { returnPasswordHash: boolean } | null = null
+	options: { returnPasswordHash?: boolean; includeLocations?: boolean } = {}
 ) {
-	const [event] = await db.select().from(events).where(eq(events.id, eventId));
-	if (!event) return null;
+	const [baseEvent] = await db.select().from(events).where(eq(events.id, eventId));
+	if (!baseEvent) return null;
 	const sounds = await db
 		.select()
 		.from(eventsToSounds)
 		.where(eq(eventsToSounds.eventId, eventId))
 		.innerJoin(customSounds, eq(eventsToSounds.customSoundId, customSounds.id));
 	return {
-		...event,
-		adminPasswordHash: options?.returnPasswordHash
-			? event.adminPasswordHash
-			: event.adminPasswordHash === null
+		...baseEvent,
+		adminPasswordHash: options.returnPasswordHash
+			? baseEvent.adminPasswordHash
+			: baseEvent.adminPasswordHash === null
 				? null
 				: '*******',
-		startDate: new Date(event.startDate),
-		endDate: new Date(event.endDate),
+		startDate: new Date(baseEvent.startDate),
+		endDate: new Date(baseEvent.endDate),
 		sounds: sounds.reduce(
 			(acc, es) => {
 				acc[es.custom_sounds.key] = es.custom_sounds;
@@ -97,6 +99,26 @@ export async function eventExists(eventId: Event['id']): Promise<boolean> {
 
 export async function updateEvent(eventId: Event['id'], updates: Partial<Omit<BaseEvent, 'id'>>) {
 	await db.update(events).set(updates).where(eq(events.id, eventId));
+}
+
+export async function getEventLocations(eventId: Event['id']) {
+	const result = await db
+		.select()
+		.from(locations)
+		.leftJoin(eventsToLocations, eq(locations.id, eventsToLocations.locationId))
+		.where(or(eq(eventsToLocations.eventId, eventId), locations.isStatic));
+	return result.reduce(
+		(acc, { locations: loc }) => {
+			acc[loc.id] = loc;
+			return acc;
+		},
+		{} as Record<ActivityLocation['id'], ActivityLocation>
+	);
+}
+
+export async function locationExists(locationId: ActivityLocation['id']) {
+	const [location] = await db.select().from(locations).where(eq(locations.id, locationId));
+	return !!location;
 }
 
 export async function getAvailableSounds(key?: ConfigurableSounds): Promise<CustomSound[]> {
@@ -170,16 +192,18 @@ export async function createCustomSound(
 }
 
 export async function getActivities(eventId: Event['id']) {
-	const result: BaseActivity[] = await db
+	const result = await db
 		.select()
 		.from(activities)
+		.innerJoin(locations, eq(activities.locationId, locations.id))
 		.where(eq(activities.eventId, eventId));
-	const activityIds = result.map((activity) => activity.id);
+	const activityIds = result.map((activity) => activity.activities.id);
 
 	const _activities = result.reduce(
-		(acc, ba) => {
+		(acc, { activities: ba, locations: location }) => {
 			acc[ba.id] = {
 				...ba,
+				location,
 				alertTimes: [],
 				additionalInfos: [],
 				participantNeeds: []
@@ -213,11 +237,12 @@ export async function getActivities(eventId: Event['id']) {
 }
 
 export async function getActivity(eventId: Event['id'], activityId: Activity['id']) {
-	const [activity] = await db
+	const [{ activities: baseActivity, locations: location }] = await db
 		.select()
 		.from(activities)
+		.innerJoin(locations, eq(activities.locationId, locations.id))
 		.where(and(eq(activities.id, activityId), eq(activities.eventId, eventId)));
-	if (!activity) return null;
+	if (!baseActivity) return null;
 
 	const alertTimes = await db
 		.select()
@@ -235,7 +260,8 @@ export async function getActivity(eventId: Event['id'], activityId: Activity['id
 		.where(eq(activityParticipantNeeds.activityId, activityId));
 
 	return {
-		...activity,
+		...baseActivity,
+		location,
 		alertTimes,
 		additionalInfos,
 		participantNeeds
@@ -273,7 +299,7 @@ export async function createOrUpdateActivity(
 		eventId,
 		name: unprocessedActivity.name,
 		type: unprocessedActivity.type,
-		location: unprocessedActivity.location,
+		locationId: unprocessedActivity.locationId,
 		delay: unprocessedActivity.delay,
 		zvolavanie: unprocessedActivity.zvolavanie,
 		startTime: new Date(unprocessedActivity.startTime),
@@ -300,6 +326,15 @@ export async function createOrUpdateActivity(
 		[activity] = await db.insert(activities).values(activityData).returning();
 		activityId = activity.id;
 	}
+
+	// Associate location with event if not already associated
+	await db
+		.insert(eventsToLocations)
+		.values({
+			eventId,
+			locationId: unprocessedActivity.locationId
+		})
+		.onConflictDoNothing();
 
 	const alertTimes =
 		unprocessedActivity.alertTimes.length > 0
@@ -331,6 +366,7 @@ export async function createOrUpdateActivity(
 
 	return {
 		...activity,
+		location: (await db.select().from(locations).where(eq(locations.id, activity.locationId)))[0],
 		alertTimes,
 		additionalInfos,
 		participantNeeds
