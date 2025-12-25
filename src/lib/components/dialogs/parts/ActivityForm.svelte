@@ -22,7 +22,7 @@
 	}: {
 		event: Event;
 		disabled?: boolean;
-		initialActivity?: Activity;
+		initialActivity?: Partial<Activity>;
 		editableActivity?: EditableActivity;
 		valid?: boolean;
 	} = $props();
@@ -31,6 +31,7 @@
 	const initDay = initialActivity
 		? new SvelteDate(initialActivity.startTime).setHours(0, 0, 0, 0).valueOf()
 		: event.startDate.valueOf();
+	console.log('initDay', initDay);
 
 	// svelte-ignore state_referenced_locally
 	editableActivity = {
@@ -49,9 +50,9 @@
 		delay: initialActivity?.delay || null,
 		zvolavanie: initialActivity?.zvolavanie || true,
 
-		additionalInfos: initialActivity?.additionalInfos.map((ai) => ai.info) || [],
-		alertTimes: initialActivity?.alertTimes.map((at) => at.minutes) || [30, 15, 10, 5],
-		participantNeeds: initialActivity?.participantNeeds.map((pn) => pn.need) || []
+		additionalInfos: initialActivity?.additionalInfos?.map((ai) => ai.info) || [],
+		alertTimes: initialActivity?.alertTimes?.map((at) => at.minutes) || [30, 15, 10, 5],
+		participantNeeds: initialActivity?.participantNeeds?.map((pn) => pn.need) || []
 	};
 
 	const days = $derived.by(() => {
@@ -59,6 +60,7 @@
 		const days = [];
 		for (let d = new SvelteDate(event.startDate); d <= event.endDate; d.setDate(d.getDate() + 1)) {
 			days.push(new SvelteDate(d));
+			days[days.length - 1].setHours(0, 0, 0, 0);
 		}
 		return days;
 	});
@@ -237,7 +239,7 @@
 		<p class="text-sm text-gray-600">V minútach pred začiatkom aktivity.</p>
 	</div>
 	<div class="ml-4 flex flex-wrap gap-2">
-		{#each editableActivity.alertTimes as alertTime, index (index)}
+		{#each editableActivity.alertTimes, index (index)}
 			<div class="flex items-center gap-2 rounded bg-gray-200 px-1.5 py-1">
 				<input
 					type="number"

@@ -26,8 +26,16 @@
 
 	let editorActivityId: Activity['id'] | null = $state(null);
 	let deletorActivityId: Activity['id'] | null = $state(null);
-	let createActivity = $state(false);
+	let createActivity:
+		| boolean
+		| {
+				startTime?: Date;
+				endTime?: Date;
+		  } = $state(false);
 
+	setContext('openActivityCreator', (initial?: { startTime?: Date; endTime?: Date }) => {
+		createActivity = initial || true;
+	});
 	setContext('openActivityEditor', (activityId: Activity['id']) => {
 		editorActivityId = activityId;
 	});
@@ -355,6 +363,7 @@
 		<CreateActivity
 			{event}
 			disabled={submitPending}
+			initial={createActivity instanceof Object ? createActivity : undefined}
 			oncancel={() => (createActivity = false)}
 			onsave={(newActivity: EditableActivity) => {
 				createUpdateActivity(newActivity);

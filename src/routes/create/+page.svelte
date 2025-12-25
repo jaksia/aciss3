@@ -6,7 +6,7 @@
 	import type { PageProps } from './$types';
 	import { SvelteDate } from 'svelte/reactivity';
 
-	let { form }: PageProps = $props();
+	let { form, data }: PageProps = $props();
 
 	// svelte-ignore state_referenced_locally
 	let editableEvent: EditableEvent = $state({
@@ -56,6 +56,16 @@
 							<li>{error}</li>
 						{/each}
 					</ul>
+				</div>
+			{/if}
+
+			{#if !data.validRootPassword}
+				<div class="mb-4 rounded bg-red-100 p-4 text-red-700">
+					<h3 class="mb-2 text-lg font-semibold">Nesprávne nastavenie servera</h3>
+					<p>
+						Kvôli nesprávnemu nastaveniu servera nie je možné vytvoriť akciu. Prosím, kontaktujte
+						správcu servera.
+					</p>
 				</div>
 			{/if}
 
@@ -127,6 +137,16 @@
 					</div>
 				</DatePicker>
 			</div>
+			{#if data.hasRootPassword}
+				<div>
+					<label for="rootPassword" class="mb-2 block text-lg font-semibold">Heslo</label>
+					<input id="rootPassword" name="rootPassword" type="password" class=" w-full rounded" />
+					<p class="mt-1 text-sm text-gray-500">
+						Na temto serveri je možné vytvoriť akciu iba s pomocou správneho root hesla. Ak ho
+						nemáte, kontaktujte správcu servera.
+					</p>
+				</div>
+			{/if}
 			<button
 				type="submit"
 				class="btn btn-success mx-auto mt-4"
@@ -135,7 +155,8 @@
 					!editableEvent.startDate ||
 					!editableEvent.endDate ||
 					editableEvent.startDate > editableEvent.endDate ||
-					submitPending}
+					submitPending ||
+					!data.validRootPassword}
 			>
 				Vytvoriť
 			</button>

@@ -5,11 +5,16 @@
 	const {
 		event,
 		disabled = false,
+		initial,
 		oncancel,
 		onsave
 	}: {
 		event: Event;
 		disabled?: boolean;
+		initial?: {
+			startTime?: Date;
+			endTime?: Date;
+		};
 		oncancel: () => void;
 		onsave: (changedActivity: EditableActivity) => void;
 	} = $props();
@@ -40,5 +45,5 @@
 		</div>
 	</div>
 
-	<ActivityForm {disabled} {event} bind:editableActivity bind:valid />
+	<ActivityForm initialActivity={initial} {disabled} {event} bind:editableActivity bind:valid />
 </div>

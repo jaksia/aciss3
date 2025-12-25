@@ -10,6 +10,8 @@
 	import { SvelteDate } from 'svelte/reactivity';
 
 	const eventState = getContext<() => EventState>('getEventState')();
+	const openActivityCreator =
+		getContext<(initial?: { startTime?: Date; endTime?: Date }) => void>('openActivityCreator');
 
 	// On 1920px width, this shows approx. 7:00 - 22:00
 	const DEFAULT_SCALE = 1.56;
@@ -246,58 +248,87 @@
 					class="border-secondary/50 relative flex border-b"
 					style="height: {dayRowHeight[dayIndex] + 1}px;"
 				>
-					<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
-					{#each Array(24) as _, hour}
-						<div class="border-secondary/50 border-l" style="width: {hourWidth}px;"></div>
-					{/each}
-					{#if dayIndex === nowDay}
-						<div
-							class="absolute top-0 w-0.5 bg-red-500"
-							id="now-time-line"
-							title="Aktuálny čas"
-							style="
-								left: {(nowMinutes / 60) * hourWidth}px;
-								height: {dayRowHeight[dayIndex] + 1}px;
-							"
-						></div>
-					{/if}
-					{#if tzChangeDayIndex !== null && Math.abs(tzChangeDayIndex - dayIndex) <= 1}
-						{@const dayMinDiff = (tzChangeDayIndex - dayIndex) * 24 * 60}
-						{@const blockStartMinutes = tzStartMinutes + dayMinDiff - tzBufferMinutes}
-						<div
-							class="tz-change-block absolute top-0"
-							title="Do tohto bloku neodporúčame dávať aktivity, kvôli zmene času."
-							style="
+					<div class="grid-hours *:border-secondary/50 contents *:border-l">
+						<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
+						{#each Array(24), hour}
+							<div class="flex *:grow" style="width: {hourWidth}px;">
+								<button
+									aria-label="Create activity - Day {dayIndex} - {hour}:00"
+									onclick={() => {
+										const startTime = new SvelteDate(day);
+										startTime.setHours(hour, 0, 0, 0);
+										const endTime = new SvelteDate(startTime);
+										endTime.setHours(hour + 1, 0, 0, 0);
+										openActivityCreator({ startTime, endTime });
+									}}
+								></button>
+								<button
+									aria-label="Create activity - Day {dayIndex} - {hour}:30"
+									onclick={() => {
+										const startTime = new SvelteDate(day);
+										startTime.setHours(hour, 30, 0, 0);
+										const endTime = new SvelteDate(startTime);
+										endTime.setHours(hour + 1, 0, 0, 0);
+										openActivityCreator({ startTime, endTime });
+									}}
+								></button>
+							</div>
+						{/each}
+					</div>
+					<div class="grid-miscs-lower contents">
+						{#if tzChangeDayIndex !== null && Math.abs(tzChangeDayIndex - dayIndex) <= 1}
+							{@const dayMinDiff = (tzChangeDayIndex - dayIndex) * 24 * 60}
+							{@const blockStartMinutes = tzStartMinutes + dayMinDiff - tzBufferMinutes}
+							<div
+								class="tz-change-block absolute top-0"
+								title="Do tohto bloku neodporúčame dávať aktivity, kvôli zmene času."
+								style="
 								left: {(blockStartMinutes / 60) * hourWidth}px;
 								width: {((tzBufferMinutes * 2) / 60) * hourWidth}px;
 								height: {dayRowHeight[dayIndex] + 1}px;
 							"
-						></div>
-						<div
-							class="absolute top-0 left-0 -translate-x-1/2 bg-red-500"
-							title="Zmena času"
-							style="
+							></div>
+							<div
+								class="absolute top-0 left-0 -translate-x-1/2 bg-red-500"
+								title="Zmena času"
+								style="
 								left: {((blockStartMinutes + tzBufferMinutes) / 60) * hourWidth}px;
 								width: {Math.max(hourWidth / 90, 4)}px;
 								height: {dayRowHeight[dayIndex] + 1}px;
 							"
-						></div>
-					{/if}
-					{#each perDayActivities[dayIndex] as activity (activity)}
-						<ActivityBlock
-							{activity}
-							{hourWidth}
-							{...globalBlockProps}
-							{viewportReactivityTrigger}
-						/>
-					{/each}
+							></div>
+						{/if}
+					</div>
+					<div class="grid-miscs-upper contents">
+						{#if dayIndex === nowDay}
+							<div
+								class="absolute top-0 w-0.5 bg-red-500"
+								id="now-time-line"
+								title="Aktuálny čas"
+								style="
+								left: {(nowMinutes / 60) * hourWidth}px;
+								height: {dayRowHeight[dayIndex] + 1}px;
+							"
+							></div>
+						{/if}
+					</div>
+					<div class="grid-activities contents">
+						{#each perDayActivities[dayIndex] as activity (activity)}
+							<ActivityBlock
+								{activity}
+								{hourWidth}
+								{...globalBlockProps}
+								{viewportReactivityTrigger}
+							/>
+						{/each}
+					</div>
 				</div>
 			{/each}
 		</div>
 	</div>
 </div>
 
-<style>
+<style lang="scss">
 	.tz-change-block {
 		background: repeating-linear-gradient(
 			120deg,
@@ -307,6 +338,22 @@
 			black 10px
 		);
 		opacity: 0.5;
+	}
+
+	.grid-hours {
+		z-index: 0;
+	}
+
+	.grid-miscs-lower {
+		z-index: 5;
+	}
+
+	.grid-activities {
+		z-index: 10;
+	}
+
+	.grid-miscs-upper {
+		z-index: 15;
 	}
 
 	#now-time-line::before,

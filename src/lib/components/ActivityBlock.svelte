@@ -59,7 +59,18 @@
 	const expandedDialogRight = $derived.by(() => {
 		return rightEdge + expandedWidth + 100 > (browser ? window.innerWidth : 0);
 	});
+
+	const bgBlockStart = $derived(
+		alertTimes.toSorted((a, b) => a[0] - b[0])[0][0] || startMinutes - (activity.delay || 0)
+	);
+	const bgBlockEnd = $derived(startMinutes + duration);
 </script>
+
+<div
+	class="absolute h-full"
+	style="left: {(bgBlockStart / 60) * hourWidth}px; width: {((bgBlockEnd - bgBlockStart) / 60) *
+		hourWidth}px;"
+></div>
 
 {#if activity.delay}
 	<div
