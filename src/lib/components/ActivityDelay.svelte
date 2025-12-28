@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { setActivityDelay } from '$lib/functions.remote';
 	import type { EventState } from '$lib/state.svelte';
 	import type { Activity } from '$lib/types/db';
 	import type { AddAlert } from '$lib/types/other';
@@ -24,27 +25,19 @@
 	async function onsave() {
 		if (!delayInput || delayInput <= (activity.delay ?? 0) || savePending) return;
 		savePending = true;
-		const response = await fetch(`/api/events/${activity.eventId}/activities/${activity.id}`, {
-			method: 'PATCH',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				action: 'setDelay',
-				delay: delayInput,
-				announceDelay: announceDelay
-			})
+		const newActivity = await setActivityDelay({
+			eventId: activity.eventId,
+			activityId: activity.id,
+			delay: delayInput
 		});
 
-		const data = await response.json();
-		if (!response.ok || !data.success) {
+		if (!newActivity) {
 			addAlert({
 				type: 'error',
 				content: `Nastala chyba pri ukladaní meškania.`
 			});
-			console.error(await response.json());
 		} else {
-			eventState.setActivity(activity.id, data.activity);
+			eventState.setActivity(activity.id, newActivity);
 			if (announceDelay) {
 				eventState.playerControl({
 					type: 'delayAnnouncement',
@@ -60,7 +53,7 @@
 	}
 </script>
 
-<div class="min-w-64 rounded bg-white shadow-lg shadow-black/30">
+<div class="bg-base-200 min-w-64 rounded shadow-lg shadow-black/30">
 	<div class="flex border-b border-dotted p-4">
 		<h3 class="text-xl font-bold">Meškanie</h3>
 		<div class="ml-auto flex items-center gap-1 text-2xl">
@@ -84,13 +77,7 @@
 		</div>
 		<div class="space-y-1">
 			<label for="delay-input" class="font-semibold">Nové meškanie:</label>
-			<input
-				id="delay-input"
-				type="number"
-				min="0"
-				class="form-input rounded"
-				bind:value={delayInput}
-			/>
+			<input id="delay-input" type="number" min="0" class="rounded" bind:value={delayInput} />
 		</div>
 		<div class="flex items-center justify-center">
 			<input

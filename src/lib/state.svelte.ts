@@ -29,6 +29,10 @@ export class EventState {
 	public activities = new SvelteMap<Activity['id'], Activity>();
 	public locations = new SvelteMap<ActivityLocation['id'], ActivityLocation>();
 	public activityList: Activity[] = $derived(Array.from(this.activities.values()));
+	public usedLocationIds: Set<ActivityLocation['id']> = $derived(
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity
+		new Set(this.activityList.map((a) => a.locationId).filter((id) => id != null))
+	);
 	public socketActive: boolean;
 
 	private soundProcessor: SoundProcessor | null = null;
@@ -165,6 +169,17 @@ export class EventState {
 			Object.values(update.activities).forEach((a) => {
 				const activity = this.parseJSONActivity(a);
 				this.activities.set(activity.id, activity);
+			});
+		});
+
+		this.socket.on('locationListUpdate', (update) => {
+			if (update.eventId !== this.event.id) {
+				this.connectToEvent(this.event.id);
+				return;
+			}
+			this.locations.clear();
+			Object.values(update.locations).forEach((loc) => {
+				this.locations.set(loc.id, loc);
 			});
 		});
 

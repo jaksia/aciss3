@@ -1,0 +1,51 @@
+input[type='text'],
+input:not([type]),
+input[type='email'],
+input[type='url'],
+input[type='password'],
+input[type='number'],
+input[type='date'],
+input[type='datetime-local'],
+input[type='month'],
+input[type='search'],
+input[type='tel'],
+input[type='time'],
+input[type='week'],
+select[multiple],
+textarea,
+select,
+.form-input {
+	@apply bg-base-200 border-light-content appearance-none rounded border px-3 py-2 leading-6;
+}
+
+input[type='file'] {
+	@apply bg-base-200 border-light-content inline-flex cursor-pointer appearance-none items-center rounded border align-middle select-none;
+	@apply pr-2 text-sm leading-8;
+
+	width: clamp(3rem, 20rem, 100%);
+
+	&::file-selector-button {
+		@apply bg-base-300 me-4 inline-flex h-full cursor-pointer appearance-none items-center rounded px-4 font-semibold select-none;
+	}
+
+	/* &:focus {
+		--input-color: var(--color-base-content);
+		box-shadow: 0 1px color-mix(in oklab, var(--input-color) 10%, #0000);
+		outline: 2px solid var(--input-color);
+		outline-offset: 2px;
+		isolation: isolate;
+	} */
+	&:disabled,
+	&[disabled] {
+		@apply border-base-200 bg-base-200 placeholder-base-content placeholder-base-content/20 cursor-not-allowed;
+		box-shadow: none;
+		color: color-mix(in oklch, var(--color-base-content) 20%, #0000);
+
+		&::file-selector-button {
+			@apply border-base-200 bg-base-200 cursor-not-allowed;
+			--btn-border: #0000;
+			--btn-noise: none;
+			--btn-fg: color-mix(in oklch, var(--color-base-content) 20%, #0000);
+		}
+	}
+}

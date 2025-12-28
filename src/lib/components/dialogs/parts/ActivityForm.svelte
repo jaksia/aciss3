@@ -89,7 +89,7 @@
 		<label class="mb-2 block font-medium" for="activity-name">Názov aktivity</label>
 		<input
 			id="activity-name"
-			class="form-input w-full rounded"
+			class="w-full"
 			type="text"
 			{disabled}
 			bind:value={editableActivity.name}
@@ -112,11 +112,11 @@
 		<label class="mb-2 block font-medium" for="activity-location">Miesto konania</label>
 		<select
 			id="activity-location"
-			class="form-select w-full rounded"
+			class="w-full"
 			{disabled}
 			bind:value={editableActivity.locationId}
 		>
-			{#each eventState.locations as [id, location] (location)}
+			{#each eventState.locations as [id, location] (id)}
 				<option value={id}>{location.name}</option>
 			{/each}
 		</select>
@@ -125,7 +125,7 @@
 		<label class="mb-2 block font-medium" for="activity-day">Deň akcie</label>
 		<select
 			id="activity-day"
-			class="form-select w-full rounded"
+			class="w-full"
 			{disabled}
 			bind:value={
 				() => editableActivity.day,
@@ -158,7 +158,7 @@
 		<div class="flex items-center gap-2">
 			<input
 				id="activity-start-time"
-				class="form-input grow rounded"
+				class="grow"
 				type="time"
 				{disabled}
 				bind:value={
@@ -180,7 +180,7 @@
 			-
 			<input
 				id="activity-end-time"
-				class="form-input grow rounded"
+				class="grow"
 				type="time"
 				{disabled}
 				bind:value={
@@ -206,13 +206,13 @@
 		<label class="mb-2 block font-medium" for="activity-delay">Meškanie (minúty)</label>
 		<input
 			id="activity-delay"
-			class="form-input w-full rounded"
+			class="w-full"
 			type="number"
 			min="0"
 			{disabled}
 			bind:value={editableActivity.delay}
 		/>
-		<p class="mt-1 text-sm text-gray-600">Prázdne pole znamená aktivitu bez meškania.</p>
+		<p class="text-light-content mt-1 text-sm">Prázdne pole znamená aktivitu bez meškania.</p>
 	</div>
 	<div>
 		<label class="mb-2 block font-medium" for="activity-zvolavanie">Zvolávanie účastníkov</label>
@@ -223,7 +223,7 @@
 			{disabled}
 			bind:checked={editableActivity.zvolavanie}
 		/>
-		<p class="mt-1 text-sm text-gray-600">
+		<p class="text-light-content mt-1 text-sm">
 			Pri večierke použije zvuk 'večerníček'. Ak je budíček bez zvolávania nič nebude robiť.
 		</p>
 	</div>
@@ -231,20 +231,20 @@
 <div class="flex border-b border-dotted p-4">
 	<div>
 		<h3 class="mb-2 text-lg font-semibold">Časy hlásení</h3>
-		<p class="text-sm text-gray-600">V minútach pred začiatkom aktivity.</p>
+		<p class="text-light-content text-sm">V minútach pred začiatkom aktivity.</p>
 	</div>
 	<div class="ml-4 flex flex-wrap gap-2">
 		{#each editableActivity.alertTimes, index (index)}
-			<div class="flex items-center gap-2 rounded bg-gray-200 px-1.5 py-1">
+			<div class="bg-base-300 flex items-center gap-2 rounded px-1.5 py-1">
 				<input
 					type="number"
 					min="0"
-					class="w-16 rounded bg-transparent text-center"
+					class="w-16 bg-transparent text-center"
 					bind:value={editableActivity.alertTimes[index]}
 				/>
 				<button
 					type="button"
-					class="text-xl text-red-600 hover:text-red-800"
+					class="cursor-pointer text-xl text-red-600 hover:text-red-800"
 					onclick={() => {
 						editableActivity.alertTimes.splice(index, 1);
 					}}

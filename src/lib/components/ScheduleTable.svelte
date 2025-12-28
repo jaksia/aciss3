@@ -204,7 +204,7 @@
 	)}
 	onwheel={wheelHandler}
 >
-	<div class="z-10 flex flex-col bg-white shadow-md">
+	<div class="bg-base-100 z-10 flex flex-col border-r shadow-md">
 		<div class="relative border-b p-2" style="height: {timeRowHeight + 1}px;">
 			<span class="absolute bottom-0">Date</span>
 			<span
@@ -214,7 +214,7 @@
 		</div>
 		{#each days as day, index}
 			<div
-				class="border-secondary/50 flex grow flex-col items-center border-b p-2"
+				class="border-base-content/50 flex grow flex-col items-center border-b p-2"
 				bind:clientHeight={dayRowHeight[index]}
 			>
 				<div class="relative my-2 grow font-medium" bind:clientHeight={dayTextHeight[index]}>
@@ -236,7 +236,7 @@
 				<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
 				{#each Array(24) as _, hour}
 					<div
-						class="border-secondary/50 relative border-l px-2 py-0.5 text-center font-mono"
+						class="border-base-content/50 relative border-l px-2 py-0.5 text-center font-mono"
 						style="width: {hourWidth}px; writing-mode: sideways-lr;"
 					>
 						{hour.toString().padStart(2, '0')}:00
@@ -245,10 +245,10 @@
 			</div>
 			{#each days as day, dayIndex}
 				<div
-					class="border-secondary/50 relative flex border-b"
+					class="border-base-content/50 relative flex border-b"
 					style="height: {dayRowHeight[dayIndex] + 1}px;"
 				>
-					<div class="grid-hours *:border-secondary/50 contents *:border-l">
+					<div class="grid-hours *:border-base-content/50 contents *:border-l">
 						<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
 						{#each Array(24), hour}
 							<div class="flex *:grow" style="width: {hourWidth}px;">

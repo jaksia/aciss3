@@ -18,7 +18,7 @@
 	} = $props();
 </script>
 
-<div class="w-11/12 max-w-2xl rounded bg-white p-6 shadow-lg">
+<div class="bg-base-100 w-11/12 max-w-2xl rounded p-6 shadow-lg">
 	<h2 class="mb-4 text-xl font-semibold">Opustené aktivity</h2>
 	{#if orphanedActivities.length === 0}
 		<p>Neboli nájdené žiadne opustené aktivity.</p>

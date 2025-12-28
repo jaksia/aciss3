@@ -1,4 +1,4 @@
-import { gt, isNull, lt, or, relations, sql } from 'drizzle-orm';
+import { isNull, lt, or, relations, sql } from 'drizzle-orm';
 import { EventStyle } from '../../themes';
 
 import {

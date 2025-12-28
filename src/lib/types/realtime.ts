@@ -1,9 +1,14 @@
-import type { Activity, Event, Session } from './db';
-import type { AllSoundTypes, SoundBuilderSound } from './sounds';
+import type { Activity, ActivityLocation, Event, Session } from './db';
+import type { SoundBuilderSound } from './sounds';
 
 export type EventUpdateNotification = {
 	eventId: number;
 	event: Event;
+};
+
+export type EventLocationsUpdateNotification = {
+	eventId: number;
+	locations: Record<number, ActivityLocation>;
 };
 
 export type ActivityUpdateNotification = {
@@ -43,6 +48,7 @@ export interface ServerToClientEvents {
 	activityUpdate: (data: ActivityUpdateNotification) => void;
 	activityDelete: (data: ActivityDeleteNotification) => void;
 	activityListUpdate: (data: ActivityListUpdateNotification) => void;
+	locationListUpdate: (data: EventLocationsUpdateNotification) => void;
 
 	playerControl: (data: PlayerControl) => void;
 }

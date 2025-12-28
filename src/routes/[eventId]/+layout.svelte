@@ -44,8 +44,8 @@
 	}
 </script>
 
-<div class="text-secondary flex min-h-screen flex-col">
-	<nav class="sticky top-0 flex h-24 text-white" style="background-color: {styles.primaryColor};">
+<div class="text-base-content flex min-h-screen flex-col">
+	<nav class="sticky top-0 flex h-24 text-white z-10" style="background-color: {styles.primaryColor};">
 		<div class="flex w-1/6">
 			<img src={styles.logoPath} alt="{event.style} Logo" class="mx-auto h-full" />
 		</div>
@@ -79,7 +79,9 @@
 		{/if}
 	</nav>
 
-	{@render children()}
+	<div class={['flex grow flex-col', adminSection !== null && 'bg-base-100']}>
+		{@render children()}
+	</div>
 </div>
 
 <div id="alert-container" class="fixed right-4 bottom-4 z-50">
@@ -131,19 +133,18 @@
 	{/each}
 </div>
 
-<div class="fixed bottom-4 left-4">
+<div class="fixed bottom-6 left-6 z-50">
 	<div class={['indicator', eventState.socketActive ? 'active' : 'inactive']}></div>
 </div>
 
 <style lang="scss">
 	.indicator {
-		width: 8px;
-		height: 8px;
 		border-radius: 50%;
 		display: inline-block;
 
-		background-color: var(--color);
-		box-shadow: 0 0 10px 5px var(--color);
+		box-shadow:
+			0 0 10px 4px var(--color),
+			0 0 20px 10px var(--color);
 
 		&.active {
 			--color: var(--color-emerald-500);

@@ -1,8 +1,6 @@
 <script lang="ts">
-	import { getAvailableSounds, setEventSound } from '$lib/functions.remote';
-	import { configurableSoundsData } from '$lib/sounds/configurable';
-	import type { CustomSound, Event } from '$lib/types/db';
-	import { ConfigurableSounds } from '$lib/types/enums';
+	import { attachLocation, getAvailableLocations } from '$lib/functions.remote';
+	import type { ActivityLocation, Event } from '$lib/types/db';
 	import type { AddAlert } from '$lib/types/other';
 	import Icon from '@iconify/svelte';
 	import { getContext } from 'svelte';
@@ -11,41 +9,41 @@
 
 	let {
 		event,
-		soundKey,
 		onclose: close,
-		setUpdatedEvent
+		setUpdatedLocations
 	}: {
 		event: Event;
-		soundKey: ConfigurableSounds;
 		onclose: () => void;
-		setUpdatedEvent: (event: Event) => void;
+		setUpdatedLocations: (locations: ActivityLocation[]) => void;
 	} = $props();
 
 	let actionPending = $state(false);
 	let fileInput: FileList | null = $state(null);
-	let description: string = $state('');
+	let locationName: string = $state('');
+	let locationContent: string = $state('');
 
-	async function setSound(soundId: CustomSound['id'] | null) {
+	async function assignLocation(locationId: number) {
 		actionPending = true;
-		const data = await setEventSound({ eventId: event.id, soundKey, soundId });
-		actionPending = false;
-		if (!data.success) {
+		const result = await attachLocation({ eventId: event.id, locationId }).updates(
+			getAvailableLocations(event.id)
+		);
+		if (!result.success) {
 			addAlert({
 				type: 'error',
-				content: 'Nastala chyba pri nastavovaní zvuku'
+				content: 'Nastala chyba pri priraďovaní miesta k udalosti'
 			});
-			console.error(data);
+			console.error(result);
 			return;
 		}
 		addAlert({
 			type: 'success',
-			content: 'Zvuk bol úspešne nastavený'
+			content: 'Miesto bolo úspešne priradené k udalosti'
 		});
-		setUpdatedEvent(data.event!);
-		close();
+		setUpdatedLocations(Object.values(result.eventLocations!));
+		actionPending = false;
 	}
 
-	async function uploadSound() {
+	async function createLocation() {
 		if (!fileInput || fileInput.length === 0) {
 			addAlert({
 				type: 'warning',
@@ -61,9 +59,11 @@
 		}
 		actionPending = true;
 		const formData = new FormData();
-		formData.append('description', description);
+		formData.append('name', locationName);
+		formData.append('content', locationContent);
 		formData.append('file', fileInput[0]);
-		const response = await fetch(`/api/events/${event.id}/sounds/${soundKey}`, {
+		formData.append('assignToEvent', event.id.toString());
+		const response = await fetch(`/api/locations`, {
 			method: 'POST',
 			body: formData
 		});
@@ -72,28 +72,27 @@
 		if (!response.ok || !data.success) {
 			addAlert({
 				type: 'error',
-				content: 'Nastala chyba pri nahrávaní zvuku'
+				content: 'Nastala chyba pri vytváraní nového miesta'
 			});
 			console.error(data);
 			return;
 		}
 		addAlert({
 			type: 'success',
-			content: 'Zvuk bol úspešne nahratý a nastavený'
+			content: `Miesto "${data.location.name}" bolo úspešne vytvorené a priradené k akcii.`
 		});
-		setUpdatedEvent(data.event);
-		close();
+		fileInput = null;
+		locationName = '';
+		locationContent = '';
+		setUpdatedLocations(data.eventLocations);
+		getAvailableLocations(event.id).refresh();
 	}
 </script>
 
 <div class="bg-base-100 w-11/12 max-w-2xl rounded p-6 shadow-lg">
 	<div class="mb-4 flex">
 		<div>
-			<h2 class="text-2xl font-bold">
-				Vybrať alebo nahrať nový zvuk pre <br />
-				<strong>{configurableSoundsData[soundKey].adminLabel}</strong>
-			</h2>
-			<em class="text-sm text-gray-500">{configurableSoundsData[soundKey].adminDescription}</em>
+			<h2 class="text-2xl font-bold">Pridať nové miesto</h2>
 		</div>
 		<div class="ml-auto">
 			{#if actionPending}
@@ -103,58 +102,46 @@
 	</div>
 
 	<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-		{#await getAvailableSounds(soundKey)}
+		{#await getAvailableLocations(event.id)}
 			<div class="sound-selector-block">
-				<strong>Načítavanie dostupných zvukov...</strong>
+				<strong>Načítavanie dostupných miest...</strong>
 				<Icon icon="eos-icons:loading" class="size-16" />
 			</div>
-		{:then availableSounds}
-			{#each availableSounds as sound (sound.id)}
+		{:then availableLocations}
+			{#each availableLocations as location (location.id)}
 				<div class="sound-selector-block">
-					<strong>{sound.description}</strong>
-					<audio controls src={sound.path} class="w-full"></audio>
+					<strong>{location.name}</strong>
+					<audio controls src={location.path} class="w-full"></audio>
+					<span class="text-light-content">{location.content || 'Žiadny popis'}</span>
 					<button
 						class="btn btn-secondary"
 						disabled={actionPending}
 						onclick={() => {
-							setSound(sound.id);
+							assignLocation(location.id);
 						}}
 					>
-						Vybrať tento zvuk
+						Pridať toto miesto
 					</button>
 				</div>
 			{/each}
 			<div class="sound-selector-block">
-				<strong>Nahrať nový zvuk</strong>
+				<strong>Pridať nové miesto</strong>
 				<input type="file" accept="audio/*" class="mt-2" bind:files={fileInput} />
-				<input type="text" placeholder="Popis zvuku" bind:value={description} />
+				<input type="text" placeholder="Názov miesta" bind:value={locationName} />
+				<input type="text" placeholder="Doslovný obsah zvuku" bind:value={locationContent} />
 				<button
 					class="btn btn-secondary mt-2"
 					disabled={actionPending}
 					onclick={() => {
-						uploadSound();
+						createLocation();
 					}}
 				>
-					Nahrať a použiť tento zvuk
+					Vytvoriť nové miesto
 				</button>
 			</div>
-			{#if !configurableSoundsData[soundKey].required && event.sounds[soundKey]}
-				<div class="sound-selector-block">
-					<strong>Odstrániť aktuálny zvuk</strong>
-					<button
-						class="btn btn-error mt-2"
-						disabled={actionPending}
-						onclick={() => {
-							setSound(null);
-						}}
-					>
-						Odstrániť zvuk
-					</button>
-				</div>
-			{/if}
 		{:catch error}
 			<div class="sound-selector-block">
-				<strong>Chyba pri načítavaní dostupných zvukov</strong>
+				<strong>Chyba pri načítavaní dostupných miest</strong>
 				<p class="text-red-500">{error.message}</p>
 			</div>
 		{/await}

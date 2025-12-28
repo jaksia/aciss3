@@ -1,10 +1,10 @@
-import { ARGON2_CONFIG } from '$lib/server/session.js';
-import { db } from '$lib/server/db/index.js';
-import * as schema from '$lib/server/db/schema.js';
-import { eventExists, getEvent, updateEvent } from '$lib/server/db/utils.js';
+import { ARGON2_CONFIG } from '$lib/server/session';
+import { db } from '$lib/server/db/index';
+import * as schema from '$lib/server/db/schema';
+import { eventExists, getEvent, updateEvent } from '$lib/server/db/utils';
 import { triggerEventUpdate } from '$lib/server/socket';
-import { EventStyle } from '$lib/themes.js';
-import type { BaseEvent } from '$lib/types/db.js';
+import { EventStyle } from '$lib/themes';
+import type { BaseEvent } from '$lib/types/db';
 import { hash, verify } from '@node-rs/argon2';
 import { error, fail } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';

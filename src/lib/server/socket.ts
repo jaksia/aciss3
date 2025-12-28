@@ -1,4 +1,4 @@
-import type { Activity, Event } from '$lib/types/db';
+import type { Activity, Event, Session } from '$lib/types/db';
 import type {
 	ClientToServerEvents,
 	InterServerEvents,
@@ -6,7 +6,7 @@ import type {
 	SocketData
 } from '$lib/types/realtime';
 import { Server, type Socket } from 'socket.io';
-import { getActivities, getActivity, getEvent } from './db/utils';
+import { getActivities, getActivity, getEvent, getEventLocations } from './db/utils';
 import { validateSocketCode } from './session';
 
 type SocketIO = Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>;
@@ -20,17 +20,15 @@ type SocketClient = Socket<
 // --- HMR Global Persistence ---
 const SOCKET_IO_KEY = Symbol.for('sveltekit.socketio');
 
-interface GlobalWithSocket {
+const globalWithSocket = globalThis as unknown as {
 	[SOCKET_IO_KEY]?: SocketIO;
-}
-
-const globalWithSocket = globalThis as unknown as GlobalWithSocket;
+};
 // ------------------------------
 
 let io: SocketIO | null = globalWithSocket[SOCKET_IO_KEY] || null;
 let initializing: Promise<SocketIO> | null = null;
 
-const updatedSessions = new Set<string>();
+const updatedSessions = new Set<Session['id']>();
 const protectedEvents = new Set<Event['id']>();
 
 async function attachSocketListeners(io: SocketIO, socket: SocketClient) {
@@ -111,6 +109,7 @@ async function configureServer(io: SocketIO) {
 		socket.removeAllListeners();
 		attachSocketListeners(io, socket);
 	});
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	(io as any)._middleware = [];
 
 	io.use(async (socket, next) => {
@@ -157,7 +156,7 @@ export async function initSocket(port: number) {
 			console.log('🚀 Socket.IO initialized');
 
 			// Using a Promise to ensure the port is actually bound before proceeding
-			await new Promise<void>((resolve, reject) => {
+			await new Promise((resolve) => {
 				server.listen(port);
 				server.engine.on('connection_error', (err) => console.error(err));
 				// Give it a tiny bit of time to bind or fail
@@ -192,6 +191,16 @@ export async function triggerEventUpdate(eventId: Event['id']) {
 		return;
 	}
 	getIO().to(`event_${eventId}`).emit('eventUpdate', { eventId, event });
+}
+
+export async function triggerLocationsUpdate(eventId: Event['id']) {
+	const locations = await getEventLocations(eventId);
+	if (!locations) return;
+	const io = getIO();
+	io.to(`event_${eventId}`).emit('locationListUpdate', {
+		eventId,
+		locations: locations
+	});
 }
 
 export async function triggerActivitiesUpdate(eventId: Event['id'], activityId?: Activity['id']) {

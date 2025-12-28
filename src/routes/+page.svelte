@@ -5,7 +5,7 @@
 	const { data } = $props();
 </script>
 
-<div class="flex min-h-screen flex-col items-center justify-center">
+<div class="bg-base-100 text-base-content flex min-h-screen flex-col items-center justify-center">
 	<h1 class="text-4xl font-bold">Dostupné akcie</h1>
 
 	<ul class="mt-8 divide-y rounded border">

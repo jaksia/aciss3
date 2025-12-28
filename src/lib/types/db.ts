@@ -29,10 +29,7 @@ export type EditableEvent = Omit<
 	endDate: number;
 };
 
-export type EditableActivity = Omit<
-	BaseActivity,
-	'id' | 'eventId' | 'alertTimes' | 'participantNeeds' | 'additionalInfos'
-> & {
+export type EditableActivity = Omit<BaseActivity, 'id' | 'eventId'> & {
 	day: number;
 
 	locationId: ActivityLocation['id'];
@@ -42,13 +39,7 @@ export type EditableActivity = Omit<
 	additionalInfos: ActivityAdditionalInfo['info'][];
 };
 
-export type EditableActivityServer = Omit<
-	EditableActivity,
-	'day' | 'startTimeMinutes' | 'endTimeMinutes'
-> & {
-	startTime: number;
-	endTime: number;
-};
+export type EditableActivityServer = Omit<EditableActivity, 'day'>;
 
 export type BaseSession = typeof schema.session.$inferSelect;
 export type SessionAllowedEvent = typeof schema.sessionAllowedEvents.$inferSelect;

@@ -1,64 +1,33 @@
 <script lang="ts">
 	import { EventStyle } from '$lib/themes';
-	import type { EditableEvent } from '$lib/types/db';
 	import { DatePicker } from '@svelte-plugins/datepicker';
-	import { enhance } from '$app/forms';
 	import type { PageProps } from './$types';
-	import { SvelteDate } from 'svelte/reactivity';
+	import { createEvent } from '$lib/functions.remote';
+	import { getCreateEventSchema } from '$lib/schemas';
 
-	let { form, data }: PageProps = $props();
-
-	// svelte-ignore state_referenced_locally
-	let editableEvent: EditableEvent = $state({
-		name: form?.data?.name ?? '',
-		location: form?.data?.location ?? '',
-		style: form?.data?.style ?? EventStyle.DEFAULT,
-		startDate: form?.data?.startDate ?? new SvelteDate().valueOf(),
-		endDate: form?.data?.endDate ?? new SvelteDate().setDate(new SvelteDate().getDate() + 5)
-	} as EditableEvent);
-
-	function formatDate(date: number | null): string {
-		if (date === null) return '';
-		const d = new Date(date);
-		return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d
-			.getDate()
-			.toString()
-			.padStart(2, '0')}`;
-	}
+	let { data }: PageProps = $props();
 
 	let datePickerOpen = $state(false);
-	let formattedStartDate: string = $derived(formatDate(editableEvent.startDate));
-	let formattedEndDate: string = $derived(formatDate(editableEvent.endDate));
 
 	let submitPending = $state(false);
 </script>
 
-<div class="mx-auto flex h-full flex-col p-8 md:max-w-1/2 lg:max-w-1/3">
+<div
+	class="bg-base-100 text-base-content flex min-h-screen min-w-screen flex-col items-center p-8 md:max-w-1/2 lg:max-w-1/3"
+>
 	<h2 class="mb-3 text-3xl font-bold">Vytvorenie akcie</h2>
 	<div class="flex gap-8">
 		<form
 			class="flex flex-1 flex-col gap-4"
-			method="POST"
-			use:enhance={() => {
-				submitPending = true;
-
-				return async ({ update }) => {
+			{...createEvent
+				.preflight(getCreateEventSchema(data.hasRootPassword))
+				.enhance(async ({ submit }) => {
+					submitPending = true;
+					await submit();
 					submitPending = false;
-					await update();
-				};
-			}}
+				})}
+			oninput={() => createEvent.validate({ preflightOnly: true })}
 		>
-			{#if form?.errors}
-				<div class="mb-4 rounded bg-red-100 p-4 text-red-700">
-					<h3 class="mb-2 text-lg font-semibold">Chyby pri vytváraní akcie:</h3>
-					<ul class="list-disc pl-5">
-						{#each Object.values(form.errors) as error (error)}
-							<li>{error}</li>
-						{/each}
-					</ul>
-				</div>
-			{/if}
-
 			{#if !data.validRootPassword}
 				<div class="mb-4 rounded bg-red-100 p-4 text-red-700">
 					<h3 class="mb-2 text-lg font-semibold">Nesprávne nastavenie servera</h3>
@@ -69,52 +38,57 @@
 				</div>
 			{/if}
 
-			<input type="hidden" name="startDate" value={formattedStartDate} />
-			<input type="hidden" name="endDate" value={formattedEndDate} />
 			<div>
 				<label for="name" class="mb-2 block text-lg font-semibold">Názov akcie</label>
-				<input
-					id="name"
-					name="name"
-					type="text"
-					bind:value={editableEvent.name}
-					class=" w-full rounded"
-				/>
-				{#if !editableEvent.name}
-					<p class="mt-1 text-sm text-red-500">Názov akcie je povinný.</p>
-				{/if}
+				<input id="name" class="w-full" {...createEvent.fields.name.as('text')} />
+				{#each createEvent.fields.name.issues() as issue (issue.message)}
+					<p class="mt-1 text-sm text-red-500">{issue.message}</p>
+				{/each}
 			</div>
 			<div>
 				<label for="location" class="mb-2 block text-lg font-semibold">Miesto konania</label>
-				<input
-					id="location"
-					name="location"
-					type="text"
-					bind:value={editableEvent.location}
-					class="w-full rounded"
-				/>
-				{#if !editableEvent.location}
-					<p class="mt-1 text-sm text-red-500">Miesto konania je povinné.</p>
-				{/if}
+				<input id="location" class="w-full" {...createEvent.fields.location.as('text')} />
+				{#each createEvent.fields.location.issues() as issue (issue.message)}
+					<p class="mt-1 text-sm text-red-500">{issue.message}</p>
+				{/each}
 			</div>
 			<div>
 				<label for="style" class="mb-2 block text-lg font-semibold"
 					>Štýl akcie
 					<em class="font-normal">(mení iba vzhľad)</em></label
 				>
-				<select id="style" name="style" bind:value={editableEvent.style} class=" w-full rounded">
+				<select id="style" class="w-full" {...createEvent.fields.style.as('select')}>
 					{#each Object.values(EventStyle) as name (name)}
 						<option value={name}>{name}</option>
 					{/each}
 				</select>
+				{#each createEvent.fields.style.issues() as issue (issue.message)}
+					<p class="mt-1 text-sm text-red-500">{issue.message}</p>
+				{/each}
 			</div>
+			<input
+				type="hidden"
+				name={createEvent.fields.startDate.as('number').name}
+				value={createEvent.fields.startDate.value()}
+			/>
+			<input
+				type="hidden"
+				name={createEvent.fields.endDate.as('number').name}
+				value={createEvent.fields.endDate.value()}
+			/>
 			<div>
 				<h3 class="mb-3 text-xl font-bold">Dátum akcie</h3>
 
 				<DatePicker
 					isOpen={datePickerOpen}
-					bind:startDate={editableEvent.startDate}
-					bind:endDate={editableEvent.endDate}
+					bind:startDate={
+						() => createEvent.fields.startDate.value(),
+						(value) => createEvent.fields.startDate.set(value)
+					}
+					bind:endDate={
+						() => createEvent.fields.endDate.value(),
+						(value) => createEvent.fields.endDate.set(value)
+					}
 					enableFutureDates={true}
 					isRange
 					isMultipane
@@ -122,41 +96,48 @@
 					<!-- svelte-ignore a11y_click_events_have_key_events -->
 					<!-- svelte-ignore a11y_no_static_element_interactions -->
 					<div
-						class="form-input rounded"
+						class="form-input"
 						onclick={() => (datePickerOpen = !datePickerOpen)}
 						class:open={datePickerOpen}
 					>
 						<div class="date">
-							{new Date(editableEvent.startDate).toLocaleDateString('sk-SK')} - {new Date(
-								editableEvent.endDate
-							).toLocaleDateString('sk-SK')}
+							{new Date(createEvent.fields.startDate.value()).toLocaleDateString('sk-SK')} -
+							{#if createEvent.fields.endDate.value() !== null}
+								{new Date(createEvent.fields.endDate.value()).toLocaleDateString('sk-SK')}
+							{/if}
 						</div>
-						{#if editableEvent.startDate > editableEvent.endDate}
-							<p class="mt-1 text-sm text-red-500">Dátum začiatku musí byť pred dátumom konca.</p>
-						{/if}
 					</div>
+					{#each createEvent.fields.startDate.issues() as issue (issue.message)}
+						<p class="mt-1 text-sm text-red-500">{issue.message}</p>
+					{/each}
+					{#each createEvent.fields.endDate.issues() as issue (issue.message)}
+						<p class="mt-1 text-sm text-red-500">{issue.message}</p>
+					{/each}
 				</DatePicker>
 			</div>
 			{#if data.hasRootPassword}
 				<div>
 					<label for="rootPassword" class="mb-2 block text-lg font-semibold">Heslo</label>
-					<input id="rootPassword" name="rootPassword" type="password" class=" w-full rounded" />
+					<input
+						id="rootPassword"
+						class="w-full"
+						{...createEvent.fields._rootPassword.as('password')}
+					/>
 					<p class="mt-1 text-sm text-gray-500">
 						Na temto serveri je možné vytvoriť akciu iba s pomocou správneho root hesla. Ak ho
 						nemáte, kontaktujte správcu servera.
 					</p>
+					{#each createEvent.fields._rootPassword.issues() as issue (issue.message)}
+						<p class="mt-1 text-sm text-red-500">{issue.message}</p>
+					{/each}
 				</div>
 			{/if}
+			{submitPending}
+			{!data.validRootPassword}
 			<button
-				type="submit"
 				class="btn btn-success mx-auto mt-4"
-				disabled={!editableEvent.name ||
-					!editableEvent.location ||
-					!editableEvent.startDate ||
-					!editableEvent.endDate ||
-					editableEvent.startDate > editableEvent.endDate ||
-					submitPending ||
-					!data.validRootPassword}
+				disabled={submitPending || !data.validRootPassword}
+				type="submit"
 			>
 				Vytvoriť
 			</button>

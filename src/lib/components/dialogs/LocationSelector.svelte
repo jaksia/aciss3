@@ -18,12 +18,12 @@
 	let locationInput: ActivityLocation | null = $state(null);
 </script>
 
-<div class="max-w-2xl rounded bg-white p-6 shadow-lg">
+<div class="bg-base-100 max-w-2xl rounded p-6 shadow-lg">
 	<h2 class="mb-4 text-xl font-semibold">Vyberte umiestnenie pre {purpose}</h2>
 	<div class="flex gap-2">
-		<select class="form-input grow rounded pr-8" bind:value={locationInput}>
+		<select class="grow pr-8" bind:value={locationInput}>
 			<option value={null} disabled selected>-- Vyberte umiestnenie --</option>
-			{#each eventState.locations as [id, location] (location)}
+			{#each eventState.locations as [id, location] (id)}
 				<option value={id}>{location.name}</option>
 			{/each}
 		</select>

@@ -1,195 +1,14 @@
-import type {
-	BaseActivity,
-	Activity,
-	Event,
-	CustomSound,
-	BaseEvent,
-	EditableActivityServer,
-	ActivityLocation
-} from '$lib/types/db';
-import { eq, and, or, inArray, min } from 'drizzle-orm';
-import { db } from '.';
+import type { BaseActivity, Activity, Event, EditableActivityServer } from '$lib/types/db';
+import { eq, and, inArray } from 'drizzle-orm';
+import { db } from '..';
 import {
 	activities,
 	activityAdditionalInfos,
 	activityAlertTimes,
 	activityParticipantNeeds,
-	events,
-	customSounds,
-	eventsToSounds,
 	eventsToLocations,
 	locations
-} from './schema';
-import type { ConfigurableSounds } from '$lib/types/enums';
-
-export async function getEvent(
-	eventId: Event['id'],
-	options: { returnPasswordHash?: boolean; includeLocations?: boolean } = {}
-) {
-	const [baseEvent] = await db.select().from(events).where(eq(events.id, eventId));
-	if (!baseEvent) return null;
-	const sounds = await db
-		.select()
-		.from(eventsToSounds)
-		.where(eq(eventsToSounds.eventId, eventId))
-		.innerJoin(customSounds, eq(eventsToSounds.customSoundId, customSounds.id));
-	return {
-		...baseEvent,
-		adminPasswordHash: options.returnPasswordHash
-			? baseEvent.adminPasswordHash
-			: baseEvent.adminPasswordHash === null
-				? null
-				: '*******',
-		startDate: new Date(baseEvent.startDate),
-		endDate: new Date(baseEvent.endDate),
-		sounds: sounds.reduce(
-			(acc, es) => {
-				acc[es.custom_sounds.key] = es.custom_sounds;
-				return acc;
-			},
-			{} as Record<CustomSound['key'], CustomSound>
-		)
-	} as Event;
-}
-
-export async function getEvents() {
-	const result: BaseEvent[] = await db.select().from(events);
-	return result.map((event) => ({
-		...event,
-		adminPasswordHash: event.adminPasswordHash === null ? null : '*******',
-		startDate: new Date(event.startDate),
-		endDate: new Date(event.endDate)
-	})) as Omit<Event, 'sounds'>[];
-}
-
-export async function createEvent(eventData: Omit<BaseEvent, 'id'>): Promise<Event['id']> {
-	const defaultSounds = (
-		await db
-			.select({
-				key: customSounds.key,
-				id: min(customSounds.id)
-			})
-			.from(customSounds)
-			.groupBy(customSounds.key)
-			.where(eq(customSounds.default, true))
-	).filter((s) => s.id !== null);
-
-	const event = await db.transaction(async (tx) => {
-		const [event] = await tx.insert(events).values(eventData).returning();
-
-		for (const sound of defaultSounds) {
-			if (!sound.id) continue;
-			await tx.insert(eventsToSounds).values({
-				eventId: event.id,
-				customSoundId: sound.id,
-				soundKey: sound.key
-			});
-		}
-
-		return event;
-	});
-
-	return event.id;
-}
-
-export async function eventExists(eventId: Event['id']): Promise<boolean> {
-	const [event] = await db.select().from(events).where(eq(events.id, eventId));
-	return !!event;
-}
-
-export async function updateEvent(eventId: Event['id'], updates: Partial<Omit<BaseEvent, 'id'>>) {
-	await db.update(events).set(updates).where(eq(events.id, eventId));
-}
-
-export async function getEventLocations(eventId: Event['id']) {
-	const result = await db
-		.select()
-		.from(locations)
-		.leftJoin(eventsToLocations, eq(locations.id, eventsToLocations.locationId))
-		.where(or(eq(eventsToLocations.eventId, eventId), locations.isStatic));
-	return result.reduce(
-		(acc, { locations: loc }) => {
-			acc[loc.id] = loc;
-			return acc;
-		},
-		{} as Record<ActivityLocation['id'], ActivityLocation>
-	);
-}
-
-export async function locationExists(locationId: ActivityLocation['id']) {
-	const [location] = await db.select().from(locations).where(eq(locations.id, locationId));
-	return !!location;
-}
-
-export async function getAvailableSounds(key?: ConfigurableSounds): Promise<CustomSound[]> {
-	if (key) {
-		return await db.select().from(customSounds).where(eq(customSounds.key, key));
-	}
-	return await db.select().from(customSounds);
-}
-
-export async function soundExists(
-	soundId: CustomSound['id'],
-	key?: CustomSound['key']
-): Promise<boolean> {
-	const query = db
-		.select()
-		.from(customSounds)
-		.where(and(eq(customSounds.id, soundId), key ? eq(customSounds.key, key) : undefined));
-	const [sound] = await query;
-	return !!sound;
-}
-
-export async function setEventSound(
-	eventId: Event['id'],
-	soundId: CustomSound['id'] | null,
-	key: ConfigurableSounds
-) {
-	const [existing] = await db
-		.select()
-		.from(eventsToSounds)
-		.where(and(eq(eventsToSounds.eventId, eventId), eq(eventsToSounds.soundKey, key)));
-	if (existing) {
-		if (soundId === null) {
-			await db
-				.delete(eventsToSounds)
-				.where(and(eq(eventsToSounds.eventId, eventId), eq(eventsToSounds.soundKey, key)));
-		} else {
-			await db
-				.update(eventsToSounds)
-				.set({ customSoundId: soundId })
-				.where(and(eq(eventsToSounds.eventId, eventId), eq(eventsToSounds.soundKey, key)));
-		}
-	} else if (soundId !== null) {
-		await db.insert(eventsToSounds).values({
-			eventId,
-			customSoundId: soundId,
-			soundKey: key
-		});
-	} else {
-		// No existing entry and soundId is null, do nothing
-	}
-}
-
-export async function createCustomSound(
-	filePath: string,
-	key: ConfigurableSounds,
-	description: string,
-	createdForEventId: Event['id'] | null = null
-) {
-	const [customSound] = await db
-		.insert(customSounds)
-		.values({
-			path: filePath,
-			key,
-			description
-		})
-		.returning();
-	if (createdForEventId) {
-		await setEventSound(createdForEventId, customSound.id, key);
-	}
-	return customSound;
-}
+} from '../schema';
 
 export async function getActivities(eventId: Event['id']) {
 	const result = await db
@@ -328,6 +147,7 @@ export async function createOrUpdateActivity(
 	}
 
 	// Associate location with event if not already associated
+	// TODO: don't associate static locations
 	await db
 		.insert(eventsToLocations)
 		.values({

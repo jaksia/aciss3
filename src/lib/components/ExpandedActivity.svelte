@@ -45,7 +45,7 @@
 </script>
 
 <div
-	class={['rounded bg-white shadow-lg shadow-black/30', elems > 1 ? 'min-w-lg' : 'min-w-64']}
+	class={['bg-base-200 rounded shadow-lg shadow-black/30', elems > 1 ? 'min-w-lg' : 'min-w-64']}
 	use:clickOutside={{
 		callback: (e) => {
 			if (e.target === activityElem || (e.target as HTMLElement)?.classList.contains('activity'))
@@ -59,7 +59,7 @@
 >
 	<div class="flex border-b border-dotted p-4">
 		<h3 class="text-xl font-bold">{activity.name}</h3>
-		<div class="ml-auto flex items-center gap-1 text-2xl">
+		<div class="ml-auto flex items-center gap-0.5 text-2xl">
 			<button class="ea-top-btn" title="Meškanie" onclick={() => (delayDialog = true)}>
 				<Icon icon="mdi:timer-sand" />
 			</button>

@@ -7,10 +7,6 @@
 	import { EventState } from '$lib/state.svelte';
 	import type { AddAlert } from '$lib/types/other';
 
-	// Linter removes <> when the type is used in enhance block, this is a workaround
-	// TODO: diagnose
-	type PEditableEvent = Partial<EditableEvent>;
-
 	const eventState = getContext<() => EventState>('getEventState')();
 	const addAlert = getContext<AddAlert>('addAlert');
 
@@ -71,7 +67,7 @@
 									: 'Nastala neznáma chyba')
 						});
 					}
-					const data = (result.data?.data ?? {}) as PEditableEvent;
+					const data = (result.data?.data ?? {}) as Partial<EditableEvent>;
 					editableEvent = {
 						name: data.name ?? event.name,
 						location: data.location ?? event.location,
@@ -132,7 +128,7 @@
 					<!-- svelte-ignore a11y_click_events_have_key_events -->
 					<!-- svelte-ignore a11y_no_static_element_interactions -->
 					<div
-						class="form-input rounded"
+						class="form-input"
 						onclick={() => (datePickerOpen = !datePickerOpen)}
 						class:open={datePickerOpen}
 					>

@@ -1,5 +1,5 @@
 import { env } from '$env/dynamic/public';
-import { getSoundFile } from '$lib/server/files/sounds.js';
+import { getSoundFile } from '$lib/server/files/sounds';
 import { error } from '@sveltejs/kit';
 import { Readable } from 'stream';
 
