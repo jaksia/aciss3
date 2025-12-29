@@ -45,7 +45,10 @@
 </script>
 
 <div class="text-base-content flex min-h-screen flex-col">
-	<nav class="sticky top-0 flex h-24 text-white z-10" style="background-color: {styles.primaryColor};">
+	<nav
+		class="sticky top-0 z-10 flex h-24 text-white"
+		style="background-color: {styles.primaryColor};"
+	>
 		<div class="flex w-1/6">
 			<img src={styles.logoPath} alt="{event.style} Logo" class="mx-auto h-full" />
 		</div>
@@ -79,7 +82,7 @@
 		{/if}
 	</nav>
 
-	<div class={['flex grow flex-col', adminSection !== null && 'bg-base-100']}>
+	<div class="flex grow flex-col">
 		{@render children()}
 	</div>
 </div>

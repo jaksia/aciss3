@@ -8,7 +8,6 @@
 		ParticipantNeeds
 	} from '$lib/types/enums';
 	import { NumberSounds, OtherSounds, type FixedSounds } from '$lib/types/sounds';
-	import { fade } from 'svelte/transition';
 	import SoundSelector from '$lib/components/dialogs/SoundSelector.svelte';
 	import { getContext } from 'svelte';
 	import type { EventState } from '$lib/state.svelte';
@@ -18,6 +17,7 @@
 	import type { ActivityLocation } from '$lib/types/db';
 	import { detachLocation } from '$lib/functions.remote';
 	import type { AddAlert } from '$lib/types/other';
+	import Overlay from '$lib/components/Overlay.svelte';
 
 	const confSoundsRoot = getConfigurableSoundRoot();
 
@@ -48,18 +48,18 @@
 />
 
 {#if soundSelectorKey}
-	<div class="overlay" transition:fade={{ duration: 200 }}>
+	<Overlay>
 		<SoundSelector
 			{event}
 			soundKey={soundSelectorKey}
 			onclose={() => (soundSelectorKey = null)}
 			setUpdatedEvent={(newEvent) => eventState.setEvent(newEvent)}
 		/>
-	</div>
+	</Overlay>
 {/if}
 
 {#if addLocationDialog}
-	<div class="overlay" transition:fade={{ duration: 200 }}>
+	<Overlay>
 		<NewLocation
 			{event}
 			onclose={() => (addLocationDialog = false)}
@@ -70,7 +70,7 @@
 				});
 			}}
 		/>
-	</div>
+	</Overlay>
 {/if}
 
 <div class="bg-base-100 text-base-content flex h-full space-x-8 p-8">
@@ -131,8 +131,8 @@
 								onclick={async () => {
 									if (isUsed) return;
 									pendingLocationIds.add(locId);
-									const result = await detachLocation({ eventId: event.id, locationId: locId });
-									if (result.success) {
+									try {
+										const result = await detachLocation({ eventId: event.id, locationId: locId });
 										eventState.locations.clear();
 										Object.values(result.eventLocations!).forEach((loc) => {
 											eventState.locations.set(loc.id, loc);
@@ -141,11 +141,12 @@
 											type: 'success',
 											content: `Miesto "${location.name}" bolo úspešne odstránené z akcie.`
 										});
-									} else {
+									} catch (error) {
 										addAlert({
 											type: 'error',
 											content: 'Nastala chyba pri odstraňovaní miesta'
 										});
+										console.error(error);
 									}
 									pendingLocationIds.delete(locId);
 								}}

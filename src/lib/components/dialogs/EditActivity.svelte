@@ -20,27 +20,25 @@
 	let valid = $state(false);
 </script>
 
-<div class="bg-base-100 w-11/12 max-w-2xl rounded p-6 shadow-lg">
-	<div class="flex">
-		<h2 class="mb-4 text-xl font-semibold">Upraviť aktivitu</h2>
-		<div class="ml-auto flex gap-2">
-			<button
-				type="button"
-				class="btn btn-secondary"
-				{disabled}
-				onclick={() => !disabled && oncancel()}>Zrušiť</button
-			>
-			<button
-				type="button"
-				class="btn btn-success"
-				disabled={!editableActivity || !valid || disabled}
-				onclick={() => {
-					if (!editableActivity || !valid || disabled) return;
-					onsave(editableActivity);
-				}}>Uložiť</button
-			>
-		</div>
+<div class="flex">
+	<h2 class="mb-4 text-xl font-semibold">Upraviť aktivitu</h2>
+	<div class="ml-auto flex gap-2">
+		<button
+			type="button"
+			class="btn btn-secondary"
+			{disabled}
+			onclick={() => !disabled && oncancel()}>Zrušiť</button
+		>
+		<button
+			type="button"
+			class="btn btn-success"
+			disabled={!editableActivity || !valid || disabled}
+			onclick={() => {
+				if (!editableActivity || !valid || disabled) return;
+				onsave(editableActivity);
+			}}>Uložiť</button
+		>
 	</div>
-
-	<ActivityForm {disabled} {event} initialActivity={activity} bind:editableActivity bind:valid />
 </div>
+
+<ActivityForm {disabled} {event} initialActivity={activity} bind:editableActivity bind:valid />

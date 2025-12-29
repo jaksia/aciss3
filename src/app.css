@@ -49,7 +49,7 @@
 	@apply text-secondary flex flex-col gap-y-10 uppercase;
 
 	.row {
-		@apply flex grow gap-x-8;
+		@apply flex grow gap-x-10;
 	}
 
 	.col {
@@ -102,8 +102,4 @@
 
 .ea-top-btn {
 	@apply enabled:hover:bg-base-300 cursor-pointer rounded-full p-2 transition-all disabled:cursor-not-allowed disabled:opacity-50;
-}
-
-.overlay {
-	@apply fixed inset-0 z-20 flex items-center justify-center bg-black/40;
 }

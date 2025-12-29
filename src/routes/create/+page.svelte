@@ -4,8 +4,12 @@
 	import type { PageProps } from './$types';
 	import { createEvent } from '$lib/functions.remote';
 	import { getCreateEventSchema } from '$lib/schemas';
+	import { getContext } from 'svelte';
+	import type { AddAlert } from '$lib/types/other';
 
 	let { data }: PageProps = $props();
+
+	const addAlert = getContext<AddAlert>('addAlert');
 
 	let datePickerOpen = $state(false);
 
@@ -23,7 +27,19 @@
 				.preflight(getCreateEventSchema(data.hasRootPassword))
 				.enhance(async ({ submit }) => {
 					submitPending = true;
-					await submit();
+					try {
+						await submit();
+						addAlert({
+							type: 'success',
+							content: 'Akcia bola úspešne vytvorená.'
+						});
+					} catch (error) {
+						addAlert({
+							type: 'error',
+							content: 'Nastala chyba pri vytváraní akcie.'
+						});
+						console.error(error);
+					}
 					submitPending = false;
 				})}
 			oninput={() => createEvent.validate({ preflightOnly: true })}

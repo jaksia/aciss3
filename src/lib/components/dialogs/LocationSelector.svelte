@@ -18,21 +18,19 @@
 	let locationInput: ActivityLocation | null = $state(null);
 </script>
 
-<div class="bg-base-100 max-w-2xl rounded p-6 shadow-lg">
-	<h2 class="mb-4 text-xl font-semibold">Vyberte umiestnenie pre {purpose}</h2>
-	<div class="flex gap-2">
-		<select class="grow pr-8" bind:value={locationInput}>
-			<option value={null} disabled selected>-- Vyberte umiestnenie --</option>
-			{#each eventState.locations as [id, location] (id)}
-				<option value={id}>{location.name}</option>
-			{/each}
-		</select>
-		<button
-			type="button"
-			class="btn btn-success"
-			disabled={locationInput === null}
-			onclick={() => locationInput && onselect(locationInput)}>Vybrať</button
-		>
-		<button type="button" class="btn btn-secondary" onclick={oncancel}>Zavrieť</button>
-	</div>
+<h2 class="mb-4 text-xl font-semibold">Vyberte umiestnenie pre {purpose}</h2>
+<div class="flex gap-2">
+	<select class="grow pr-8" bind:value={locationInput}>
+		<option value={null} disabled selected>-- Vyberte umiestnenie --</option>
+		{#each eventState.locations as [id, location] (id)}
+			<option value={id}>{location.name}</option>
+		{/each}
+	</select>
+	<button
+		type="button"
+		class="btn btn-success"
+		disabled={locationInput === null}
+		onclick={() => locationInput && onselect(locationInput)}>Vybrať</button
+	>
+	<button type="button" class="btn btn-secondary" onclick={oncancel}>Zavrieť</button>
 </div>

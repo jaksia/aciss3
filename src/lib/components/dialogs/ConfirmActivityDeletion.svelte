@@ -14,17 +14,14 @@
 	} = $props();
 </script>
 
-<div class="bg-base-100 w-11/12 max-w-2xl rounded p-6 shadow-lg">
-	<h2 class="mb-4 text-xl font-semibold">Zmazať aktivitu</h2>
-	<p class="mb-6">
-		Naozaj chcete zmazať aktivitu "<strong>{activity.name}</strong>"? Túto akciu nie je možné vrátiť
-		späť.
-	</p>
-	<div class="">
-		<button class="btn btn-error" {disabled} onclick={() => !disabled && onconfirm()}>Zmazať</button
-		>
-		<button class="btn btn-secondary ml-2" {disabled} onclick={() => !disabled && oncancel()}
-			>Zrušiť</button
-		>
-	</div>
+<h2 class="mb-4 text-xl font-semibold">Zmazať aktivitu</h2>
+<p class="mb-6">
+	Naozaj chcete zmazať aktivitu "<strong>{activity.name}</strong>"? Túto akciu nie je možné vrátiť
+	späť.
+</p>
+<div class="">
+	<button class="btn btn-error" {disabled} onclick={() => !disabled && onconfirm()}>Zmazať</button>
+	<button class="btn btn-secondary ml-2" {disabled} onclick={() => !disabled && oncancel()}
+		>Zrušiť</button
+	>
 </div>

@@ -8,7 +8,7 @@
 	import type { Activity, ActivityLocation, EditableActivity } from '$lib/types/db';
 	import Icon from '@iconify/svelte';
 	import { getContext, onMount, setContext } from 'svelte';
-	import { fade, slide } from 'svelte/transition';
+	import { slide } from 'svelte/transition';
 	import type { AddAlert } from '$lib/types/other';
 	import OrphanedActivities from '$lib/components/dialogs/OrphanedActivities.svelte';
 	import LocationSelector from '$lib/components/dialogs/LocationSelector.svelte';
@@ -19,6 +19,7 @@
 		createActivity as createActivityFunc
 	} from '$lib/functions.remote';
 	import SoundControl from '$lib/components/SoundControl.svelte';
+	import Overlay from '$lib/components/Overlay.svelte';
 
 	const eventState = getContext<() => EventState>('getEventState')();
 	const addAlert = getContext<AddAlert>('addAlert');
@@ -52,20 +53,21 @@
 
 	async function deleteActivity(activityId: Activity['id']) {
 		submitPending = true;
-		const success = await deleteActivityFunc({ eventId: event.id, activityId });
-		if (success) {
+		try {
+			await deleteActivityFunc({ eventId: event.id, activityId });
 			eventState.setActivity(activityId, null);
 			addAlert({
 				type: 'success',
 				content: `Aktivita bola úspešne zmazaná.`
 			});
-		} else {
+			deletorActivityId = null;
+		} catch (error) {
 			addAlert({
 				type: 'error',
 				content: `Nastala chyba pri mazaní aktivity.`
 			});
+			console.error(error);
 		}
-		deletorActivityId = null;
 		submitPending = false;
 	}
 
@@ -75,24 +77,19 @@
 	) {
 		submitPending = true;
 
-		let newActivity: Activity;
+		try {
+			let newActivity: Activity;
 
-		if (activityId) {
-			newActivity = await editActivity({
-				eventId: event.id,
-				activityId,
-				activity: changedActivity
-			});
-		} else {
-			newActivity = await createActivityFunc({ eventId: event.id, activity: changedActivity });
-		}
+			if (activityId) {
+				newActivity = await editActivity({
+					eventId: event.id,
+					activityId,
+					activity: changedActivity
+				});
+			} else {
+				newActivity = await createActivityFunc({ eventId: event.id, activity: changedActivity });
+			}
 
-		if (!newActivity) {
-			addAlert({
-				type: 'error',
-				content: `Nastala chyba pri ${activityId ? 'úprave' : 'vytváraní'} aktivity.`
-			});
-		} else {
 			eventState.setActivity(newActivity.id, newActivity);
 			editorActivityId = null;
 			createActivity = false;
@@ -100,7 +97,14 @@
 				type: 'success',
 				content: `Aktivita "${newActivity.name}" bola úspešne ${activityId ? 'upravená' : 'vytvorená'}.`
 			});
+		} catch (error) {
+			addAlert({
+				type: 'error',
+				content: `Nastala chyba pri ${activityId ? 'úprave' : 'vytváraní'} aktivity.`
+			});
+			console.error(error);
 		}
+
 		submitPending = false;
 	}
 
@@ -175,27 +179,27 @@
 />
 
 {#if locationSelectorResolve}
-	<div class="overlay" transition:fade={{ duration: 200 }}>
+	<Overlay>
 		<LocationSelector
 			purpose={locationSelectorPurpose}
 			oncancel={() => locationSelectorResolve!(null)}
 			onselect={(location: ActivityLocation) => locationSelectorResolve!(location)}
 		/>
-	</div>
+	</Overlay>
 {/if}
 
 {#if orphanedDialogShown}
-	<div class="overlay" transition:fade={{ duration: 200 }}>
+	<Overlay>
 		<OrphanedActivities
 			{event}
 			{orphanedActivities}
 			onclose={() => (orphanedDialogShown = false)}
 		/>
-	</div>
+	</Overlay>
 {/if}
 
 {#if deletorActivityId}
-	<div class="overlay" transition:fade={{ duration: 200 }}>
+	<Overlay>
 		<ConfirmActivityDeletion
 			disabled={submitPending}
 			activity={eventState.activityList.find((a) => a.id === deletorActivityId)!}
@@ -204,11 +208,11 @@
 				deleteActivity(deletorActivityId!);
 			}}
 		/>
-	</div>
+	</Overlay>
 {/if}
 
 {#if editorActivityId}
-	<div class="overlay" transition:fade={{ duration: 200 }}>
+	<Overlay>
 		<EditActivity
 			{event}
 			disabled={submitPending}
@@ -218,11 +222,11 @@
 				createUpdateActivity(changedActivity, editorActivityId!);
 			}}
 		/>
-	</div>
+	</Overlay>
 {/if}
 
 {#if createActivity}
-	<div class="overlay" transition:fade={{ duration: 200 }}>
+	<Overlay>
 		<CreateActivity
 			{event}
 			disabled={submitPending}
@@ -232,10 +236,10 @@
 				createUpdateActivity(newActivity);
 			}}
 		/>
-	</div>
+	</Overlay>
 {/if}
 
-<div class="flex justify-end mb-4">
+<div class="mb-4 flex justify-end">
 	<div
 		class="rounded-bl-lg p-2 pt-0 text-white"
 		style="background-color: {styleData[event.style].primaryColor};"

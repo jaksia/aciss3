@@ -2,7 +2,7 @@ import { createCustomSound, getEvent } from '$lib/server/db/utils';
 import { saveSoundFiles } from '$lib/server/files/sounds';
 import { triggerEventUpdate } from '$lib/server/socket';
 import { ConfigurableSounds } from '$lib/types/enums';
-import { jsonError, jsonResponse } from '$lib/server/utils';
+import { jsonError, jsonResponse } from '$lib/utils';
 
 export const POST = async ({ request, params }) => {
 	const eventId = Number.parseInt(params.eventId);

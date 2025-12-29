@@ -1,6 +1,15 @@
 import * as v from 'valibot';
 import { EventStyle } from '$lib/themes';
 
+export const audioFileSchema = v.pipe(
+	v.file(),
+	v.mimeType(
+		['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/webm', 'audio/aac', 'audio/flac'],
+		'Invalid audio file type'
+	),
+	v.maxSize(10 * 1024 * 1024, 'File must be smaller than 10MB')
+);
+
 export function getCreateEventSchema(rootPasswordRequired: boolean) {
 	return v.pipe(
 		v.object({
@@ -36,3 +45,10 @@ export function getCreateEventSchema(rootPasswordRequired: boolean) {
 		)
 	);
 }
+
+export const createLocationSchema = v.object({
+	name: v.pipe(v.string(), v.nonEmpty('Location name cannot be empty')),
+	content: v.pipe(v.string(), v.nonEmpty('Location content cannot be empty')),
+	file: audioFileSchema,
+	assignToEvent: v.optional(v.number())
+});

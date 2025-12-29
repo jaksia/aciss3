@@ -27,22 +27,22 @@
 
 	async function setSound(soundId: CustomSound['id'] | null) {
 		actionPending = true;
-		const data = await setEventSound({ eventId: event.id, soundKey, soundId });
-		actionPending = false;
-		if (!data.success) {
+		try {
+			const data = await setEventSound({ eventId: event.id, soundKey, soundId });
+			addAlert({
+				type: 'success',
+				content: 'Zvuk bol úspešne nastavený'
+			});
+			setUpdatedEvent(data.event!);
+			close();
+		} catch (error) {
 			addAlert({
 				type: 'error',
 				content: 'Nastala chyba pri nastavovaní zvuku'
 			});
-			console.error(data);
-			return;
+			console.error(error);
 		}
-		addAlert({
-			type: 'success',
-			content: 'Zvuk bol úspešne nastavený'
-		});
-		setUpdatedEvent(data.event!);
-		close();
+		actionPending = false;
 	}
 
 	async function uploadSound() {
@@ -86,79 +86,77 @@
 	}
 </script>
 
-<div class="bg-base-100 w-11/12 max-w-2xl rounded p-6 shadow-lg">
-	<div class="mb-4 flex">
-		<div>
-			<h2 class="text-2xl font-bold">
-				Vybrať alebo nahrať nový zvuk pre <br />
-				<strong>{configurableSoundsData[soundKey].adminLabel}</strong>
-			</h2>
-			<em class="text-sm text-gray-500">{configurableSoundsData[soundKey].adminDescription}</em>
-		</div>
-		<div class="ml-auto">
-			{#if actionPending}
-				<Icon icon="eos-icons:loading" class="size-12 animate-spin" />
-			{/if}
-		</div>
+<div class="mb-4 flex">
+	<div>
+		<h2 class="text-2xl font-bold">
+			Vybrať alebo nahrať nový zvuk pre <br />
+			<strong>{configurableSoundsData[soundKey].adminLabel}</strong>
+		</h2>
+		<em class="text-sm text-gray-500">{configurableSoundsData[soundKey].adminDescription}</em>
 	</div>
+	<div class="ml-auto">
+		{#if actionPending}
+			<Icon icon="eos-icons:loading" class="size-12 animate-spin" />
+		{/if}
+	</div>
+</div>
 
-	<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-		{#await getAvailableSounds(soundKey)}
+<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+	{#await getAvailableSounds(soundKey)}
+		<div class="sound-selector-block">
+			<strong>Načítavanie dostupných zvukov...</strong>
+			<Icon icon="eos-icons:loading" class="size-16" />
+		</div>
+	{:then availableSounds}
+		{#each availableSounds as sound (sound.id)}
 			<div class="sound-selector-block">
-				<strong>Načítavanie dostupných zvukov...</strong>
-				<Icon icon="eos-icons:loading" class="size-16" />
-			</div>
-		{:then availableSounds}
-			{#each availableSounds as sound (sound.id)}
-				<div class="sound-selector-block">
-					<strong>{sound.description}</strong>
-					<audio controls src={sound.path} class="w-full"></audio>
-					<button
-						class="btn btn-secondary"
-						disabled={actionPending}
-						onclick={() => {
-							setSound(sound.id);
-						}}
-					>
-						Vybrať tento zvuk
-					</button>
-				</div>
-			{/each}
-			<div class="sound-selector-block">
-				<strong>Nahrať nový zvuk</strong>
-				<input type="file" accept="audio/*" class="mt-2" bind:files={fileInput} />
-				<input type="text" placeholder="Popis zvuku" bind:value={description} />
+				<strong>{sound.description}</strong>
+				<audio controls src={sound.path} class="w-full"></audio>
 				<button
-					class="btn btn-secondary mt-2"
+					class="btn btn-secondary"
 					disabled={actionPending}
 					onclick={() => {
-						uploadSound();
+						setSound(sound.id);
 					}}
 				>
-					Nahrať a použiť tento zvuk
+					Vybrať tento zvuk
 				</button>
 			</div>
-			{#if !configurableSoundsData[soundKey].required && event.sounds[soundKey]}
-				<div class="sound-selector-block">
-					<strong>Odstrániť aktuálny zvuk</strong>
-					<button
-						class="btn btn-error mt-2"
-						disabled={actionPending}
-						onclick={() => {
-							setSound(null);
-						}}
-					>
-						Odstrániť zvuk
-					</button>
-				</div>
-			{/if}
-		{:catch error}
+		{/each}
+		<div class="sound-selector-block">
+			<strong>Nahrať nový zvuk</strong>
+			<input type="file" accept="audio/*" class="mt-2" bind:files={fileInput} />
+			<input type="text" placeholder="Popis zvuku" bind:value={description} />
+			<button
+				class="btn btn-secondary mt-2"
+				disabled={actionPending}
+				onclick={() => {
+					uploadSound();
+				}}
+			>
+				Nahrať a použiť tento zvuk
+			</button>
+		</div>
+		{#if !configurableSoundsData[soundKey].required && event.sounds[soundKey]}
 			<div class="sound-selector-block">
-				<strong>Chyba pri načítavaní dostupných zvukov</strong>
-				<p class="text-red-500">{error.message}</p>
+				<strong>Odstrániť aktuálny zvuk</strong>
+				<button
+					class="btn btn-error mt-2"
+					disabled={actionPending}
+					onclick={() => {
+						setSound(null);
+					}}
+				>
+					Odstrániť zvuk
+				</button>
 			</div>
-		{/await}
-	</div>
-
-	<button class="btn btn-error mt-4" onclick={() => close()}> Zavrieť </button>
+		{/if}
+	{:catch error}
+		<div class="sound-selector-block">
+			<strong>Chyba pri načítavaní dostupných zvukov</strong>
+			<p class="text-red-500">{error.message}</p>
+		</div>
+	{/await}
 </div>
+
+<button class="btn btn-error mt-4" onclick={() => close()}> Zavrieť </button>

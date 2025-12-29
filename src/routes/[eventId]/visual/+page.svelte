@@ -61,9 +61,9 @@
 	</div>
 {/if}
 
-<div class="flex grow flex-col">
-	{#if nextActivity}
-		<div class="visual my-[10%] ml-[15%]">
+{#if nextActivity}
+	<div class="flex grow bg-white">
+		<div class="visual my-[10%] ml-[15%] grow">
 			<div class="row">
 				<div class="col">
 					<div class="label">Začiatok</div>
@@ -73,10 +73,14 @@
 							soundProcessor._currentSound?.key === ConfigurableSounds.ZVOLAVACKA ? 'blinking' : ''
 						]}
 					>
-						{activityStartTime!.getHours().toString().padStart(2, '0')}:{activityStartTime!
-							.getMinutes()
-							.toString()
-							.padStart(2, '0')}
+						{#if activityStartTime}
+							{activityStartTime.getHours().toString().padStart(2, '0')}:{activityStartTime
+								.getMinutes()
+								.toString()
+								.padStart(2, '0')}
+						{:else}
+							--:--
+						{/if}
 					</div>
 				</div>
 				<div class="col">
@@ -98,7 +102,7 @@
 				<dov class="col">
 					<div class="label">Miesto</div>
 					<div class="value">
-						{nextActivity.location}
+						{nextActivity.location.name}
 					</div>
 				</dov>
 			</div>
@@ -107,10 +111,10 @@
 				<div class="row"></div>
 			{/if}
 		</div>
-	{:else}
-		<div class="grow bg-black"></div>
-	{/if}
-</div>
+	</div>
+{:else}
+	<div class="grow bg-black"></div>
+{/if}
 
 {#if debug}
 	<div

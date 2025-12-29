@@ -11,7 +11,7 @@ import {
 import { configurableSoundsData } from '$lib/sounds/configurable';
 import { triggerActivitiesUpdate, triggerLocationsUpdate } from '$lib/server/socket';
 import { saveSoundFiles } from '$lib/server/files/sounds';
-import { getCreateEventSchema } from '$lib/schemas';
+import { audioFileSchema, createLocationSchema, getCreateEventSchema } from '$lib/schemas';
 import { env } from '$env/dynamic/private';
 import { verify } from '@node-rs/argon2';
 import { ARGON2_CONFIG } from '$lib/server/session';
@@ -72,7 +72,6 @@ export const setEventSound = command(
 		await dbUtils.setEventSound(eventId, soundId, soundKey);
 
 		return {
-			success: true,
 			event: await dbUtils.getEvent(eventId)
 		};
 	}
@@ -85,7 +84,7 @@ export const getAvailableSounds = query(
 	}
 );
 
-export const attachLocation = command(
+export const assignLocation = command(
 	v.objectAsync({
 		eventId: eventIdValidator,
 		locationId: locationIdValidator
@@ -96,7 +95,6 @@ export const attachLocation = command(
 		triggerLocationsUpdate(eventId);
 
 		return {
-			success: true,
 			eventLocations: await dbUtils.getEventLocations(eventId)
 		};
 	}
@@ -113,7 +111,6 @@ export const detachLocation = command(
 		triggerLocationsUpdate(eventId);
 
 		return {
-			success: true,
 			eventLocations: await dbUtils.getEventLocations(eventId)
 		};
 	}
@@ -182,9 +179,8 @@ export const deleteActivity = command(
 		)
 	),
 	async ({ eventId, activityId }) => {
-		const success = await dbUtils.deleteActivity(eventId, activityId);
-		if (success) triggerActivitiesUpdate(eventId, activityId);
-		return success;
+		await dbUtils.deleteActivity(eventId, activityId);
+		triggerActivitiesUpdate(eventId, activityId);
 	}
 );
 
@@ -220,14 +216,7 @@ export const createSound = form(
 		soundKey: v.enum(ConfigurableSounds),
 
 		description: v.string(),
-		file: v.pipe(
-			v.file(),
-			v.mimeType(
-				['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/webm', 'audio/aac', 'audio/flac'],
-				'Invalid audio file type'
-			),
-			v.maxSize(10 * 1024 * 1024, 'File must be smaller than 10MB')
-		)
+		file: audioFileSchema
 	}),
 	async (data) => {
 		const { upload } = await saveSoundFiles({ upload: data.file });
@@ -267,3 +256,32 @@ export const createEvent = form(
 		redirect(303, resolve('/[eventId]/admin/event', { eventId: eventId.toString() }));
 	}
 );
+
+export const createLocation = form(createLocationSchema, async (data, issue) => {
+	if (data.assignToEvent) {
+		if (!(await dbUtils.eventExists(data.assignToEvent))) {
+			invalid(issue.assignToEvent('Event to assign does not exist'));
+		}
+	}
+
+	const { upload } = await saveSoundFiles({ upload: data.file });
+	if (!upload.success) {
+		invalid(issue.file('File upload failed: ' + upload.error));
+	}
+
+	const location = await dbUtils.createLocation(
+		{
+			name: data.name,
+			content: data.content,
+			path: upload.path
+		},
+		data.assignToEvent
+	);
+
+	return {
+		location,
+		eventLocations: data.assignToEvent
+			? await dbUtils.getEventLocations(data.assignToEvent)
+			: undefined
+	};
+});
