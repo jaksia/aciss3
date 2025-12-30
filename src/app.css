@@ -1,7 +1,5 @@
 @import 'tailwindcss';
-@plugin '@tailwindcss/forms';
-
-@import './forms.css';
+/* @plugin '@tailwindcss/forms'; */
 
 @theme {
 	--color-kockac: #ef263e;
@@ -45,61 +43,65 @@
 	--color-error-bg: #4d1a1c;
 }
 
-.visual {
-	@apply text-secondary flex flex-col gap-y-10 uppercase;
+@layer components {
+	@import './forms.css';
 
-	.row {
-		@apply flex grow gap-x-10;
+	.visual {
+		@apply text-secondary flex flex-col gap-y-10 uppercase;
+
+		.row {
+			@apply flex grow gap-x-10;
+		}
+
+		.col {
+		}
+
+		.label {
+			@apply text-3xl font-light;
+		}
+
+		.value {
+			@apply text-6xl font-black;
+		}
 	}
 
-	.col {
+	.navbar-btn {
+		@apply cursor-pointer rounded px-4 py-2 transition-colors duration-200 hover:bg-black/20;
+
+		&.active {
+			@apply bg-black/20;
+		}
 	}
 
-	.label {
-		@apply text-3xl font-light;
+	.btn {
+		@apply cursor-pointer rounded border px-4 py-2 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50;
 	}
 
-	.value {
-		@apply text-6xl font-black;
+	.btn-secondary {
+		@apply text-base-content border-base-content enabled:hover:bg-base-content enabled:hover:text-base-300 bg-base-300;
 	}
-}
 
-.navbar-btn {
-	@apply cursor-pointer rounded px-4 py-2 transition-colors duration-200 hover:bg-black/20;
-
-	&.active {
-		@apply bg-black/20;
+	.btn-info {
+		@apply bg-info-bg text-info border-info enabled:hover:bg-info enabled:hover:text-base-content;
 	}
-}
 
-.btn {
-	@apply cursor-pointer rounded border px-4 py-2 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50;
-}
+	.btn-success {
+		@apply bg-success-bg text-success border-success enabled:hover:bg-success enabled:hover:text-base-content;
+	}
 
-.btn-secondary {
-	@apply text-base-content border-base-content enabled:hover:bg-base-content enabled:hover:text-base-300 bg-base-300;
-}
+	.btn-warning {
+		@apply bg-warning-bg text-warning border-warning enabled:hover:bg-warning enabled:hover:text-base-content;
+	}
 
-.btn-info {
-	@apply bg-info-bg text-info border-info enabled:hover:bg-info enabled:hover:text-base-content;
-}
+	.btn-error {
+		@apply bg-error-bg text-error border-error enabled:hover:bg-error enabled:hover:text-base-content;
+	}
 
-.btn-success {
-	@apply bg-success-bg text-success border-success enabled:hover:bg-success enabled:hover:text-base-content;
-}
+	.sound-selector-block {
+		@apply flex flex-col items-center justify-center gap-2 rounded border p-4 shadow;
+	}
 
-.btn-warning {
-	@apply bg-warning-bg text-warning border-warning enabled:hover:bg-warning enabled:hover:text-base-content;
-}
-
-.btn-error {
-	@apply bg-error-bg text-error border-error enabled:hover:bg-error enabled:hover:text-base-content;
-}
-
-.sound-selector-block {
-	@apply flex flex-col items-center justify-center gap-2 rounded border p-4 shadow;
-}
-
-.ea-top-btn {
-	@apply enabled:hover:bg-base-300 cursor-pointer rounded-full p-2 transition-all disabled:cursor-not-allowed disabled:opacity-50;
+	.ea-top-btn {
+		@apply enabled:hover:bg-base-300 cursor-pointer rounded-full p-2 transition-all disabled:cursor-not-allowed disabled:opacity-50;
+	}
 }

@@ -47,10 +47,12 @@
 <div
 	class={['bg-base-200 rounded shadow-lg shadow-black/30', elems > 1 ? 'min-w-lg' : 'min-w-64']}
 	use:clickOutside={{
+		capture: true,
 		callback: (e) => {
-			if (e.target === activityElem || (e.target as HTMLElement)?.classList.contains('activity'))
-				return;
+			if (e.target === activityElem || activityElem?.contains(e.target as Node)) return;
 			if (document.querySelector('.overlay')) return;
+
+			e.preventDefault();
 
 			if (delayDialog) delayDialog = false;
 			else close();

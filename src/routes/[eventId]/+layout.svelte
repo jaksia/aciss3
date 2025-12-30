@@ -87,7 +87,7 @@
 	</div>
 </div>
 
-<div id="alert-container" class="fixed right-4 bottom-4 z-50">
+<div id="alert-container" class="text-stone-800 fixed right-4 bottom-4 z-50">
 	{#each alerts as alert (alert.id)}
 		<div
 			class={[

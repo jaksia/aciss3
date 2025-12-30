@@ -89,7 +89,7 @@ export class EventState {
 
 		if (import.meta.hot) {
 			import.meta.hot.on('vite:beforeUpdate', () => {
-				log.info('HMR update detected, disconnecting Socket.IO, detaching sound processor');
+				log.debug('HMR update detected, disconnecting Socket.IO, detaching sound processor');
 				this.socket?.disconnect();
 				this.socket = null;
 				this.soundProcessor = null;

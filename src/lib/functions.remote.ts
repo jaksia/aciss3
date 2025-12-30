@@ -11,7 +11,12 @@ import {
 import { configurableSoundsData } from '$lib/sounds/configurable';
 import { triggerActivitiesUpdate, triggerLocationsUpdate } from '$lib/server/socket';
 import { saveSoundFiles } from '$lib/server/files/sounds';
-import { audioFileSchema, createLocationSchema, getCreateEventSchema } from '$lib/schemas';
+import {
+	activityFormValidator,
+	audioFileSchema,
+	createLocationSchema,
+	getCreateEventSchema
+} from '$lib/schemas';
 import { env } from '$env/dynamic/private';
 import { verify } from '@node-rs/argon2';
 import { ARGON2_CONFIG } from '$lib/server/session';
@@ -121,43 +126,6 @@ export const getAvailableLocations = query(
 	v.undefinedable(v.number()),
 	async (excludeEvent) => {
 		return await dbUtils.getAvailableLocations(excludeEvent);
-	}
-);
-
-export const createActivity = command(
-	v.objectAsync({
-		eventId: eventIdValidator,
-		activity: editableActivityValidator
-	}),
-	async ({ eventId, activity }) => {
-		const newActivity = await dbUtils.createOrUpdateActivity(eventId, activity);
-		if (newActivity) triggerActivitiesUpdate(eventId, newActivity.id);
-		return newActivity;
-	}
-);
-
-export const editActivity = command(
-	v.pipeAsync(
-		v.objectAsync({
-			eventId: eventIdValidator,
-			activityId: v.number(),
-			activity: editableActivityValidator
-		}),
-		v.forwardAsync(
-			v.partialCheckAsync(
-				[['eventId'], ['activityId']],
-				async (data: { eventId: number; activityId: number }) => {
-					return await dbUtils.activityExists(data.eventId, data.activityId);
-				},
-				'Activity not found'
-			),
-			['activityId']
-		)
-	),
-	async ({ eventId, activityId, activity }) => {
-		const updatedActivity = await dbUtils.createOrUpdateActivity(eventId, activity, activityId);
-		if (updatedActivity) triggerActivitiesUpdate(eventId, activityId);
-		return updatedActivity;
 	}
 );
 
@@ -285,3 +253,57 @@ export const createLocation = form(createLocationSchema, async (data, issue) => 
 			: undefined
 	};
 });
+
+export const createUpdateActivity = form(
+	v.pipeAsync(
+		activityFormValidator,
+		v.rawTransformAsync(async ({ dataset, addIssue, NEVER }) => {
+			const event = await dbUtils.getEvent(dataset.value.eventId);
+			if (!event) {
+				addIssue({
+					message: 'Event not found',
+					path: [
+						{
+							type: 'object',
+							origin: 'value',
+							input: dataset.value,
+							key: 'eventId',
+							value: dataset.value.eventId
+						}
+					]
+				});
+				return NEVER;
+			}
+			return { ...dataset.value, event };
+		}),
+		v.forward(
+			v.check((data) => {
+				return data.event.startDate <= data.activityData.startTime;
+			}, 'Activity start time cannot be before event start date'),
+			['activityData', 'startTime']
+		),
+		v.forward(
+			v.check((data) => {
+				return data.activityData.endTime <= data.event.endDate;
+			}, 'Activity end time cannot be after event end date'),
+			['activityData', 'endTime']
+		),
+		v.forwardAsync(
+			v.checkAsync(async (data) => {
+				return !data.activityId || (await dbUtils.activityExists(data.event.id, data.activityId));
+			}, 'Activity not found'),
+			['activityId']
+		)
+	),
+	async (data) => {
+		const result = await dbUtils.createOrUpdateActivity(
+			data.eventId,
+			{
+				...data.activityData,
+				delay: data.activityData.delay || null
+			},
+			data.activityId
+		);
+		return { activity: result };
+	}
+);

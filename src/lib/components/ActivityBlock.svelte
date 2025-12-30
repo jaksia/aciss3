@@ -34,7 +34,7 @@
 	// generate color based on activity id (numeric)
 	const color = $derived.by(() => {
 		const hash = (113 * activity.id) % 360;
-		return `hsl(${hash}, 70%, 50%)`;
+		return `hsl(${hash}, 60%, 50%)`;
 	});
 
 	const startMinutes = $derived(actualStartTime.getHours() * 60 + actualStartTime.getMinutes());
@@ -99,7 +99,7 @@
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-	class="activity absolute top-1/10 h-4/5 cursor-pointer rounded px-1"
+	class="absolute top-1/10 h-4/5 cursor-pointer rounded px-1 py-0.5"
 	style="
     left: {(startMinutes / 60) * hourWidth}px;
     width: {(duration / 60) * hourWidth}px;
@@ -112,7 +112,10 @@
 		else expandActivity(activity.id);
 	}}
 >
-	<span>{activity.name}</span>
+	<div class="h-full w-full text-sm text-white">
+		<div class="overflow-hidden font-bold text-nowrap text-ellipsis">{activity.name}</div>
+		<div class="overflow-hidden text-nowrap text-ellipsis">{activity.type}</div>
+	</div>
 	{#if expandedActivityId == activity.id}
 		<div
 			class={[

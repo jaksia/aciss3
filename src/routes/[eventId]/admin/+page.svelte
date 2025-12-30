@@ -1,11 +1,9 @@
 <script lang="ts">
 	import ConfirmActivityDeletion from '$lib/components/dialogs/ConfirmActivityDeletion.svelte';
-	import CreateActivity from '$lib/components/dialogs/CreateActivity.svelte';
-	import EditActivity from '$lib/components/dialogs/EditActivity.svelte';
 	import EventSchedule from '$lib/components/EventSchedule.svelte';
 	import type { EventState } from '$lib/state.svelte';
 	import { styleData } from '$lib/themes';
-	import type { Activity, ActivityLocation, EditableActivity } from '$lib/types/db';
+	import type { Activity, ActivityLocation } from '$lib/types/db';
 	import Icon from '@iconify/svelte';
 	import { getContext, onMount, setContext } from 'svelte';
 	import { slide } from 'svelte/transition';
@@ -13,13 +11,10 @@
 	import OrphanedActivities from '$lib/components/dialogs/OrphanedActivities.svelte';
 	import LocationSelector from '$lib/components/dialogs/LocationSelector.svelte';
 	import { SvelteDate } from 'svelte/reactivity';
-	import {
-		deleteActivity as deleteActivityFunc,
-		editActivity,
-		createActivity as createActivityFunc
-	} from '$lib/functions.remote';
+	import { deleteActivity as deleteActivityFunc } from '$lib/functions.remote';
 	import SoundControl from '$lib/components/SoundControl.svelte';
 	import Overlay from '$lib/components/Overlay.svelte';
+	import ActivityForm from '$lib/components/dialogs/ActivityForm.svelte';
 
 	const eventState = getContext<() => EventState>('getEventState')();
 	const addAlert = getContext<AddAlert>('addAlert');
@@ -68,43 +63,6 @@
 			});
 			console.error(error);
 		}
-		submitPending = false;
-	}
-
-	async function createUpdateActivity(
-		changedActivity: EditableActivity,
-		activityId?: Activity['id']
-	) {
-		submitPending = true;
-
-		try {
-			let newActivity: Activity;
-
-			if (activityId) {
-				newActivity = await editActivity({
-					eventId: event.id,
-					activityId,
-					activity: changedActivity
-				});
-			} else {
-				newActivity = await createActivityFunc({ eventId: event.id, activity: changedActivity });
-			}
-
-			eventState.setActivity(newActivity.id, newActivity);
-			editorActivityId = null;
-			createActivity = false;
-			addAlert({
-				type: 'success',
-				content: `Aktivita "${newActivity.name}" bola úspešne ${activityId ? 'upravená' : 'vytvorená'}.`
-			});
-		} catch (error) {
-			addAlert({
-				type: 'error',
-				content: `Nastala chyba pri ${activityId ? 'úprave' : 'vytváraní'} aktivity.`
-			});
-			console.error(error);
-		}
-
 		submitPending = false;
 	}
 
@@ -213,13 +171,15 @@
 
 {#if editorActivityId}
 	<Overlay>
-		<EditActivity
+		<ActivityForm
 			{event}
-			disabled={submitPending}
-			activity={eventState.activityList.find((a) => a.id === editorActivityId)!}
+			create={false}
+			bind:disabled={submitPending}
+			initialActivity={eventState.activityList.find((a) => a.id === editorActivityId)!}
 			oncancel={() => (editorActivityId = null)}
-			onsave={(changedActivity: EditableActivity) => {
-				createUpdateActivity(changedActivity, editorActivityId!);
+			onsave={(changedActivity: Activity) => {
+				eventState.setActivity(changedActivity.id, changedActivity);
+				editorActivityId = null;
 			}}
 		/>
 	</Overlay>
@@ -227,13 +187,15 @@
 
 {#if createActivity}
 	<Overlay>
-		<CreateActivity
+		<ActivityForm
 			{event}
-			disabled={submitPending}
-			initial={createActivity instanceof Object ? createActivity : undefined}
+			create={true}
+			bind:disabled={submitPending}
+			initialActivity={createActivity instanceof Object ? createActivity : undefined}
 			oncancel={() => (createActivity = false)}
-			onsave={(newActivity: EditableActivity) => {
-				createUpdateActivity(newActivity);
+			onsave={(newActivity: Activity) => {
+				eventState.setActivity(newActivity.id, newActivity);
+				createActivity = false;
 			}}
 		/>
 	</Overlay>

@@ -56,12 +56,14 @@ export async function getActivities(eventId: Event['id']) {
 }
 
 export async function getActivity(eventId: Event['id'], activityId: Activity['id']) {
-	const [{ activities: baseActivity, locations: location }] = await db
+	const result = await db
 		.select()
 		.from(activities)
 		.innerJoin(locations, eq(activities.locationId, locations.id))
 		.where(and(eq(activities.id, activityId), eq(activities.eventId, eventId)));
-	if (!baseActivity) return null;
+	if (result.length === 0) return null;
+
+	const { activities: baseActivity, locations: location } = result[0];
 
 	const alertTimes = await db
 		.select()
@@ -158,30 +160,39 @@ export async function createOrUpdateActivity(
 
 	const alertTimes =
 		unprocessedActivity.alertTimes.length > 0
-			? await db.insert(activityAlertTimes).values(
-					unprocessedActivity.alertTimes.map((t) => ({
-						activityId,
-						minutes: t
-					}))
-				)
+			? await db
+					.insert(activityAlertTimes)
+					.values(
+						unprocessedActivity.alertTimes.map((t) => ({
+							activityId,
+							minutes: t
+						}))
+					)
+					.returning()
 			: [];
 	const additionalInfos =
 		unprocessedActivity.additionalInfos.length > 0
-			? await db.insert(activityAdditionalInfos).values(
-					unprocessedActivity.additionalInfos.map((info) => ({
-						activityId,
-						info
-					}))
-				)
+			? await db
+					.insert(activityAdditionalInfos)
+					.values(
+						unprocessedActivity.additionalInfos.map((info) => ({
+							activityId,
+							info
+						}))
+					)
+					.returning()
 			: [];
 	const participantNeeds =
 		unprocessedActivity.participantNeeds.length > 0
-			? await db.insert(activityParticipantNeeds).values(
-					unprocessedActivity.participantNeeds.map((need) => ({
-						activityId,
-						need
-					}))
-				)
+			? await db
+					.insert(activityParticipantNeeds)
+					.values(
+						unprocessedActivity.participantNeeds.map((need) => ({
+							activityId,
+							need
+						}))
+					)
+					.returning()
 			: [];
 
 	return {

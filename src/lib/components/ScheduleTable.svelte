@@ -254,7 +254,8 @@
 							<div class="flex *:grow" style="width: {hourWidth}px;">
 								<button
 									aria-label="Create activity - Day {dayIndex} - {hour}:00"
-									onclick={() => {
+									onclick={(e) => {
+										if (e.defaultPrevented) return;
 										const startTime = new SvelteDate(day);
 										startTime.setHours(hour, 0, 0, 0);
 										const endTime = new SvelteDate(startTime);
@@ -264,7 +265,8 @@
 								></button>
 								<button
 									aria-label="Create activity - Day {dayIndex} - {hour}:30"
-									onclick={() => {
+									onclick={(e) => {
+										if (e.defaultPrevented) return;
 										const startTime = new SvelteDate(day);
 										startTime.setHours(hour, 30, 0, 0);
 										const endTime = new SvelteDate(startTime);

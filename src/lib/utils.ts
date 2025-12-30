@@ -1,13 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Action } from 'svelte/action';
 
-export const clickOutside: Action<HTMLElement, { callback: (e: MouseEvent) => void }> = function (
+export const clickOutside: Action<
+	HTMLElement,
+	{ callback: (e: MouseEvent) => void; capture?: boolean }
+> = function (
 	node,
 	param = {
 		callback: () => {}
 	}
 ) {
-	window.addEventListener('click', handleClick);
+	window.addEventListener('click', handleClick, {
+		capture: param.capture || false
+	});
 
 	function handleClick(e: MouseEvent) {
 		if (!node.contains(e.target as Node)) {
