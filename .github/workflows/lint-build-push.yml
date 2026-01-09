@@ -60,4 +60,4 @@ jobs:
           context: .
           # Logic: Push ONLY if it's a push to main, NOT a pull request
           push: ${{ github.event_name != 'pull_request' }}
-          tags: tags: ${{ env.REGISTRY }}/${{ github.repository }}:latest
+          tags: ${{ env.REGISTRY }}/${{ github.repository }}:latest
