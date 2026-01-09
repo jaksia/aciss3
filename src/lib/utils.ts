@@ -40,7 +40,6 @@ export function logFunctions(prefix: string) {
 	};
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function jsonResponse(data: any = {}, status = 200) {
 	return new Response(
 		JSON.stringify({

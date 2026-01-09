@@ -2,12 +2,7 @@ import * as v from 'valibot';
 import { command, form, query } from '$app/server';
 
 import * as dbUtils from '$lib/server/db/utils';
-import {
-	ActivityType,
-	AdditionalInfo,
-	ConfigurableSounds,
-	ParticipantNeeds
-} from '$lib/types/enums';
+import { ConfigurableSounds } from '$lib/types/enums';
 import { configurableSoundsData } from '$lib/sounds/configurable';
 import { triggerActivitiesUpdate, triggerLocationsUpdate } from '$lib/server/socket';
 import { saveSoundFiles } from '$lib/server/files/sounds';
@@ -35,6 +30,7 @@ const locationIdValidator = v.pipeAsync(
 		return await dbUtils.locationExists(id);
 	}, 'Location not found')
 );
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const activityIdValidator = v.forwardAsync(
 	v.partialCheckAsync(
 		[['eventId'], ['activityId']],
@@ -45,18 +41,6 @@ const activityIdValidator = v.forwardAsync(
 	),
 	['activityId']
 );
-const editableActivityValidator = v.objectAsync({
-	type: v.enum(ActivityType),
-	name: v.string(),
-	startTime: v.date(),
-	endTime: v.date(),
-	locationId: locationIdValidator,
-	delay: v.nullable(v.number()),
-	zvolavanie: v.boolean(),
-	alertTimes: v.array(v.number()),
-	participantNeeds: v.array(v.enum(ParticipantNeeds)),
-	additionalInfos: v.array(v.enum(AdditionalInfo))
-});
 
 export const setEventSound = command(
 	v.pipeAsync(

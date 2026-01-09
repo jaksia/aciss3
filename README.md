@@ -21,6 +21,7 @@ Preto som vyrobil novú verziu AČISSu a to v3. Oproti pôvodnej verzii obsahuje
   - Podporuje rôzne vizuály pre rôzne akcie
 - Meškania aktivít
 - Automaticky zvláda prechod z letného na zimný čas (alebo naopak)
+  - _(úplne poriadne sa to dá otestovať najskôr koncom marca, dovtedy nezaručujem úplnú funkčnosť)_
   - _(neodporúčam nastavovať žiadnu aktivitu na noc zmeny času, to netuším ako skončí)_
 - Upraviteľný zvuk pre začiatok/koniec hlásenia, zvolávačku a viacero ďalších
 - Pre každú akciu sa dajú nastaviť rôzne lokality aktivít
@@ -28,7 +29,7 @@ Preto som vyrobil novú verziu AČISSu a to v3. Oproti pôvodnej verzii obsahuje
 
 ## Používanie
 
-Vo všeobecnosti odporúčam používať lokálne hostovanú verziu, ale verejná vie slúžiť ako dobrá záloha alebo ak nie je čas/zariadenie na nastavenie serveru.
+Vo všeobecnosti **odporúčam používať lokálne hostovanú verziu**, ale verejná vie slúžiť ako dobrá záloha alebo ak nie je čas/zariadenie na nastavenie serveru.
 
 V oboch prípadoch sa v ľavom dolnom rohu nachádza indikátor stacu spojenia. Ak je zelený, AČISS je pripojený k serveru a všetky zmeny sa budú okamžite prejavovať. Ak je oranžový, spojenie je aktuálne prerušené. AČISS sa bude pokúšať pripojiť znova a akonáhle sa to podarí, všetky vymeškané zmeny by sa mali prejaviť.
 
@@ -44,12 +45,13 @@ _Zatiaľ nie je dostupná._
   - Vyžaduje aktívny internet
     - AČISS by mal zvládať krátkodobé výpadky alebo nestabilný internet, ale je to neideálne
   - Môže reagovať o niečo pomalšie na zmeny
+  - Menej spoľahlivá
 
 ### Lokálne hostovaná verzia
 
 - **Výhody:**
   - Funguje nezávisiac od dostupnosti/kvality internetu
-  - O čosi rýchlejšie ovládanie a lepší výkon
+  - O čosi rýchlejšie ovládanie, lepší výkon a väčšia spoľahlivosť
 - **Nevýhody:**
   - Vyžaduje PC na ktorom bude bežať server AČISSu
 
