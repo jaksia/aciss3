@@ -60,4 +60,4 @@ jobs:
           context: .
           # Logic: Push ONLY if it's a push to main, NOT a pull request
           push: ${{ github.event_name != 'pull_request' }}
-          tags: jaksia/aciss3:latest
+          tags: tags: ${{ env.REGISTRY }}/${{ github.repository }}:latest
