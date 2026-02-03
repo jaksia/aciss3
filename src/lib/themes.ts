@@ -13,17 +13,17 @@ type StyleData = {
 
 export const styleData: Record<EventStyle, StyleData> = {
 	[EventStyle.DEFAULT]: {
-		logoPath: '/themes/default/logo.png',
+		logoPath: '/themes/default/logo.svg',
 		primaryColor: 'var(--color-secondary)',
 		fontFamily: 'Montserrat, sans-serif'
 	},
 	[EventStyle.PIKOMAT]: {
-		logoPath: '/themes/pikomat/logo.png',
+		logoPath: '/themes/pikomat/logo.svg',
 		primaryColor: 'var(--color-pikomat)',
 		fontFamily: 'Montserrat, sans-serif'
 	},
 	[EventStyle.PIKOFYZ]: {
-		logoPath: '/themes/pikofyz/logo.png',
+		logoPath: '/themes/pikofyz/logo.svg',
 		primaryColor: 'var(--color-pikofyz)',
 		fontFamily: 'Montserrat, sans-serif'
 	},

@@ -18,6 +18,9 @@ services:
       SOCKETIO_PORT: 8001
       SOUND_FILES_PATH: /app/custom_sounds
       PUBLIC_SOUND_FILES_PATH: /sounds/custom
+      PROTOCOL_HEADER: X-Forwarded-Proto
+      HOST_HEADER: X-Forwarded-Host
+      PORT_HEADER: X-Forwarded-Port
     volumes:
       - ./custom_sounds:/app/custom_sounds
 
