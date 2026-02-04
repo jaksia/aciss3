@@ -15,6 +15,7 @@ import type { AddAlert } from './types/other';
 import { logFunctions } from './utils';
 import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeHexLowerCase } from '@oslojs/encoding';
+import { untrack } from 'svelte';
 
 export const socketCodeCookieName = 'socket-code';
 
@@ -78,7 +79,10 @@ export class EventState {
 			log.debug('Activities changed, updating sound processor schedule');
 
 			this.soundProcessor!.clearSchedule();
-			this.activityList.forEach((a) => this.soundProcessor!.compileAndScheduleActivity(a));
+			// for some reason, this would cause infinite loop if we dont untrack
+			untrack(() =>
+				this.activityList.forEach((a) => this.soundProcessor!.compileAndScheduleActivity(a))
+			);
 		});
 
 		this.socketActive = $derived(this.socketConnected && this.listeningEventId === this.event.id);

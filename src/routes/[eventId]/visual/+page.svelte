@@ -5,7 +5,7 @@
 	import { SoundProcessor } from '$lib/sounds/processor.svelte';
 	import type { Activity } from '$lib/types/db';
 	import { ConfigurableSounds } from '$lib/types/enums';
-	import { getContext, untrack } from 'svelte';
+	import { getContext } from 'svelte';
 
 	const debug = dev || page.url.searchParams.has('debug');
 
@@ -21,7 +21,7 @@
 				(b.startTime.valueOf() + (b.delay ?? 0) * 60000)
 		);
 
-		const now = untrack(() => eventState.now);
+		const now = eventState.now;
 		activities = activities.filter((a) => a.startTime.toDateString() === now.toDateString());
 		const upcoming = activities.find((a) => {
 			const activityTime = new Date(a.startTime.valueOf() + (a.delay ?? 0) * 60000);

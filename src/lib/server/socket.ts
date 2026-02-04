@@ -204,6 +204,7 @@ export async function triggerLocationsUpdate(eventId: Event['id']) {
 }
 
 export async function triggerActivitiesUpdate(eventId: Event['id'], activityId?: Activity['id']) {
+	console.log('Triggering activities update for event', eventId, 'activity', activityId);
 	const event = await getEvent(eventId);
 	if (!event) return;
 	const io = getIO();

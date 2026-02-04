@@ -229,6 +229,7 @@ export const createLocation = form(createLocationSchema, async (data, issue) => 
 		},
 		data.assignToEvent
 	);
+	if (data.assignToEvent) triggerLocationsUpdate(data.assignToEvent);
 
 	return {
 		location,
@@ -288,6 +289,7 @@ export const createUpdateActivity = form(
 			},
 			data.activityId
 		);
+		triggerActivitiesUpdate(data.eventId, result.id);
 		return { activity: result };
 	}
 );

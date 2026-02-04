@@ -100,10 +100,13 @@
 		dayDate.setUTCHours(12, 0, 0, 0); // set to noon to avoid DST issues
 		return eventState.now.getTimezoneOffset() - dayDate.getTimezoneOffset();
 	});
+
+	let form = $state<HTMLFormElement | null>(null);
 </script>
 
 <form
 	class="contents"
+	bind:this={form}
 	{...createUpdateActivity.preflight(activityFormValidator).enhance(async ({ submit }) => {
 		disabled = true;
 		try {
@@ -137,7 +140,12 @@
 				{disabled}
 				onclick={() => !disabled && oncancel()}>Zrušiť</button
 			>
-			<button type="submit" class="btn btn-success" {disabled}
+			<button
+				class="btn btn-success"
+				{disabled}
+				onclick={() => {
+					form?.requestSubmit();
+				}}
 				>{#if create}Vytvoriť{:else}Uložiť{/if}</button
 			>
 		</div>
