@@ -50,6 +50,13 @@
 			"when": 1766693180156,
 			"tag": "0006_melodic_warpath",
 			"breakpoints": true
+		},
+		{
+			"idx": 7,
+			"version": "8",
+			"when": 1770242799123,
+			"tag": "0007_fiery_sheep",
+			"breakpoints": true
 		}
 	]
 }
