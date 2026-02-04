@@ -36,7 +36,6 @@ export enum ParticipantNeeds {
 export enum AdditionalInfo {
 	CHANGING_SHOES = 'Prezúvanie',
 	SWITCH_DUTIES = 'Striedanie kroniky/služ. dňa',
-	CLEAN_UP = 'Upracte po sebe',
 	CHILL_MODE = 'Kľudový režim'
 }
 

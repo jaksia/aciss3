@@ -71,6 +71,7 @@ export class SoundProcessor {
 			const nextAlertTime = Math.min(...Array.from(this.scheduledAlerts.keys()));
 			const delay = Math.max(0, nextAlertTime - Date.now());
 
+			log.debug('Scheduling next alert check in', delay, 'ms');
 			this.alertSchedulerTimeout = window.setTimeout(() => {
 				this.checkScheduledAlerts();
 			}, delay);

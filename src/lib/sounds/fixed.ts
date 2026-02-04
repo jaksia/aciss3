@@ -163,10 +163,6 @@ export const fixedSounds: FixedSoundMap = {
 		path: '/sounds/additional_info/switch_duties.mp3',
 		content: 'Striedanie kroniky/služ. dňa'
 	},
-	[AdditionalInfo.CLEAN_UP]: {
-		path: '/sounds/additional_info/clean_up.mp3',
-		content: 'Upracte po sebe'
-	},
 	[AdditionalInfo.CHILL_MODE]: {
 		path: '/sounds/additional_info/chill_mode.mp3',
 		content: 'Kľudový režim'

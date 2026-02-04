@@ -89,7 +89,7 @@ export class EventState {
 
 		setInterval(() => {
 			this.now = new SvelteDate();
-		}, 20);
+		}, 500);
 
 		if (import.meta.hot) {
 			import.meta.hot.on('vite:beforeUpdate', () => {
