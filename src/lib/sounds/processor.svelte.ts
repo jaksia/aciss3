@@ -257,6 +257,22 @@ export class SoundProcessor {
 		}
 		const compiledAlerts: TimedAlerts = {};
 
+		if (activity.type === ActivityType.BUDICEK) {
+			// Alert times are ignored, custom alert is played
+			const startMinutes = activity.startTime.getMinutes() + activity.startTime.getHours() * 60;
+			compiledAlerts[activity.startTime.valueOf()] = {
+				activityId: activity.id,
+				id: `${activity.id}-budicek`,
+				sounds: builder(false)
+					.sound(ConfigurableSounds.ALERT_START, OtherSounds.BUDICEK_START)
+					.time(startMinutes)
+					.sound(OtherSounds.BUDICEK_END)
+					.build(this.eventSounds, this.loadSound.bind(this)),
+				active: false
+			};
+			return compiledAlerts;
+		}
+
 		const startSounds = builder(true).sound(OtherSounds.NEXT_ACTIVITY);
 		for (const time of activity.alertTimes) {
 			let sounds = startSounds

@@ -35,6 +35,7 @@ export const fixedSounds: FixedSoundMap = {
 	[OtherSounds.MINUTES_1]: { path: '/sounds/other/minutes_1.mp3', content: 'minúta' },
 	[OtherSounds.MINUTES_2]: { path: '/sounds/other/minutes_2_4.mp3', content: 'minúty' },
 	[OtherSounds.MINUTES_5]: { path: '/sounds/other/minutes_5_plus.mp3', content: 'minút' },
+	[OtherSounds.AND]: { path: '/sounds/other/and.mp3', content: 'a' },
 	[OtherSounds.NEXT_ACTIVITY]: {
 		path: '/sounds/other/next_activity.mp3',
 		content: 'Najbližší program'

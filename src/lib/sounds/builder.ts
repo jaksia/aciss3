@@ -84,6 +84,7 @@ export class SoundBuilder {
 			);
 		}
 		if (minutes > 0) {
+			if (sounds.length !== 0) sounds.push(OtherSounds.AND);
 			sounds = sounds.concat(this.buildNumber(minutes));
 			sounds.push(
 				minutes >= 5
@@ -149,7 +150,7 @@ export class SoundBuilder {
 
 	public build(
 		eventSounds: Map<ConfigurableSounds, Sound>,
-		loadSound: (path: string, isConfigurable: boolean) => Promise<AudioBuffer|null>
+		loadSound: (path: string, isConfigurable: boolean) => Promise<AudioBuffer | null>
 	): CompiledSound[] {
 		if (this.alertEnd) {
 			this.sounds.push(ConfigurableSounds.ALERT_END);

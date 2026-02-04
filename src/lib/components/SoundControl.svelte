@@ -132,4 +132,28 @@
 	>
 		Večerníček
 	</button>
+	<button
+		class="btn mt-1"
+		disabled={soundControlPending}
+		onclick={async () => {
+			if (soundControlPending) return;
+			soundControlPending = true;
+			const now = new Date();
+			await eventState.playerControl({
+				type: 'customSound',
+				sounds: builder()
+					.sound(ConfigurableSounds.ALERT_START, OtherSounds.BUDICEK_START)
+					.time(now.getMinutes() + now.getHours() * 60)
+					.sound(OtherSounds.BUDICEK_END)
+					.getSounds()
+			});
+			addAlert({
+				type: 'success',
+				content: 'Budíček bol spustený.'
+			});
+			soundControlPending = false;
+		}}
+	>
+		Budíček
+	</button>
 </div>

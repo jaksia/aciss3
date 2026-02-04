@@ -310,7 +310,8 @@
 				{...createUpdateActivity.fields.activityData.zvolavanie.as('checkbox')}
 			/>
 			<p class="text-light-content mt-1 text-sm">
-				Pri večierke použije zvuk 'večerníček'. Ak je budíček bez zvolávania, nebude nič robiť.
+				Pri večierke použije zvuk 'večerníček'. Budíček ignoruje toto nastavenie ako aj časy
+				upozornení.
 			</p>
 			{#each createUpdateActivity.fields.activityData.zvolavanie.issues() as issue (issue.message)}
 				<p class="mt-1 text-sm text-red-600">{issue.message}</p>
