@@ -263,10 +263,10 @@ export class SoundProcessor {
 				.time(time.minutes)
 				.location(activity.location);
 
-			if (activity.participantNeeds) {
+			if (activity.participantNeeds.length > 0) {
 				sounds = sounds.participantNeeds(activity.participantNeeds);
 			}
-			if (activity.additionalInfos) {
+			if (activity.additionalInfos.length > 0) {
 				sounds = sounds.additionalInfos(activity.additionalInfos);
 			}
 
