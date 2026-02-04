@@ -79,6 +79,14 @@
 					class={['navbar-btn text-lg', adminSection === '/event' && 'active']}>Nastavenia akcie</a
 				>
 			</div>
+		{:else}
+			<div class="mr-8 flex grow items-center justify-end">
+				<span class="font-mono text-3xl font-black"
+					>{eventState.now.getHours().toString().padStart(2, '0')}<span
+						class={[eventState.now.getSeconds() % 2 === 0 ? 'invisible' : '']}>:</span
+					>{eventState.now.getMinutes().toString().padStart(2, '0')}</span
+				>
+			</div>
 		{/if}
 	</nav>
 
