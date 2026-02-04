@@ -13,21 +13,29 @@
 
 	const soundProcessor = new SoundProcessor(eventState.event);
 
-	const nextActivity: Activity | null = $derived.by(() => {
-		let activities = eventState.activityList.sort(
-			(a, b) =>
-				a.startTime.valueOf() +
-				(a.delay ?? 0) * 60000 -
-				(b.startTime.valueOf() + (b.delay ?? 0) * 60000)
-		);
-
+	const [currentActivity, nextActivity] = $derived.by<[Activity | null, Activity | null]>(() => {
 		const now = eventState.now;
-		activities = activities.filter((a) => a.startTime.toDateString() === now.toDateString());
+		const activities = eventState.activityList
+			.filter((a) => a.startTime.toDateString() === now.toDateString())
+			.sort(
+				(a, b) =>
+					a.startTime.valueOf() +
+					(a.delay ?? 0) * 60000 -
+					(b.startTime.valueOf() + (b.delay ?? 0) * 60000)
+			);
+
+		const current = activities.find((a) => {
+			const activityStartTime = new Date(a.startTime.valueOf() + (a.delay ?? 0) * 60000);
+			const activityEndTime = new Date(a.endTime.valueOf() + (a.delay ?? 0) * 60000);
+
+			return activityStartTime <= now && now <= activityEndTime;
+		});
 		const upcoming = activities.find((a) => {
 			const activityTime = new Date(a.startTime.valueOf() + (a.delay ?? 0) * 60000);
 			return activityTime > now;
 		});
-		return upcoming ?? null;
+
+		return [current ?? null, upcoming ?? null];
 	});
 
 	const activityStartTime = $derived.by(() => {
@@ -61,7 +69,9 @@
 	</div>
 {/if}
 
-{#if nextActivity}
+{#if currentActivity}
+	<div class="flex grow bg-black"></div>
+{:else if nextActivity}
 	<div class="flex grow bg-white">
 		<div class="visual my-[10%] ml-[15%] grow">
 			<div class="row">
