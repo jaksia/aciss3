@@ -83,9 +83,9 @@ export type CompiledSound = {
 	key: AllSoundTypes;
 	content: string;
 	active: boolean;
-	done: boolean;
+	done: boolean | 'error';
 
-	audioPromise: Promise<AudioBuffer>;
+	audioPromise: Promise<AudioBuffer | null>;
 	source?: AudioBufferSourceNode;
 };
 

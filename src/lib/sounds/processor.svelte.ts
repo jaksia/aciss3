@@ -29,7 +29,7 @@ export class SoundProcessor {
 
 	// cached by sound path
 	private soundCache: Map<string, AudioBuffer> = new SvelteMap();
-	private loadingSounds: Map<string, Promise<AudioBuffer>> = new SvelteMap();
+	private loadingSounds: Map<string, Promise<AudioBuffer | null>> = new SvelteMap();
 
 	private isPlaying: boolean = $state(false);
 	private alertQueue: CompiledAlert[] = $state([]);
@@ -97,7 +97,10 @@ export class SoundProcessor {
 
 	private async fetchAndDecodeSound(path: string, isConfigurable: boolean) {
 		const response = await fetch(isConfigurable ? configurableSoundsRoot + path : path);
-		if (!response.ok) throw new Error('Failed to fetch sound for path ' + path);
+		if (!response.ok) {
+			log.error('Failed to fetch sound for path ' + path);
+			return null;
+		}
 		const arrayBuffer = await response.arrayBuffer();
 		const audioBuffer = await this.audioContext!.decodeAudioData(arrayBuffer);
 		this.soundCache.set(path, audioBuffer);
@@ -145,7 +148,13 @@ export class SoundProcessor {
 			const sound = alert.sounds[i];
 
 			sound.source = this.audioContext.createBufferSource();
-			sound.source.buffer = await sound.audioPromise;
+			const audioBuffer = await sound.audioPromise;
+			if (!audioBuffer) {
+				log.error('Audio buffer is null for sound', sound.key);
+				sound.done = 'error';
+				continue;
+			}
+			sound.source.buffer = audioBuffer;
 
 			sound.active = true;
 			this.currentSound = sound;
@@ -282,6 +291,7 @@ export class SoundProcessor {
 					this.eventSounds.get(zvolavanieSound)!.path,
 					true
 				);
+				if (!zvolavanieBuffer) throw new Error('Zvolavanie sound could not be loaded');
 				zvolavanieTime -= zvolavanieBuffer.duration * 1000;
 			} catch (e) {
 				log.warn('Failed to load zvolavanie sound for activity', activity.id, e);

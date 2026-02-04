@@ -122,7 +122,7 @@
 	>
 		<h3 class="p-4 text-2xl font-bold">Sound Alert Schedule</h3>
 		<div class="flex-1 overflow-y-auto p-4">
-			{#each soundProcessor._scheduledAlerts.entries() as [timestamp, alerts] (timestamp)}
+			{#each Array.from(soundProcessor._scheduledAlerts.entries()).toSorted((a, b) => Number(a[0]) - Number(b[0])) as [timestamp, alerts] (timestamp)}
 				<div class="mb-4">
 					<div class="mb-2 font-bold">
 						{new Date(timestamp).toLocaleString('sk-SK')}
@@ -146,8 +146,13 @@
 			{#each soundProcessor._alertQueue as alert (alert)}
 				<div class="mb-0.5 border-b border-dotted border-green-300 pb-0.5">
 					{#each alert.sounds as sound (sound)}
-						<span class={['mr-1', sound.done && 'italic', sound.active && 'flashing']}
-							>{sound.content}</span
+						<span
+							class={[
+								'mr-1',
+								sound.done && 'italic',
+								sound.done === 'error' && 'text-red-500',
+								sound.active && 'flashing'
+							]}>{sound.content}</span
 						>
 					{/each}
 				</div>

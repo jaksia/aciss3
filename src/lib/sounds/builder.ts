@@ -149,7 +149,7 @@ export class SoundBuilder {
 
 	public build(
 		eventSounds: Map<ConfigurableSounds, Sound>,
-		loadSound: (path: string, isConfigurable: boolean) => Promise<AudioBuffer>
+		loadSound: (path: string, isConfigurable: boolean) => Promise<AudioBuffer|null>
 	): CompiledSound[] {
 		if (this.alertEnd) {
 			this.sounds.push(ConfigurableSounds.ALERT_END);
