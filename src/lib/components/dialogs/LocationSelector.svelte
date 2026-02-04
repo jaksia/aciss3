@@ -15,7 +15,7 @@
 		onselect: (location: ActivityLocation) => void;
 	} = $props();
 
-	let locationInput: ActivityLocation | null = $state(null);
+	let locationInput: ActivityLocation['id'] | null = $state(null);
 </script>
 
 <h2 class="mb-4 text-xl font-semibold">Vyberte umiestnenie pre {purpose}</h2>
@@ -30,7 +30,8 @@
 		type="button"
 		class="btn btn-success"
 		disabled={locationInput === null}
-		onclick={() => locationInput && onselect(locationInput)}>Vybrať</button
+		onclick={() => locationInput && onselect(eventState.locations.get(locationInput)!)}
+		>Vybrať</button
 	>
 	<button type="button" class="btn btn-secondary" onclick={oncancel}>Zavrieť</button>
 </div>
