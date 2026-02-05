@@ -121,6 +121,25 @@
 			soundControlPending = true;
 			await eventState.playerControl({
 				type: 'customSound',
+				sounds: builder().sound(ConfigurableSounds.ZVOLAVACKA).getSounds()
+			});
+			addAlert({
+				type: 'success',
+				content: 'Zvolávanie bolo spustené.'
+			});
+			soundControlPending = false;
+		}}
+	>
+		Zvolávanie
+	</button>
+	<button
+		class="btn mt-1"
+		disabled={soundControlPending}
+		onclick={async () => {
+			if (soundControlPending) return;
+			soundControlPending = true;
+			await eventState.playerControl({
+				type: 'customSound',
 				sounds: builder().sound(ConfigurableSounds.VECERNICEK).getSounds()
 			});
 			addAlert({
