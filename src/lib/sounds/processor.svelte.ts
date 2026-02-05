@@ -12,6 +12,7 @@ import { fixedSounds } from './fixed';
 import { configurableSoundsData, getConfigurableSoundRoot } from './configurable';
 import { builder as builder, SoundBuilder } from './builder';
 import { logFunctions } from '$lib/utils';
+import type { EventState } from '$lib/state.svelte';
 
 const log = logFunctions('SoundProcessor');
 
@@ -23,6 +24,8 @@ const requiredConfigurableSounds: ConfigurableSounds[] = [
 const configurableSoundsRoot = getConfigurableSoundRoot();
 
 export class SoundProcessor {
+	private eventState: EventState | null = null;
+
 	private eventSounds: Map<ConfigurableSounds, Sound> = new SvelteMap();
 	private validConfiguration = $state(true);
 	private audioContext: AudioContext | null = null;
@@ -62,19 +65,8 @@ export class SoundProcessor {
 		});
 
 		$effect(() => {
-			if (this.alertSchedulerTimeout) {
-				clearTimeout(this.alertSchedulerTimeout);
-				this.alertSchedulerTimeout = null;
-			}
-			if (this.scheduledAlerts.size === 0) return;
-
-			const nextAlertTime = Math.min(...Array.from(this.scheduledAlerts.keys()));
-			const delay = Math.max(0, nextAlertTime - Date.now());
-
-			log.debug('Scheduling next alert check in', delay, 'ms');
-			this.alertSchedulerTimeout = window.setTimeout(() => {
-				this.checkScheduledAlerts();
-			}, delay);
+			this.scheduledAlerts;
+			this.scheduleAlertCheck();
 		});
 
 		if (import.meta.hot) {
@@ -89,6 +81,14 @@ export class SoundProcessor {
 				}
 			});
 		}
+	}
+
+	public attachEventState(eventState: EventState) {
+		this.eventState = eventState;
+	}
+
+	private getNow(): Date {
+		return this.eventState ? this.eventState.now : new Date();
 	}
 
 	public setAudioContext(audioContext: AudioContext) {
@@ -326,7 +326,7 @@ export class SoundProcessor {
 	}
 
 	public scheduleAlerts(timedAlerts: TimedAlerts) {
-		const discardTime = Date.now() - 5 * 1000; // 5 seconds grace period
+		const discardTime = this.getNow().valueOf() - 5 * 1000; // 5 seconds grace period
 		for (const [time, alert] of Object.entries(timedAlerts)) {
 			const alertTime = Number(time);
 			if (alertTime < discardTime) continue;
@@ -343,14 +343,45 @@ export class SoundProcessor {
 		return timedAlerts;
 	}
 
+	private scheduleAlertCheck() {
+		if (this.alertSchedulerTimeout) clearTimeout(this.alertSchedulerTimeout);
+		if (this.scheduledAlerts.size === 0) return;
+
+		const nextAlertTime = Math.min(...Array.from(this.scheduledAlerts.keys()));
+		const delay = Math.max(0, nextAlertTime - this.getNow().valueOf());
+
+		log.debug(
+			'Scheduling next alert check in',
+			delay,
+			'ms',
+			nextAlertTime,
+			new Date(nextAlertTime).toLocaleString(),
+			this.getNow().toLocaleString()
+		);
+		this.alertSchedulerTimeout = window.setTimeout(() => {
+			this.alertSchedulerTimeout = null;
+			this.checkScheduledAlerts();
+		}, delay);
+	}
+
 	private checkScheduledAlerts() {
-		const now = Date.now().valueOf();
+		log.debug('Checking scheduled alerts at', this.getNow().toLocaleString());
+
+		let foundAlert = false;
+
+		const now = this.getNow().valueOf();
 		for (const [time, alerts] of this.scheduledAlerts.entries()) {
 			if (time <= now) {
+				foundAlert = true;
 				alerts.forEach((alert) => this.addAlert(alert));
 				this.scheduledAlerts.delete(time);
 			}
 		}
 		this.startPlaying();
+
+		if (!foundAlert) {
+			// Check probably ran a few seconds too early, schedule another check in a few seconds
+			this.scheduleAlertCheck();
+		}
 	}
 }

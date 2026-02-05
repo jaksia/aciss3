@@ -236,6 +236,7 @@ export class EventState {
 
 	public attachSoundProcessor(processor: SoundProcessor) {
 		this.soundProcessor = processor;
+		this.soundProcessor.attachEventState(this);
 
 		this.attachSoundEvents();
 	}
