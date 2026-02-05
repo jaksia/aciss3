@@ -24,7 +24,7 @@ const requiredConfigurableSounds: ConfigurableSounds[] = [
 const configurableSoundsRoot = getConfigurableSoundRoot();
 
 export class SoundProcessor {
-	private eventState: EventState | null = null;
+	private eventState: EventState;
 
 	private eventSounds: Map<ConfigurableSounds, Sound> = new SvelteMap();
 	private validConfiguration = $state(true);
@@ -49,7 +49,7 @@ export class SoundProcessor {
 	public _currentSound = $derived(this.currentSound);
 	public _scheduledAlerts = $derived(this.scheduledAlerts);
 
-	constructor(event: Event) {
+	constructor(event: Event, eventState: EventState) {
 		// Load configurable sounds from event
 		Object.values(event.sounds).forEach((soundConfig) => {
 			this.eventSounds.set(soundConfig.key, {
@@ -81,14 +81,13 @@ export class SoundProcessor {
 				}
 			});
 		}
-	}
 
-	public attachEventState(eventState: EventState) {
+		// We don't let eventState know about SP just yet, as that would trigger sound events
 		this.eventState = eventState;
 	}
 
 	private getNow(): Date {
-		return this.eventState ? this.eventState.now : new Date();
+		return this.eventState.now;
 	}
 
 	public setAudioContext(audioContext: AudioContext) {

@@ -11,7 +11,7 @@
 
 	const eventState = getContext<() => EventState>('getEventState')();
 
-	const soundProcessor = new SoundProcessor(eventState.event);
+	const soundProcessor = new SoundProcessor(eventState.event, eventState);
 
 	const [currentActivity, nextActivity] = $derived.by<[Activity | null, Activity | null]>(() => {
 		const now = eventState.now;
