@@ -13,6 +13,7 @@ import { configurableSoundsData, getConfigurableSoundRoot } from './configurable
 import { builder as builder, SoundBuilder } from './builder';
 import { logFunctions } from '$lib/utils';
 import type { EventState } from '$lib/state.svelte';
+import { untrack } from 'svelte';
 
 const log = logFunctions('SoundProcessor');
 
@@ -346,8 +347,10 @@ export class SoundProcessor {
 		if (this.alertSchedulerTimeout) clearTimeout(this.alertSchedulerTimeout);
 		if (this.scheduledAlerts.size === 0) return;
 
+		const now = untrack(() => this.getNow());
+
 		const nextAlertTime = Math.min(...Array.from(this.scheduledAlerts.keys()));
-		const delay = Math.max(0, nextAlertTime - this.getNow().valueOf());
+		const delay = Math.max(0, nextAlertTime - now.valueOf());
 
 		log.debug(
 			'Scheduling next alert check in',
@@ -355,7 +358,7 @@ export class SoundProcessor {
 			'ms',
 			nextAlertTime,
 			new Date(nextAlertTime).toLocaleString(),
-			this.getNow().toLocaleString()
+			now.toLocaleString()
 		);
 		this.alertSchedulerTimeout = window.setTimeout(() => {
 			this.alertSchedulerTimeout = null;
