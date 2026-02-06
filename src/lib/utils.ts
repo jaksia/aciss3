@@ -10,20 +10,22 @@ export const clickOutside: Action<
 		callback: () => {}
 	}
 ) {
-	window.addEventListener('click', handleClick, {
-		capture: param.capture || false
-	});
-
 	function handleClick(e: MouseEvent) {
 		if (!node.contains(e.target as Node)) {
 			param.callback(e);
 		}
 	}
 
+	window.addEventListener('click', handleClick, {
+		capture: param.capture || false
+	});
+
 	return {
 		destroy() {
 			// the node has been removed from the DOM
-			window.removeEventListener('click', handleClick);
+			window.removeEventListener('click', handleClick, {
+				capture: param.capture || false
+			});
 		}
 	};
 };

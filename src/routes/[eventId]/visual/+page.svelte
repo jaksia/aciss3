@@ -127,6 +127,9 @@
 {/if}
 
 {#if debug}
+	<div class="fixed top-32 left-16 border-2 border-red-500 text-red-500 p-2">
+		<strong>{eventState.now.toLocaleTimeString('sk-SK')}</strong>
+	</div>
 	<div
 		class="fixed top-32 right-16 bottom-32 flex w-lg flex-col border-2 border-blue-500 text-blue-500"
 	>
