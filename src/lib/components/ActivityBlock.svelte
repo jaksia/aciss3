@@ -70,7 +70,7 @@
 </script>
 
 <div
-	class="absolute h-full pointer-events-none"
+	class="pointer-events-none absolute h-full"
 	style="left: {(bgBlockStart / 60) * hourWidth}px; width: {((bgBlockEnd - bgBlockStart) / 60) *
 		hourWidth}px;"
 ></div>

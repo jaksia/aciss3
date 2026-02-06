@@ -66,6 +66,7 @@ export class SoundProcessor {
 		});
 
 		$effect(() => {
+			// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 			this.scheduledAlerts;
 			this.scheduleAlertCheck();
 		});
@@ -357,6 +358,7 @@ export class SoundProcessor {
 			delay,
 			'ms',
 			nextAlertTime,
+			// eslint-disable-next-line svelte/prefer-svelte-reactivity
 			new Date(nextAlertTime).toLocaleString(),
 			now.toLocaleString()
 		);
