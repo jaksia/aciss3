@@ -263,13 +263,13 @@ export const createUpdateActivity = form(
 		}),
 		v.forward(
 			v.check((data) => {
-				return data.event.startDate <= data.activityData.startTime;
+				return data.event.startDate.getDate() <= data.activityData.startTime.getDate();
 			}, 'Activity start time cannot be before event start date'),
 			['activityData', 'startTime']
 		),
 		v.forward(
 			v.check((data) => {
-				return data.activityData.endTime <= data.event.endDate;
+				return data.activityData.endTime.getDate() <= data.event.endDate.getDate();
 			}, 'Activity end time cannot be after event end date'),
 			['activityData', 'endTime']
 		),

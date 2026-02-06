@@ -203,7 +203,11 @@
 				name={createUpdateActivity.fields.activityData.locationId.as('number').name}
 			>
 				{#each eventState.locations as [id, location] (id)}
-					<option value={id}>{location.name}</option>
+					<option
+						value={id}
+						selected={id === createUpdateActivity.fields.activityData.locationId.value()}
+						>{location.name}</option
+					>
 				{/each}
 			</select>
 			{#each createUpdateActivity.fields.activityData.locationId.issues() as issue (issue.message)}
