@@ -26,14 +26,14 @@
 				<div class="ml-auto flex flex-col gap-2">
 					<a
 						href={resolve('/[eventId]/admin', { eventId: event.id.toString() })}
-						class="flex items-center gap-2 rounded-full bg-gray-200 px-2 py-0.5 hover:bg-gray-300"
+						class="flex items-center gap-2 rounded-full bg-gray-200 px-2 py-0.5 hover:bg-gray-300 text-gray-800"
 					>
 						<span>Admin</span>
 						<Icon icon="mdi:cog-outline" class="text-xl" />
 					</a>
 					<a
 						href={resolve('/[eventId]/visual', { eventId: event.id.toString() })}
-						class="flex items-center gap-2 rounded-full bg-gray-200 px-2 py-0.5 hover:bg-gray-300"
+						class="flex items-center gap-2 rounded-full bg-gray-200 px-2 py-0.5 hover:bg-gray-300 text-gray-800"
 					>
 						<span>Visual</span>
 						<Icon icon="mdi:monitor-eye" class="text-xl" />
