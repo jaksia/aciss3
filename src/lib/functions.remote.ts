@@ -4,7 +4,11 @@ import { command, form, query } from '$app/server';
 import * as dbUtils from '$lib/server/db/utils';
 import { ConfigurableSounds } from '$lib/types/enums';
 import { configurableSoundsData } from '$lib/sounds/configurable';
-import { triggerActivitiesUpdate, triggerEventUpdate, triggerLocationsUpdate } from '$lib/server/socket';
+import {
+	triggerActivitiesUpdate,
+	triggerEventUpdate,
+	triggerLocationsUpdate
+} from '$lib/server/socket';
 import { saveSoundFiles } from '$lib/server/files/sounds';
 import {
 	activityFormValidator,
