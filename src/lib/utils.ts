@@ -61,3 +61,9 @@ export function jsonError(message: string, status: number) {
 	}
 	return jsonResponse({ error: message }, status);
 }
+
+export function pluralize(count: number, one: string, two_to_four: string, many: string) {
+	if (count === 1) return one;
+	if (count >= 2 && count <= 4) return two_to_four;
+	return many;
+}
