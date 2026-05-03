@@ -8,7 +8,7 @@
 	import { resolve } from '$app/paths';
 
 	const adminSection = $derived.by(() => {
-		return page.url.pathname.includes('/admin') && !page.url.pathname.includes('/login')
+		return page.url.pathname.includes('/admin')
 			? page.url.pathname.split('/admin')[1]
 			: null;
 	});
