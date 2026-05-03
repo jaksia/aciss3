@@ -2,7 +2,13 @@ export enum EventStyle {
 	DEFAULT = 'default',
 	PIKOMAT = 'Pikomat',
 	PIKOFYZ = 'Pikofyz',
-	KOCKAC = 'Kockatý víkend'
+	KOCKAC = 'Kockatý víkend',
+	
+	RIESKY = 'Riešky',
+
+	KSP = 'KSP',
+	FKS = 'FKS',
+	KMS = 'KMS'
 }
 
 type StyleData = {
@@ -28,8 +34,28 @@ export const styleData: Record<EventStyle, StyleData> = {
 		fontFamily: 'Montserrat, sans-serif'
 	},
 	[EventStyle.KOCKAC]: {
-		logoPath: '/themes/kockac/logo.png',
+		logoPath: '/themes/kockac/logo.svg',
 		primaryColor: 'var(--color-kockac)',
+		fontFamily: 'Montserrat, sans-serif'
+	},
+	[EventStyle.RIESKY]: {
+		logoPath: '/themes/riesky/logo.svg',
+		primaryColor: 'var(--color-riesky)',
+		fontFamily: 'Montserrat, sans-serif'
+	},
+	[EventStyle.KSP]: {
+		logoPath: '/themes/ksp/logo.svg',
+		primaryColor: 'var(--color-ksp)',
+		fontFamily: 'Montserrat, sans-serif'
+	},
+	[EventStyle.FKS]: {
+		logoPath: '/themes/fks/logo.svg',
+		primaryColor: 'var(--color-fks)',
+		fontFamily: 'Montserrat, sans-serif'
+	},
+	[EventStyle.KMS]: {
+		logoPath: '/themes/kms/logo.svg',
+		primaryColor: 'var(--color-kms)',
 		fontFamily: 'Montserrat, sans-serif'
 	}
 };

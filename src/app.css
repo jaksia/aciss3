@@ -6,6 +6,10 @@
 	--color-pikofyz: #f68712;
 	--color-pikomat: #00adef;
 	--color-secondary: #5b5b5b;
+	--color-riesky: #1498d7;
+	--color-ksp: #818f3d;
+	--color-fks: #e39f3c;
+	--color-kms: #8c3be3;
 
 	--color-base-100: oklch(100% 0 0);
 	--color-base-200: oklch(98% 0 0);
@@ -28,8 +32,8 @@
 }
 
 @theme dark {
-	--color-base-100: oklch(25.33% 0.016 252.42);
-	--color-base-200: oklch(23.26% 0.014 253.1);
+	--color-base-100: oklch(27.33% 0.016 252.42);
+	--color-base-200: oklch(24.26% 0.014 253.1);
 	--color-base-300: oklch(21.15% 0.012 254.09);
 	--color-base-content: oklch(97.807% 0.029 256.847);
 	--color-light-content: oklch(60% 0.02 260);

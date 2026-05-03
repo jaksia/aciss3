@@ -31,7 +31,7 @@
 		class="sticky top-0 z-10 flex h-24 text-white"
 		style="background-color: {styles.primaryColor};"
 	>
-		<div class="flex w-1/6">
+		<div class="flex w-1/6 p-3">
 			<img src={styles.logoPath} alt="{event.style} Logo" class="mx-auto h-full" />
 		</div>
 		<div class="my-auto ml-4 flex flex-col font-black">
