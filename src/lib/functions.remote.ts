@@ -14,13 +14,18 @@ import {
 	activityFormValidator,
 	audioFileSchema,
 	createLocationSchema,
+	eventChangePasswordValidator,
+	eventDataValidator,
 	getCreateEventSchema
 } from '$lib/schemas';
 import { env } from '$env/dynamic/private';
-import { verify } from '@node-rs/argon2';
+import { hash, verify } from '@node-rs/argon2';
 import { ARGON2_CONFIG } from '$lib/server/session';
 import { invalid, redirect } from '@sveltejs/kit';
 import { resolve } from '$app/paths';
+import { db } from './server/db';
+import * as schema from '$lib/server/db/schema';
+import { eq } from 'drizzle-orm';
 
 const eventIdValidator = v.pipeAsync(
 	v.number(),
@@ -299,3 +304,62 @@ export const createUpdateActivity = form(
 		return { activity: result };
 	}
 );
+
+export const updateEvent = form(
+	v.object({
+		...eventDataValidator.entries,
+		eventId: v.number()
+	}),
+	async (data, issue) => {
+		if (!(await dbUtils.eventExists(data.eventId))) {
+			invalid(issue.eventId('Event not found'));
+		}
+
+		await dbUtils.updateEvent(data.eventId, {
+			...data,
+			startDate: data.startDate.toDateString(),
+			endDate: data.endDate.toDateString()
+		});
+		triggerEventUpdate(data.eventId);
+		return {
+			event: await dbUtils.getEvent(data.eventId)
+		};
+	}
+);
+
+export const changeEventPassword = form(eventChangePasswordValidator, async (data, issue) => {
+	const event = await dbUtils.getEvent(data.eventId, { returnPasswordHash: true });
+	if (!event) {
+		invalid(issue.eventId('Event not found'));
+	}
+
+	if (event.adminPasswordHash) {
+		if (typeof data._currentPassword !== 'string' || data._currentPassword.length === 0) {
+			invalid(issue._currentPassword('Current admin password is required'));
+		} else {
+			const isPasswordValid = await verify(
+				event.adminPasswordHash,
+				data._currentPassword,
+				ARGON2_CONFIG
+			);
+			if (!isPasswordValid) {
+				invalid(issue._currentPassword('Current admin password is incorrect'));
+			}
+		}
+	}
+
+	let adminPasswordHash: string | null = null;
+
+	if (data._password) {
+		adminPasswordHash = await hash(data._password, ARGON2_CONFIG);
+	}
+
+	await dbUtils.updateEvent(data.eventId, { adminPasswordHash });
+	await db
+		.delete(schema.sessionAllowedEvents)
+		.where(eq(schema.sessionAllowedEvents.eventId, data.eventId));
+	triggerEventUpdate(data.eventId);
+	return {
+		event: await dbUtils.getEvent(data.eventId)
+	};
+});

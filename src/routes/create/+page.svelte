@@ -148,8 +148,6 @@
 					{/each}
 				</div>
 			{/if}
-			{submitPending}
-			{!data.validRootPassword}
 			<button
 				class="btn btn-success mx-auto mt-4"
 				disabled={submitPending || !data.validRootPassword}
