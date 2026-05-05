@@ -211,7 +211,10 @@
 		</button>
 		<div class="group relative inline-block">
 			<button
-				class="btn ml-1 inline-flex items-center border-0! pr-1! hover:bg-black/20"
+				class={[
+					'btn ml-1 inline-flex items-center border-0! pr-1! hover:bg-black/20',
+					soundControlOpen && 'bg-black/30'
+				]}
 				onclick={() => (soundControlOpen = !soundControlOpen)}
 			>
 				Okamžité hlásenie
