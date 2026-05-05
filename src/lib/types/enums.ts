@@ -49,5 +49,5 @@ export enum ConfigurableSounds {
 	DELAY_START = 'delay_start',
 	DELAY_END = 'delay_end',
 
-	VECERNICEK = 'vecernicek',
+	VECERNICEK = 'vecernicek'
 }

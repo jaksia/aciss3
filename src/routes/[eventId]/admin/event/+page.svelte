@@ -6,7 +6,6 @@
 	import type { AddAlert } from '$lib/types/other';
 	import { changeEventPassword, updateEvent } from '$lib/functions.remote';
 	import type { Event } from '$lib/types/db';
-	import { eventDataValidator } from '$lib/schemas';
 
 	const eventState = getContext<() => EventState>('getEventState')();
 	const addAlert = getContext<AddAlert>('addAlert');

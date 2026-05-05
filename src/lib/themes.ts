@@ -3,7 +3,7 @@ export enum EventStyle {
 	PIKOMAT = 'Pikomat',
 	PIKOFYZ = 'Pikofyz',
 	KOCKAC = 'Kockatý víkend',
-	
+
 	RIESKY = 'Riešky',
 
 	KSP = 'KSP',

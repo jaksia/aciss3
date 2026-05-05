@@ -8,9 +8,7 @@
 	import { resolve } from '$app/paths';
 
 	const adminSection = $derived.by(() => {
-		return page.url.pathname.includes('/admin')
-			? page.url.pathname.split('/admin')[1]
-			: null;
+		return page.url.pathname.includes('/admin') ? page.url.pathname.split('/admin')[1] : null;
 	});
 
 	let { children, data }: LayoutProps = $props();
