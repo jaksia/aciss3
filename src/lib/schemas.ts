@@ -91,7 +91,7 @@ export const activityDataValidator = v.pipe(
 	v.object({
 		name: v.pipe(v.string(), v.nonEmpty('Activity name cannot be empty')),
 		type: v.enum(ActivityType, 'Invalid activity type'),
-		locationId: v.number(),
+		locationId: v.pipe(v.string(), v.uuid()),
 
 		startTime: v.pipe(
 			v.number(),

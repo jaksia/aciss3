@@ -46,3 +46,7 @@ export type SessionAllowedEvent = typeof schema.sessionAllowedEvents.$inferSelec
 export type Session = BaseSession & {
 	allowedEvents: SessionAllowedEvent[];
 };
+
+export type APIKey = typeof schema.apiKeys.$inferSelect;
+export type APIKeyActionType = typeof schema.apiKeyActionTypesEnum;
+export type APIKeyAction = typeof schema.apiKeyActions.$inferSelect;

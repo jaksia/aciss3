@@ -51,3 +51,8 @@ export enum ConfigurableSounds {
 
 	VECERNICEK = 'vecernicek'
 }
+
+export enum APIKeyActionType {
+	PULL = 'pull',
+	UPLOAD = 'upload'
+}

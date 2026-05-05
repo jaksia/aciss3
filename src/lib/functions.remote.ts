@@ -34,7 +34,8 @@ const eventIdValidator = v.pipeAsync(
 	}, 'Event not found')
 );
 const locationIdValidator = v.pipeAsync(
-	v.number(),
+	v.string(),
+	v.uuid(),
 	v.checkAsync(async (id) => {
 		return await dbUtils.locationExists(id);
 	}, 'Location not found')
@@ -56,7 +57,7 @@ export const setEventSound = command(
 		v.objectAsync({
 			eventId: eventIdValidator,
 			soundKey: v.enum(ConfigurableSounds),
-			soundId: v.nullable(v.number())
+			soundId: v.nullable(v.pipe(v.string(), v.uuid()))
 		}),
 		v.checkAsync(async (data) => {
 			if (configurableSoundsData[data.soundKey].required && data.soundId === null) {

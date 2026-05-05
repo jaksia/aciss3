@@ -2,6 +2,7 @@ import type { Event, CustomSound, BaseEvent } from '$lib/types/db';
 import { eq, min } from 'drizzle-orm';
 import { db } from '..';
 import { events, customSounds, eventsToSounds } from '../schema';
+import { Flag, hasFlagQ } from '../../../flags';
 
 export async function getEvent(
 	eventId: Event['id'],
@@ -46,13 +47,13 @@ export async function getEvents() {
 export async function createEvent(eventData: Omit<BaseEvent, 'id'>): Promise<Event['id']> {
 	const defaultSounds = (
 		await db
-			.select({
+			.selectDistinctOn([customSounds.key], {
 				key: customSounds.key,
-				id: min(customSounds.id)
+				id: customSounds.id
 			})
 			.from(customSounds)
-			.groupBy(customSounds.key)
-			.where(eq(customSounds.default, true))
+			.where(hasFlagQ(customSounds.flags, Flag.DEFAULT))
+			.orderBy(customSounds.key, customSounds.id)
 	).filter((s) => s.id !== null);
 
 	const event = await db.transaction(async (tx) => {

@@ -2,13 +2,14 @@ import type { Event, ActivityLocation } from '$lib/types/db';
 import { eq, and, or, not, isNull } from 'drizzle-orm';
 import { db } from '..';
 import { eventsToLocations, locations } from '../schema';
+import { Flag, hasFlagQ } from '../../../flags';
 
 export async function getEventLocations(eventId: Event['id']) {
 	const result = await db
 		.select()
 		.from(locations)
 		.leftJoin(eventsToLocations, eq(locations.id, eventsToLocations.locationId))
-		.where(or(eq(eventsToLocations.eventId, eventId), locations.isStatic));
+		.where(or(eq(eventsToLocations.eventId, eventId), hasFlagQ(locations.flags, Flag.STATIC)));
 	return result.reduce(
 		(acc, { locations: loc }) => {
 			acc[loc.id] = loc;
@@ -33,7 +34,7 @@ export async function getAvailableLocations(
 				name: locations.name,
 				content: locations.content,
 				path: locations.path,
-				isStatic: locations.isStatic
+				flags: locations.flags
 			})
 			.from(locations)
 			.leftJoin(
@@ -43,9 +44,14 @@ export async function getAvailableLocations(
 					eq(eventsToLocations.locationId, locations.id)
 				)
 			)
-			.where(and(isNull(eventsToLocations.locationId), not(locations.isStatic)));
+			.where(
+				and(isNull(eventsToLocations.locationId), not(hasFlagQ(locations.flags, Flag.STATIC)))
+			);
 	} else {
-		return await db.select().from(locations).where(not(locations.isStatic));
+		return await db
+			.select()
+			.from(locations)
+			.where(not(hasFlagQ(locations.flags, Flag.STATIC)));
 	}
 }
 
@@ -84,7 +90,7 @@ export async function createLocation(
 ): Promise<ActivityLocation> {
 	const [location] = await db
 		.insert(locations)
-		.values({ ...data, isStatic: false })
+		.values({ ...data })
 		.returning();
 	if (eventId) {
 		await assignLocationToEvent(eventId, location.id);

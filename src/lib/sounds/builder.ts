@@ -1,3 +1,4 @@
+import { Flag, hasFlag } from '$lib/flags';
 import type {
 	ActivityAdditionalInfo,
 	ActivityLocation,
@@ -98,7 +99,7 @@ export class SoundBuilder {
 	}
 
 	private buildLocation(location: ActivityLocation) {
-		const locSoundKey: SoundBuilderSound = `loc;${location.name};${location.content};${location.path};${location.isStatic}`;
+		const locSoundKey: SoundBuilderSound = `loc;${location.name};${location.content};${location.path};${hasFlag(location, Flag.STATIC)}`;
 		return [locSoundKey];
 	}
 

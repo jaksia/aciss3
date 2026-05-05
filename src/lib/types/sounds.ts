@@ -104,4 +104,4 @@ export type TimedAlerts = {
 
 export type SoundBuilderSound =
 	| AllSoundTypes
-	| `loc;${ActivityLocation['name']};${ActivityLocation['content']};${ActivityLocation['path']};${ActivityLocation['isStatic']}`;
+	| `loc;${ActivityLocation['name']};${ActivityLocation['content']};${ActivityLocation['path']};${boolean}`;

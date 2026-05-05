@@ -4,6 +4,7 @@ import { EventStyle } from '../../themes';
 import {
 	ActivityType,
 	AdditionalInfo,
+	APIKeyActionType,
 	ConfigurableSounds,
 	ParticipantNeeds
 } from '../../types/enums';
@@ -18,11 +19,12 @@ export const configurableSoundsEnum = t.pgEnum('ConfigurableSounds', Configurabl
 export const eventStylesEnum = t.pgEnum('EventStyles', EventStyle);
 
 export const customSounds = pgTable('custom_sounds', {
-	id: t.serial('id').primaryKey(),
+	id: t.uuid('id').primaryKey().notNull().defaultRandom(),
 	key: configurableSoundsEnum('key').notNull(),
 	description: t.char('description', { length: 64 }),
 	path: t.text('path').notNull(),
-	default: t.boolean('default').notNull().default(false)
+
+	flags: t.integer('flags').notNull().default(0)
 });
 
 export const events = pgTable('events', {
@@ -47,7 +49,7 @@ export const eventsToSounds = pgTable(
 			.notNull()
 			.references(() => events.id, { onDelete: 'cascade' }),
 		customSoundId: t
-			.integer('custom_sound_id')
+			.uuid('custom_sound_id')
 			.notNull()
 			.references(() => customSounds.id, { onDelete: 'cascade' }),
 		soundKey: configurableSoundsEnum('sound_key').notNull()
@@ -76,13 +78,13 @@ export const eventsToSoundsRelations = relations(eventsToSounds, ({ one }) => ({
 // ------------------------------
 
 export const locations = pgTable('locations', {
-	id: t.serial('id').primaryKey(),
+	id: t.uuid('id').primaryKey().notNull().defaultRandom(),
 
 	name: t.text('name').notNull(),
 	content: t.text('content').notNull(),
 	path: t.text('path').notNull(),
 
-	isStatic: t.boolean('is_static').notNull().default(false)
+	flags: t.integer('flags').notNull().default(0)
 });
 
 export const locationsRelations = relations(locations, ({ many }) => ({
@@ -97,7 +99,7 @@ export const eventsToLocations = pgTable(
 			.notNull()
 			.references(() => events.id, { onDelete: 'cascade' }),
 		locationId: t
-			.integer('location_id')
+			.uuid('location_id')
 			.notNull()
 			.references(() => locations.id, { onDelete: 'cascade' })
 	},
@@ -141,7 +143,7 @@ export const activities = pgTable(
 		delay: t.integer('delay'),
 		type: activityTypeEnum('type').notNull(),
 		locationId: t
-			.integer('location_id')
+			.uuid('location_id')
 			.notNull()
 			.references(() => locations.id, { onDelete: 'restrict' })
 	},
@@ -221,4 +223,50 @@ export const sessionAllowedEvents = pgTable(
 		expiresAt: t.timestamp('expires_at', { mode: 'date' }).notNull()
 	},
 	(table) => [t.primaryKey({ columns: [table.sessionId, table.eventId] })]
+);
+
+// ------------------------------
+//    API FOR GLOBAL SERVER
+// ------------------------------
+
+export const apiKeys = pgTable('api_keys', {
+	id: t.uuid('id').primaryKey().notNull().defaultRandom(),
+	key: t.varchar('key', { length: 64 }).notNull(),
+	description: t.text('description'),
+	createdAt: t.timestamp('created_at', { mode: 'date' }).notNull().defaultNow(),
+
+	readAccess: t.boolean('read_access').notNull().default(false),
+	writeAccess: t.boolean('write_access').notNull().default(false),
+
+	revoked: t.boolean('revoked').notNull().default(false)
+});
+
+export const apiKeyActionTypesEnum = t.pgEnum('ApiKeyActionTypes', APIKeyActionType);
+
+export const apiKeyActions = pgTable(
+	'api_key_actions',
+	{
+		id: t.serial('id').primaryKey(),
+		apiKeyId: t
+			.uuid('api_key_id')
+			.notNull()
+			.references(() => apiKeys.id, { onDelete: 'cascade' }),
+
+		type: apiKeyActionTypesEnum('type').notNull(),
+		ipAddress: t.inet('ip_address').notNull(),
+
+		soundId: t.uuid('sound_id').references(() => customSounds.id, { onDelete: 'set null' }),
+		locationId: t.uuid('location_id').references(() => locations.id, { onDelete: 'set null' }),
+
+		timestamp: t.timestamp('timestamp', { mode: 'date' }).notNull().defaultNow()
+	},
+	(table) => [
+		t.check(
+			'exactly_one_object',
+			sql`
+        (CASE WHEN ${table.soundId} IS NULL THEN 0 ELSE 1 END +
+         CASE WHEN ${table.locationId} IS NULL THEN 0 ELSE 1 END) = 1
+    `
+		)
+	]
 );
