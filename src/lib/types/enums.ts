@@ -41,12 +41,13 @@ export enum AdditionalInfo {
 
 export enum ConfigurableSounds {
 	ALERT_START = 'alert_start',
-	ADDITIONAL_JINGLE = 'additional_jingle',
 	ALERT_END = 'alert_end',
+	ADDITIONAL_JINGLE = 'additional_jingle',
+
+	ZVOLAVACKA = 'zvolavacka',
 
 	DELAY_START = 'delay_start',
 	DELAY_END = 'delay_end',
 
-	ZVOLAVACKA = 'zvolavacka',
-	VECERNICEK = 'vecernicek'
+	VECERNICEK = 'vecernicek',
 }
