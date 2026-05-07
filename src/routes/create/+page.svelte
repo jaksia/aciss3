@@ -4,7 +4,7 @@
 	import type { PageProps } from './$types';
 	import { createEvent } from '$lib/functions.remote';
 	import { getCreateEventSchema } from '$lib/schemas';
-	import { getContext } from 'svelte';
+	import { getContext, onMount } from 'svelte';
 	import type { AddAlert } from '$lib/types/other';
 
 	let { data }: PageProps = $props();
@@ -14,6 +14,14 @@
 	let datePickerOpen = $state(false);
 
 	let submitPending = $state(false);
+
+	onMount(() => {
+		if (createEvent.fields.startDate.value() === null) {
+			const now = Date.now();
+			createEvent.fields.startDate.set(now);
+			createEvent.fields.endDate.set(now + 5 * 24 * 60 * 60 * 1000);
+		}
+	});
 </script>
 
 <div
@@ -117,9 +125,9 @@
 						class:open={datePickerOpen}
 					>
 						<div class="date">
-							{new Date(createEvent.fields.startDate.value()).toLocaleDateString('sk-SK')} -
-							{#if createEvent.fields.endDate.value() !== null}
-								{new Date(createEvent.fields.endDate.value()).toLocaleDateString('sk-SK')}
+							{new Date(createEvent.fields.startDate.value() ?? 0).toLocaleDateString('sk-SK')}
+							{#if createEvent.fields.endDate.value() !== undefined}
+								- {new Date(createEvent.fields.endDate.value()!).toLocaleDateString('sk-SK')}
 							{/if}
 						</div>
 					</div>
