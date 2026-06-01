@@ -151,9 +151,6 @@
 		</div>
 	</div>
 
-	{#each createUpdateActivity.fields.allIssues() as issue (issue.message)}
-		<p class="mt-1 text-sm text-red-600">{issue.path} {issue.message}</p>
-	{/each}
 	{#each createUpdateActivity.fields.issues() as issue (issue.message)}
 		<p class="mt-1 text-sm text-red-600">{issue.message}</p>
 	{/each}
@@ -200,7 +197,7 @@
 				id="activity-location"
 				class="w-full"
 				{disabled}
-				name={createUpdateActivity.fields.activityData.locationId.as('number').name}
+				name={createUpdateActivity.fields.activityData.locationId.as('select').name}
 			>
 				{#each eventState.locations as [id, location] (id)}
 					<option
