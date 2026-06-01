@@ -21,6 +21,7 @@
 			createEvent.fields.startDate.set(now);
 			createEvent.fields.endDate.set(now + 5 * 24 * 60 * 60 * 1000);
 		}
+		createEvent.fields.style.set(EventStyle.DEFAULT);
 	});
 </script>
 
