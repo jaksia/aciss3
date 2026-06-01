@@ -114,6 +114,11 @@
 <svelte:window
 	onkeydown={(e) => {
 		if (e.key === 'Escape') {
+			const activeElement = document.activeElement;
+			if (activeElement && ['INPUT', 'TEXTAREA'].includes(activeElement.tagName)) {
+				return;
+			}
+
 			if (!editorActivityId && !deletorActivityId && !createActivity) {
 				orphanedDialogShown = false;
 				if (locationSelectorResolve) {
