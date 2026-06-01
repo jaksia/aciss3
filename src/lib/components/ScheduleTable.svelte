@@ -8,6 +8,10 @@
 	import { getContext, onMount, tick } from 'svelte';
 	import type { EventState } from '$lib/state.svelte';
 	import { SvelteDate } from 'svelte/reactivity';
+	import { dev } from '$app/environment';
+	import { page } from '$app/state';
+
+	const debug = dev || page.url.searchParams.has('debug');
 
 	const eventState = getContext<() => EventState>('getEventState')();
 	const openActivityCreator =
@@ -115,10 +119,11 @@
 	}
 
 	onMount(() => {
-		setInterval(() => {
+		const interval = setInterval(() => {
 			// prevents the number from getting too big
 			viewportReactivityTrigger = 0;
 		}, 60000);
+		return () => clearInterval(interval);
 	});
 
 	const nowDay = $derived.by(() => {
@@ -165,11 +170,13 @@
 	});
 </script>
 
-<div class="fixed bottom-0 left-1/2 -translate-x-1/2">
-	T: {(startingMinutes / 60).toFixed(2)} - {(startingMinutes / 60 + 24 / scale).toFixed(2)}
-	| S: {scale.toFixed(2)} | Sm: {startingMinutes.toFixed(0)} | L: {leftPx.toFixed(0)}
-	| W: {chartWidth.toFixed(0)} | HW: {hourWidth.toFixed(0)}
-</div>
+{#if debug}
+	<div class="fixed bottom-0 left-1/2 -translate-x-1/2">
+		T: {(startingMinutes / 60).toFixed(2)} - {(startingMinutes / 60 + 24 / scale).toFixed(2)}
+		| S: {scale.toFixed(2)} | Sm: {startingMinutes.toFixed(0)} | L: {leftPx.toFixed(0)}
+		| W: {chartWidth.toFixed(0)} | HW: {hourWidth.toFixed(0)}
+	</div>
+{/if}
 
 <svelte:window
 	onresize={async () => {
