@@ -68,6 +68,10 @@
 		.value {
 			@apply text-6xl font-black;
 		}
+
+		.value-sm {
+			@apply text-4xl font-bold;
+		}
 	}
 
 	.navbar-btn {

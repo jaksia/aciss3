@@ -5,7 +5,7 @@
 	import { SoundProcessor } from '$lib/sounds/processor.svelte';
 	import type { Activity } from '$lib/types/db';
 	import { ConfigurableSounds } from '$lib/types/enums';
-	import { getContext } from 'svelte';
+	import { getContext, tick } from 'svelte';
 
 	const debug = dev || page.url.searchParams.has('debug');
 
@@ -51,6 +51,80 @@
 		soundProcessor.preloadSounds();
 		eventState.attachSoundProcessor(soundProcessor);
 	}
+
+	const ANIM_CONFIG = {
+		scrollSpeed: 35, // pixels per second
+		pauseStart: 2000, // ms
+		pauseEnd: 2000, // ms
+		returnDuration: 1500 // ms
+	};
+
+	const needsText = $derived(
+		nextActivity?.participantNeeds?.map((need) => need.need).join(', ') ?? ''
+	);
+
+	function autoscroll(node: HTMLElement) {
+		let animation: Animation | null = null;
+
+		function updateAnimation() {
+			if (animation) animation.cancel();
+
+			const child = node.firstElementChild as HTMLElement;
+			if (!child) return;
+
+			// textWidth - containerWidth
+			const scrollDist = child.offsetWidth - node.offsetWidth;
+
+			if (scrollDist <= 0) {
+				child.style.transform = 'translateX(0px)';
+				return;
+			}
+
+			const scrollDuration = (scrollDist / ANIM_CONFIG.scrollSpeed) * 1000;
+			const totalDuration =
+				ANIM_CONFIG.pauseStart + scrollDuration + ANIM_CONFIG.pauseEnd + ANIM_CONFIG.returnDuration;
+
+			animation = child.animate(
+				[
+					{ transform: 'translateX(0px)', offset: 0, easing: 'ease-in-out' },
+					{ transform: 'translateX(0px)', offset: ANIM_CONFIG.pauseStart / totalDuration },
+					{
+						transform: `translateX(${-scrollDist}px)`,
+						offset: (ANIM_CONFIG.pauseStart + scrollDuration) / totalDuration,
+						easing: 'ease-in-out'
+					},
+					{
+						transform: `translateX(${-scrollDist}px)`,
+						offset:
+							(ANIM_CONFIG.pauseStart + scrollDuration + ANIM_CONFIG.pauseEnd) / totalDuration,
+						easing: 'ease-in-out'
+					}
+				],
+				{
+					duration: totalDuration,
+					iterations: Infinity
+				}
+			);
+		}
+
+		tick().then(() => {
+			updateAnimation();
+		});
+
+		window.addEventListener('resize', updateAnimation);
+
+		return {
+			update() {
+				tick().then(() => {
+					updateAnimation();
+				});
+			},
+			destroy() {
+				if (animation) animation.cancel();
+				window.removeEventListener('resize', updateAnimation);
+			}
+		};
+	}
 </script>
 
 <svelte:window onclick={init} />
@@ -62,18 +136,11 @@
 	</div>
 {/if}
 
-{#if !initialized}
-	<div class="fixed inset-0 flex flex-col items-center justify-center bg-black/50 text-white">
-		<h2 class="mb-4 text-3xl">Kliknite kdekoľvek pre spustenie zvukového systému</h2>
-		<p class="text-lg italic">(z dôvodu obmedzení prehliadača)</p>
-	</div>
-{/if}
-
 {#if currentActivity}
 	<div class="flex grow bg-black"></div>
 {:else if nextActivity}
 	<div class="flex grow bg-white">
-		<div class="visual my-[10%] ml-[15%] grow">
+		<div class="visual mx-[15%] my-[10%] w-full grow">
 			<div class="row">
 				<div class="col">
 					<div class="label">Začiatok</div>
@@ -109,16 +176,27 @@
 				</div>
 			</div>
 			<div class="row">
-				<dov class="col">
+				<div class="col">
 					<div class="label">Miesto</div>
 					<div class="value">
 						{nextActivity.location.name}
 					</div>
-				</dov>
+				</div>
 			</div>
 
 			{#if nextActivity.participantNeeds}
-				<div class="row"></div>
+				<div class="row w-full">
+					<div class="col w-full">
+						<div class="label">Potrebujete</div>
+						<div class="value-sm relative h-8 w-full">
+							<div use:autoscroll class="absolute w-full overflow-hidden whitespace-nowrap">
+								<div class="inline-block will-change-transform">
+									{needsText}
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 			{/if}
 		</div>
 	</div>
