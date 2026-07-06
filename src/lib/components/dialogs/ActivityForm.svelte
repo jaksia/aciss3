@@ -60,7 +60,7 @@
 			initialActivity.type || ActivityType.GAME_INSIDE
 		);
 		createUpdateActivity.fields.activityData.locationId.set(
-			initialActivity.locationId || Array.from(eventState.locations.keys())[0]
+			initialActivity.locationId || eventState.locations.keys().next().value || 0
 		);
 		if (initialActivity.delay !== undefined && initialActivity.delay !== null)
 			createUpdateActivity.fields.activityData.delay.set(initialActivity.delay);
@@ -193,11 +193,20 @@
 		</div>
 		<div>
 			<label class="mb-2 block font-medium" for="activity-location">Miesto konania</label>
+			<input class="hidden" {...createUpdateActivity.fields.activityData.locationId.as('number')} />
 			<select
 				id="activity-location"
 				class="w-full"
 				{disabled}
-				name={createUpdateActivity.fields.activityData.locationId.as('select').name}
+				bind:value={
+					() =>
+						createUpdateActivity.fields.activityData.locationId.value() ||
+						eventState.locations.keys().next().value ||
+						0,
+					(value: number) => {
+						createUpdateActivity.fields.activityData.locationId.set(value);
+					}
+				}
 			>
 				{#each eventState.locations as [id, location] (id)}
 					<option
