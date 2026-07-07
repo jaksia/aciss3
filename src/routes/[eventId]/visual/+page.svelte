@@ -277,7 +277,7 @@
 	}
 
 	.blinking {
-		animation: blink 1s infinite;
+		animation: blink 2s infinite;
 	}
 
 	@keyframes blink {
