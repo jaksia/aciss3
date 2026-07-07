@@ -46,10 +46,10 @@
 	let initialized = $state(false);
 	function init() {
 		if (initialized) return;
-		initialized = true;
 		soundProcessor.setAudioContext(new AudioContext());
 		soundProcessor.preloadSounds();
 		eventState.attachSoundProcessor(soundProcessor);
+		initialized = true;
 	}
 
 	const ANIM_CONFIG = {
@@ -136,6 +136,13 @@
 	</div>
 {/if}
 
+{#if !initialized}
+	<div class="fixed inset-0 flex flex-col items-center justify-center bg-black/50 text-white">
+		<h2 class="mb-4 text-3xl">Kliknite kdekoľvek pre spustenie zvukového systému</h2>
+		<p class="text-lg italic">(z dôvodu obmedzení prehliadača)</p>
+	</div>
+{/if}
+
 {#if currentActivity}
 	<div class="flex grow bg-black"></div>
 {:else if nextActivity}
@@ -184,19 +191,21 @@
 				</div>
 			</div>
 
-			{#if nextActivity.participantNeeds}
-				<div class="row w-full">
-					<div class="col w-full">
-						<div class="label">Potrebujete</div>
-						<div class="value-sm relative h-8 w-full">
-							<div use:autoscroll class="absolute w-full overflow-hidden whitespace-nowrap">
-								<div class="inline-block will-change-transform">
-									{needsText}
+			{#if nextActivity.participantNeeds.length > 0}
+				{#key nextActivity.participantNeeds}
+					<div class="row w-full">
+						<div class="col w-full">
+							<div class="label">Potrebujete</div>
+							<div class="value-sm relative h-8 w-full">
+								<div use:autoscroll class="absolute w-full overflow-hidden whitespace-nowrap">
+									<div class="inline-block will-change-transform">
+										{needsText}
+									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-				</div>
+				{/key}
 			{/if}
 		</div>
 	</div>
