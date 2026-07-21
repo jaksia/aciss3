@@ -1,7 +1,7 @@
 import { createCustomSound, getEvent } from '$lib/server/db/utils';
 import { saveSoundFiles } from '$lib/server/files/sounds';
 import { triggerEventUpdate } from '$lib/server/socket';
-import { ConfigurableSounds } from '$lib/types/enums';
+import { ConfigurableSounds } from '$lib/types';
 import { jsonError, jsonResponse } from '$lib/utils';
 
 export const POST = async ({ request, params }) => {

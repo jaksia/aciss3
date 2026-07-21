@@ -1,6 +1,5 @@
 <script lang="ts">
-	import type { Activity, Event } from '$lib/types/db';
-	import type { GlobalBlockProps } from '$lib/types/other';
+	import type { Activity, Event, GlobalBlockProps } from '$lib/types';
 	import { SvelteDate } from 'svelte/reactivity';
 	import ScheduleTable from './ScheduleTable.svelte';
 

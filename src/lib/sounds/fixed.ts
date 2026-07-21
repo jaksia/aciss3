@@ -1,5 +1,11 @@
-import { ActivityType, ParticipantNeeds, AdditionalInfo } from '$lib/types/enums';
-import { type FixedSoundMap, NumberSounds, OtherSounds } from '$lib/types/sounds';
+import {
+	ActivityType,
+	ParticipantNeeds,
+	AdditionalInfo,
+	type FixedSoundMap,
+	NumberSounds,
+	OtherSounds
+} from '$lib/types';
 
 export const fixedSounds: FixedSoundMap = {
 	[NumberSounds.ONE]: { path: '/sounds/numbers/1.mp3', content: '1' },

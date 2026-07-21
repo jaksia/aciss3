@@ -3,12 +3,11 @@
 	import { DatePicker } from '@svelte-plugins/datepicker';
 	import { getContext } from 'svelte';
 	import { EventState } from '$lib/state.svelte';
-	import type { AddAlert } from '$lib/types/other';
+	import type { AddAlertFunction, Event } from '$lib/types';
 	import { changeEventPassword, updateEvent } from '$lib/functions.remote';
-	import type { Event } from '$lib/types/db';
 
 	const eventState = getContext<() => EventState>('getEventState')();
-	const addAlert = getContext<AddAlert>('addAlert');
+	const addAlert = getContext<AddAlertFunction>('addAlert');
 
 	const event = $derived(eventState.event);
 

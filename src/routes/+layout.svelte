@@ -1,7 +1,7 @@
 <script lang="ts">
 	import '../app.css';
 	import favicon from '$lib/assets/favicon.svg';
-	import type { AddAlert, Alert } from '$lib/types/other';
+	import type { AddAlertFunction, Alert } from '$lib/types';
 	import { setContext } from 'svelte';
 	import Icon from '@iconify/svelte';
 	import { fade, fly } from 'svelte/transition';
@@ -14,7 +14,7 @@
 	}, 20);
 	let alerts = $state<Alert[]>([]);
 
-	const addAlert: AddAlert = function (alert) {
+	const addAlert: AddAlertFunction = function (alert) {
 		const id = Math.random().toString(36).substring(2, 9);
 		if (!alert.timeout) alert.timeout = 5000;
 

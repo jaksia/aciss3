@@ -5,24 +5,20 @@
 		ActivityType,
 		AdditionalInfo,
 		ConfigurableSounds,
-		ParticipantNeeds
-	} from '$lib/types/enums';
-	import { NumberSounds, OtherSounds, type FixedSounds } from '$lib/types/sounds';
+		ParticipantNeeds, NumberSounds, OtherSounds, type FixedSounds, type AddAlertFunction, type ActivityLocation } from '$lib/types';
 	import SoundSelector from '$lib/components/dialogs/SoundSelector.svelte';
 	import { getContext } from 'svelte';
 	import type { EventState } from '$lib/state.svelte';
 	import Icon from '@iconify/svelte';
 	import NewLocation from '$lib/components/dialogs/NewLocation.svelte';
 	import { SvelteSet } from 'svelte/reactivity';
-	import type { ActivityLocation } from '$lib/types/db';
 	import { detachLocation } from '$lib/functions.remote';
-	import type { AddAlert } from '$lib/types/other';
 	import Overlay from '$lib/components/Overlay.svelte';
 
 	const confSoundsRoot = getConfigurableSoundRoot();
 
 	const eventState = getContext<() => EventState>('getEventState')();
-	const addAlert = getContext<AddAlert>('addAlert');
+	const addAlert = getContext<AddAlertFunction>('addAlert');
 	const event = $derived(eventState.event);
 
 	const fixedSoundSections = [
@@ -116,7 +112,7 @@
 					<div class="flex">
 						<strong>{location.name}</strong>
 						{#if !location.isStatic}
-							{@const isUsed = eventState.usedLocationIds.has(locId)}
+							{const isUsed = eventState.usedLocationIds.has(locId)}
 							<button
 								class={[
 									'ml-auto cursor-pointer transition-colors',

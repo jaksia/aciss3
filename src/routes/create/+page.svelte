@@ -5,11 +5,11 @@
 	import { createEvent } from '$lib/functions.remote';
 	import { getCreateEventSchema } from '$lib/schemas';
 	import { getContext, onMount } from 'svelte';
-	import type { AddAlert } from '$lib/types/other';
+	import type { AddAlertFunction } from '$lib/types';
 
 	let { data }: PageProps = $props();
 
-	const addAlert = getContext<AddAlert>('addAlert');
+	const addAlert = getContext<AddAlertFunction>('addAlert');
 
 	let datePickerOpen = $state(false);
 

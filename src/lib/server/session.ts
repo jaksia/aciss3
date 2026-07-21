@@ -4,7 +4,7 @@ import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeBase64url, encodeHexLowerCase } from '@oslojs/encoding';
 import { db } from '$lib/server/db';
 import * as schema from '$lib/server/db/schema';
-import type { BaseSession, Event, Session } from '$lib/types/db';
+import type { BaseSession, Event, Session } from '$lib/types';
 import { socketCodeCookieName } from '$lib/state.svelte';
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;

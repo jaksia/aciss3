@@ -1,12 +1,14 @@
-import type { Activity, Event } from '$lib/types/db';
-import { ActivityType, ConfigurableSounds } from '$lib/types/enums';
 import {
+	type Activity,
+	type Event,
+	ActivityType,
+	ConfigurableSounds,
 	type Sound,
 	type CompiledAlert,
 	type CompiledSound,
 	OtherSounds,
 	type TimedAlerts
-} from '$lib/types/sounds';
+} from '$lib/types';
 import { SvelteMap } from 'svelte/reactivity';
 import { fixedSounds } from './fixed';
 import { configurableSoundsData, getConfigurableSoundRoot } from './configurable';

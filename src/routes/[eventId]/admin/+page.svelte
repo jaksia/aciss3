@@ -3,11 +3,10 @@
 	import EventSchedule from '$lib/components/EventSchedule.svelte';
 	import type { EventState } from '$lib/state.svelte';
 	import { styleData } from '$lib/themes';
-	import type { Activity, ActivityLocation } from '$lib/types/db';
+	import type { Activity, ActivityLocation, AddAlertFunction } from '$lib/types';
 	import Icon from '@iconify/svelte';
 	import { getContext, onMount, setContext } from 'svelte';
 	import { slide } from 'svelte/transition';
-	import type { AddAlert } from '$lib/types/other';
 	import OrphanedActivities from '$lib/components/dialogs/OrphanedActivities.svelte';
 	import LocationSelector from '$lib/components/dialogs/LocationSelector.svelte';
 	import { SvelteDate } from 'svelte/reactivity';
@@ -17,7 +16,7 @@
 	import ActivityForm from '$lib/components/dialogs/ActivityForm.svelte';
 
 	const eventState = getContext<() => EventState>('getEventState')();
-	const addAlert = getContext<AddAlert>('addAlert');
+	const addAlert = getContext<AddAlertFunction>('addAlert');
 
 	const event = $derived(eventState.event);
 
@@ -50,7 +49,7 @@
 		submitPending = true;
 		try {
 			await deleteActivityFunc({ eventId: event.id, activityId });
-			eventState.setActivity(activityId, null);
+			eventState.deleteActivity(activityId);
 			addAlert({
 				type: 'success',
 				content: `Aktivita bola úspešne zmazaná.`

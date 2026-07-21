@@ -1,10 +1,9 @@
 <script lang="ts">
 	/* eslint-disable svelte/require-each-key */
 
-	import type { Activity } from '$lib/types/db';
+	import type { Activity, GlobalBlockProps } from '$lib/types';
 	import { usePinch, type PinchCustomEvent, usePan, type PanCustomEvent } from 'svelte-gestures';
 	import ActivityBlock from './ActivityBlock.svelte';
-	import type { GlobalBlockProps } from '$lib/types/other';
 	import { getContext, onMount, tick } from 'svelte';
 	import type { EventState } from '$lib/state.svelte';
 	import { SvelteDate } from 'svelte/reactivity';

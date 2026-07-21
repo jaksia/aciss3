@@ -3,8 +3,7 @@
 	import { page } from '$app/state';
 	import type { EventState } from '$lib/state.svelte';
 	import { SoundProcessor } from '$lib/sounds/processor.svelte';
-	import type { Activity } from '$lib/types/db';
-	import { ConfigurableSounds } from '$lib/types/enums';
+	import { ConfigurableSounds, type Activity } from '$lib/types';
 	import { getContext, tick } from 'svelte';
 
 	const debug = dev || page.url.searchParams.has('debug');

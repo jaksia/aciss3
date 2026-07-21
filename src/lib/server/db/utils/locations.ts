@@ -1,4 +1,4 @@
-import type { Event, ActivityLocation } from '$lib/types/db';
+import type { Event, ActivityLocation } from '$lib/types';
 import { eq, and, or, not, isNull } from 'drizzle-orm';
 import { db } from '..';
 import { eventsToLocations, locations } from '../schema';

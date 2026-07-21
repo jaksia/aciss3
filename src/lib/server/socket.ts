@@ -1,10 +1,12 @@
-import type { Activity, Event, Session } from '$lib/types/db';
 import type {
+	Activity,
+	Event,
+	Session,
 	ClientToServerEvents,
 	InterServerEvents,
 	ServerToClientEvents,
 	SocketData
-} from '$lib/types/realtime';
+} from '$lib/types';
 import { Server, type Socket } from 'socket.io';
 import { getActivities, getActivity, getEvent, getEventLocations } from './db/utils';
 import { validateSocketCode } from './session';

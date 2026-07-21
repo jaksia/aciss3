@@ -36,12 +36,12 @@ export type DelayAnnouncement = {
 	delayMinutes: number;
 };
 
-export type CustomSound = {
+export type CustomSoundCommand = {
 	type: 'customSound';
 	sounds: SoundBuilderSound[];
 };
 
-export type PlayerControl = StopPlaying | DelayAnnouncement | CustomSound;
+export type PlayerControl = StopPlaying | DelayAnnouncement | CustomSoundCommand;
 
 export interface ServerToClientEvents {
 	eventUpdate: (data: EventUpdateNotification) => void;

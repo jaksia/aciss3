@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Activity, Event } from '$lib/types/db';
+	import type { Activity, Event } from '$lib/types';
 	import Icon from '@iconify/svelte';
 	import { getContext } from 'svelte';
 

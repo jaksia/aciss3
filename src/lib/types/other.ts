@@ -15,6 +15,6 @@ export type Alert = {
 	dismissedAt: number;
 };
 
-export type AddAlert = (
+export type AddAlertFunction = (
 	alert: Omit<Alert, 'id' | 'dismissedAt' | 'timeout'> & { timeout?: number }
 ) => void;

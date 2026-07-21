@@ -5,12 +5,11 @@
 		createLocation as createLocationForm
 	} from '$lib/functions.remote';
 	import { createLocationSchema } from '$lib/schemas';
-	import type { ActivityLocation, Event } from '$lib/types/db';
-	import type { AddAlert } from '$lib/types/other';
+	import type { ActivityLocation, Event, AddAlertFunction } from '$lib/types';
 	import Icon from '@iconify/svelte';
 	import { getContext } from 'svelte';
 
-	const addAlert = getContext<AddAlert>('addAlert');
+	const addAlert = getContext<AddAlertFunction>('addAlert');
 
 	let {
 		event,

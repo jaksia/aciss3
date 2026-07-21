@@ -1,8 +1,7 @@
-import type { Event, CustomSound } from '$lib/types/db';
+import type { Event, CustomSound, ConfigurableSounds } from '$lib/types';
 import { eq, and } from 'drizzle-orm';
 import { db } from '..';
 import { customSounds, eventsToSounds } from '../schema';
-import type { ConfigurableSounds } from '$lib/types/enums';
 
 export async function getAvailableSounds(key?: ConfigurableSounds): Promise<CustomSound[]> {
 	if (key) {

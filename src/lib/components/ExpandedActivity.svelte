@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { clickOutside } from '$lib/utils';
-	import type { Activity } from '$lib/types/db';
+	import type { Activity } from '$lib/types';
 	import Icon from '@iconify/svelte';
 	import { getContext } from 'svelte';
 	import ActivityDelay from './ActivityDelay.svelte';

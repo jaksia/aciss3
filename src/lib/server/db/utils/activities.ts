@@ -1,4 +1,4 @@
-import type { BaseActivity, Activity, Event, EditableActivityServer } from '$lib/types/db';
+import type { BaseActivity, Activity, Event, EditableActivityServer } from '$lib/types';
 import { eq, and, inArray } from 'drizzle-orm';
 import { db } from '..';
 import {

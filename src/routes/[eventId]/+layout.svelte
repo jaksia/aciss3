@@ -4,7 +4,7 @@
 	import { page } from '$app/state';
 	import { getContext, setContext } from 'svelte';
 	import { EventState } from '$lib/state.svelte';
-	import type { AddAlert } from '$lib/types/other';
+	import type { AddAlertFunction } from '$lib/types';
 	import { resolve } from '$app/paths';
 
 	const adminSection = $derived.by(() => {
@@ -20,8 +20,8 @@
 	const event = $derived(eventState.event);
 	const styles = $derived(styleData[event.style]);
 
-	const addAlert = getContext<AddAlert>('addAlert');
-	eventState.setAddAlert(addAlert);
+	const addAlert = getContext<AddAlertFunction>('addAlert');
+	eventState.setAlertHandler(addAlert);
 </script>
 
 <div class="text-base-content flex min-h-screen flex-col">

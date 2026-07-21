@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Activity } from '$lib/types/db';
+	import type { Activity } from '$lib/types';
 
 	const {
 		activity,

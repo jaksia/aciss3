@@ -1,6 +1,5 @@
 <script lang="ts">
-	import type { Activity } from '$lib/types/db';
-	import type { GlobalBlockProps } from '$lib/types/other';
+	import type { Activity, GlobalBlockProps } from '$lib/types';
 	import { fly } from 'svelte/transition';
 	import ExpandedActivity from './ExpandedActivity.svelte';
 	import { browser } from '$app/environment';

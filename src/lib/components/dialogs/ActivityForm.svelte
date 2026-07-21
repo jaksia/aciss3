@@ -2,15 +2,20 @@
 	import { createUpdateActivity } from '$lib/functions.remote';
 	import { activityFormValidator } from '$lib/schemas';
 	import type { EventState } from '$lib/state.svelte';
-	import type { Activity, Event } from '$lib/types/db';
-	import { ActivityType, AdditionalInfo, ParticipantNeeds } from '$lib/types/enums';
-	import type { AddAlert } from '$lib/types/other';
+	import {
+		type Activity,
+		type Event,
+		ActivityType,
+		AdditionalInfo,
+		ParticipantNeeds,
+		type AddAlertFunction
+	} from '$lib/types';
 	import Icon from '@iconify/svelte';
 	import { getContext } from 'svelte';
 	import { SvelteDate } from 'svelte/reactivity';
 
 	const eventState = getContext<() => EventState>('getEventState')();
-	const addAlert = getContext<AddAlert>('addAlert');
+	const addAlert = getContext<AddAlertFunction>('addAlert');
 
 	let {
 		create = true,

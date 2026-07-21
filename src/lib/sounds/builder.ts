@@ -1,15 +1,11 @@
-import type {
-	ActivityAdditionalInfo,
-	ActivityLocation,
-	ActivityParticipantNeed
-} from '$lib/types/db';
 import {
+	type ActivityAdditionalInfo,
+	type ActivityLocation,
+	type ActivityParticipantNeed,
 	ActivityType,
 	AdditionalInfo,
 	ConfigurableSounds,
-	ParticipantNeeds
-} from '$lib/types/enums';
-import {
+	ParticipantNeeds,
 	NumberSounds,
 	OtherSounds,
 	type AllSoundTypes,
@@ -17,7 +13,7 @@ import {
 	type FixedSounds,
 	type Sound,
 	type SoundBuilderSound
-} from '$lib/types/sounds';
+} from '$lib/types';
 import { fixedSounds } from './fixed';
 
 if (

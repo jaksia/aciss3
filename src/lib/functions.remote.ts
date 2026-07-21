@@ -2,7 +2,7 @@ import * as v from 'valibot';
 import { command, form, query } from '$app/server';
 
 import * as dbUtils from '$lib/server/db/utils';
-import { ConfigurableSounds } from '$lib/types/enums';
+import { ConfigurableSounds } from '$lib/types';
 import { configurableSoundsData } from '$lib/sounds/configurable';
 import {
 	triggerActivitiesUpdate,

@@ -1,17 +1,19 @@
 import { browser } from '$app/environment';
 import { io, type Socket } from 'socket.io-client';
-import type { Activity, ActivityLocation, Event } from '$lib/types/db';
-import type {
-	ClientToServerEvents,
-	PlayerControl,
-	ServerToClientEvents
-} from '$lib/types/realtime';
+import {
+	ConfigurableSounds,
+	type Activity,
+	type ActivityLocation,
+	type Event,
+	type ClientToServerEvents,
+	type PlayerControl,
+	type ServerToClientEvents
+} from '$lib/types';
 import type { SoundProcessor } from '$lib/sounds/processor.svelte';
 import { builder } from '$lib/sounds/builder';
-import { ConfigurableSounds } from '$lib/types/enums';
 import { SvelteDate, SvelteMap } from 'svelte/reactivity';
 import { env } from '$env/dynamic/public';
-import type { AddAlert } from './types/other';
+import type { AddAlertFunction } from './types/other';
 import { logFunctions } from './utils';
 import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeHexLowerCase } from '@oslojs/encoding';
@@ -24,20 +26,15 @@ const socketIOHost = env.PUBLIC_SOCKETIO_HOST;
 const log = logFunctions('EventState');
 
 export class EventState {
-	public now = $state(new SvelteDate());
+	public now = new SvelteDate();
 
-	public event: Event;
-	public activities = new SvelteMap<Activity['id'], Activity>();
-	public locations = new SvelteMap<ActivityLocation['id'], ActivityLocation>();
-	public activityList: Activity[] = $derived(Array.from(this.activities.values()));
-	public usedLocationIds: Set<ActivityLocation['id']> = $derived(
-		// eslint-disable-next-line svelte/prefer-svelte-reactivity
-		new Set(this.activityList.map((a) => a.locationId).filter((id) => id != null))
-	);
-	public socketActive: boolean;
+	private _event: Event;
+	private _activities = new SvelteMap<Activity['id'], Activity>();
+	private _locations = new SvelteMap<ActivityLocation['id'], ActivityLocation>();
+	private _socketActive: boolean;
 
 	private soundProcessor: SoundProcessor | null = null;
-	private addAlert: AddAlert | null = null;
+	private addAlert: AddAlertFunction | null = null;
 
 	private socket: Socket<ServerToClientEvents, ClientToServerEvents> | null = null;
 	private initializing: Promise<void> | null = null;
@@ -45,18 +42,36 @@ export class EventState {
 
 	private listeningEventId: Event['id'] | null = $state(null);
 
+	public get event() {
+		return this._event;
+	}
+	public get activities() {
+		return this._activities;
+	}
+	public get locations() {
+		return this._locations;
+	}
+	public get socketActive() {
+		return this._socketActive;
+	}
+	public activityList: Activity[] = $derived(Array.from(this._activities.values()));
+	public usedLocationIds: Set<ActivityLocation['id']> = $derived(
+		// eslint-disable-next-line svelte/prefer-svelte-reactivity
+		new Set(this.activityList.map((a) => a.locationId).filter((id) => id != null))
+	);
+
 	constructor(
 		event: Event,
 		activities: Record<Activity['id'], Activity>,
 		locations: Record<ActivityLocation['id'], ActivityLocation>
 	) {
-		this.event = $state(this.parseJSONEvent(event));
+		this._event = $state(this.parseJSONEvent(event));
 		Object.values(activities).forEach((a) => {
 			const activity = this.parseJSONActivity(a);
-			this.activities.set(activity.id, activity);
+			this._activities.set(activity.id, activity);
 		});
 		Object.values(locations).forEach((loc) => {
-			this.locations.set(loc.id, loc);
+			this._locations.set(loc.id, loc);
 		});
 
 		if (browser) {
@@ -72,7 +87,6 @@ export class EventState {
 		});
 
 		$effect(() => {
-			// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 			this.activityList;
 			if (!this.soundProcessor) return;
 
@@ -85,10 +99,10 @@ export class EventState {
 			);
 		});
 
-		this.socketActive = $derived(this.socketConnected && this.listeningEventId === this.event.id);
+		this._socketActive = $derived(this.socketConnected && this.listeningEventId === this.event.id);
 
 		setInterval(() => {
-			this.now = new SvelteDate();
+			this.now.setDate(Date.now());
 		}, 500);
 
 		if (import.meta.hot) {
@@ -144,7 +158,7 @@ export class EventState {
 				this.connectToEvent(this.event.id);
 				return;
 			}
-			this.event = this.parseJSONEvent(update.event);
+			this._event = this.parseJSONEvent(update.event);
 		});
 
 		this.socket.on('activityUpdate', (update) => {
@@ -153,7 +167,7 @@ export class EventState {
 				return;
 			}
 			const newActivity = this.parseJSONActivity(update.activity);
-			this.activities.set(newActivity.id, newActivity);
+			this._activities.set(newActivity.id, newActivity);
 		});
 
 		this.socket.on('activityDelete', (update) => {
@@ -161,7 +175,7 @@ export class EventState {
 				this.connectToEvent(this.event.id);
 				return;
 			}
-			this.activities.delete(update.activityId);
+			this._activities.delete(update.activityId);
 		});
 
 		this.socket.on('activityListUpdate', (update) => {
@@ -169,10 +183,10 @@ export class EventState {
 				this.connectToEvent(this.event.id);
 				return;
 			}
-			this.activities.clear();
+			this._activities.clear();
 			Object.values(update.activities).forEach((a) => {
 				const activity = this.parseJSONActivity(a);
-				this.activities.set(activity.id, activity);
+				this._activities.set(activity.id, activity);
 			});
 		});
 
@@ -181,9 +195,9 @@ export class EventState {
 				this.connectToEvent(this.event.id);
 				return;
 			}
-			this.locations.clear();
+			this._locations.clear();
 			Object.values(update.locations).forEach((loc) => {
-				this.locations.set(loc.id, loc);
+				this._locations.set(loc.id, loc);
 			});
 		});
 
@@ -208,11 +222,11 @@ export class EventState {
 			log.error('Failed to join event:', response.error);
 			return;
 		}
-		this.event = this.parseJSONEvent(response.event);
-		this.activities.clear();
+		this._event = this.parseJSONEvent(response.event);
+		this._activities.clear();
 		Object.values(response.activities).forEach((a) => {
 			const activity = this.parseJSONActivity(a);
-			this.activities.set(activity.id, activity);
+			this._activities.set(activity.id, activity);
 		});
 		log.debug('Connected to event:', eventId);
 		this.listeningEventId = eventId;
@@ -268,7 +282,7 @@ export class EventState {
 			}
 		});
 
-		this.activities.forEach((a) => this.soundProcessor!.compileAndScheduleActivity(a));
+		this._activities.forEach((a) => this.soundProcessor!.compileAndScheduleActivity(a));
 	}
 
 	public async playerControl(data: PlayerControl) {
@@ -291,20 +305,20 @@ export class EventState {
 		return result;
 	}
 
-	public setAddAlert(addAlert: AddAlert) {
-		this.addAlert = addAlert;
+	public setAlertHandler(alertHandler: AddAlertFunction) {
+		this.addAlert = alertHandler;
 	}
 
 	public setEvent(eventData: Event) {
-		this.event = this.parseJSONEvent(eventData);
+		this._event = this.parseJSONEvent(eventData);
 	}
 
-	public setActivity(id: number, activityData: Activity | null) {
-		if (activityData == null) {
-			this.activities.delete(id);
-		} else {
-			const activity = this.parseJSONActivity(activityData);
-			this.activities.set(activity.id, activity);
-		}
+	public setActivity(id: number, activityData: Activity) {
+		const activity = this.parseJSONActivity(activityData);
+		this._activities.set(activity.id, activity);
+	}
+
+	public deleteActivity(id: number) {
+		this._activities.delete(id);
 	}
 }
