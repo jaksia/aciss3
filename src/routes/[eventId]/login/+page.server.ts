@@ -6,24 +6,15 @@ import { getEvent } from '$lib/server/db/utils';
 import { ARGON2_CONFIG } from '$lib/server/session';
 import { markSessionAsUpdated } from '$lib/server/socket';
 
-export const load: PageServerLoad = async ({ params, locals }) => {
-	if (
-		locals.session &&
-		locals.session.allowedEvents.some((e) => e.eventId === parseInt(params.eventId))
-	) {
-		return redirect(302, `/${params.eventId}/admin`);
-	}
+export const load: PageServerLoad = async ({ params, locals, parent }) => {
+	const { event } = await parent();
 
-	const eventId = parseInt(params.eventId);
-	if (isNaN(eventId)) {
-		throw new Error('Invalid event ID');
-	}
-	const event = await getEvent(eventId);
-	if (!event) {
-		throw new Error('Event not found');
-	}
 	if (!event.adminPasswordHash) {
 		redirect(302, `/${params.eventId}/admin`);
+	}
+
+	if (locals.session && locals.session.allowedEvents.some((e) => e.eventId === event.id)) {
+		return redirect(302, `/${params.eventId}/admin`);
 	}
 
 	return {};
@@ -36,14 +27,15 @@ export const actions: Actions = {
 		const password = formData.get('eventPassword');
 		const remember = formData.get('rememberMe') === 'on';
 
-		if (!validatePassword(password)) {
-			return fail(400, { message: 'Invalid password (min 6, max 255 characters)' });
+		if (!password || typeof password !== 'string') {
+			return fail(400, { message: 'Password is required' });
 		}
 
 		const eventId = parseInt(params.eventId);
 		if (isNaN(eventId)) {
 			throw new Error('Invalid event ID');
 		}
+		// need to refetch the event to get the password hash
 		const event = await getEvent(eventId, { returnPasswordHash: true });
 		if (!event) {
 			throw new Error('Event not found');
@@ -69,7 +61,3 @@ export const actions: Actions = {
 		return redirect(302, `/${event.id}/admin`);
 	}
 };
-
-function validatePassword(password: unknown): password is string {
-	return typeof password === 'string' && password.length >= 6 && password.length <= 255;
-}

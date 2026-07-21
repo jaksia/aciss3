@@ -2,7 +2,7 @@ import { getEvent, getActivities, getEventLocations } from '$lib/server/db/utils
 import { error } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 
-export const load: LayoutServerLoad = async ({ params }) => {
+export const load: LayoutServerLoad = async ({ params, locals }) => {
 	const eventId = Number.parseInt(params.eventId);
 	if (isNaN(eventId)) error(404);
 	const event = await getEvent(eventId);
