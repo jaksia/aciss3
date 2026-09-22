@@ -1,16 +1,16 @@
 import type { Event, ActivityLocation } from '$lib/types';
-import { eq, and, or, not, isNull } from 'drizzle-orm';
+import { eq, and, not, isNull } from 'drizzle-orm';
 import { db } from '..';
 import { eventsToLocations, locations } from '../schema';
 
 export async function getEventLocations(eventId: Event['id']) {
-	const result = await db
-		.select()
-		.from(locations)
-		.leftJoin(eventsToLocations, eq(locations.id, eventsToLocations.locationId))
-		.where(or(eq(eventsToLocations.eventId, eventId), locations.isStatic));
+	const result = await db.query.locations.findMany({
+		where: {
+			OR: [{ eventsViaEventsToLocations: { id: eventId } }, { isStatic: true }]
+		}
+	});
 	return result.reduce(
-		(acc, { locations: loc }) => {
+		(acc, loc) => {
 			acc[loc.id] = loc;
 			return acc;
 		},
@@ -19,7 +19,11 @@ export async function getEventLocations(eventId: Event['id']) {
 }
 
 export async function locationExists(locationId: ActivityLocation['id']) {
-	const [location] = await db.select().from(locations).where(eq(locations.id, locationId));
+	const location = await db.query.locations.findFirst({
+		where: {
+			id: locationId
+		}
+	});
 	return !!location;
 }
 
@@ -45,7 +49,11 @@ export async function getAvailableLocations(
 			)
 			.where(and(isNull(eventsToLocations.locationId), not(locations.isStatic)));
 	} else {
-		return await db.select().from(locations).where(not(locations.isStatic));
+		return await db.query.locations.findMany({
+			where: {
+				isStatic: false
+			}
+		});
 	}
 }
 

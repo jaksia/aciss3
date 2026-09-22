@@ -5,20 +5,25 @@ import { customSounds, eventsToSounds } from '../schema';
 
 export async function getAvailableSounds(key?: ConfigurableSounds): Promise<CustomSound[]> {
 	if (key) {
-		return await db.select().from(customSounds).where(eq(customSounds.key, key));
+		return await db.query.customSounds.findMany({
+			where: {
+				key: key
+			}
+		});
 	}
-	return await db.select().from(customSounds);
+	return await db.query.customSounds.findMany();
 }
 
 export async function soundExists(
 	soundId: CustomSound['id'],
 	key?: CustomSound['key']
 ): Promise<boolean> {
-	const query = db
-		.select()
-		.from(customSounds)
-		.where(and(eq(customSounds.id, soundId), key ? eq(customSounds.key, key) : undefined));
-	const [sound] = await query;
+	const sound = await db.query.customSounds.findFirst({
+		where: {
+			id: soundId,
+			key: key
+		}
+	});
 	return !!sound;
 }
 
@@ -27,30 +32,26 @@ export async function setEventSound(
 	soundId: CustomSound['id'] | null,
 	key: ConfigurableSounds
 ) {
-	const [existing] = await db
-		.select()
-		.from(eventsToSounds)
-		.where(and(eq(eventsToSounds.eventId, eventId), eq(eventsToSounds.soundKey, key)));
-	if (existing) {
-		if (soundId === null) {
-			await db
-				.delete(eventsToSounds)
-				.where(and(eq(eventsToSounds.eventId, eventId), eq(eventsToSounds.soundKey, key)));
-		} else {
-			await db
-				.update(eventsToSounds)
-				.set({ customSoundId: soundId })
-				.where(and(eq(eventsToSounds.eventId, eventId), eq(eventsToSounds.soundKey, key)));
-		}
-	} else if (soundId !== null) {
-		await db.insert(eventsToSounds).values({
+	if (soundId === null) {
+		await db
+			.delete(eventsToSounds)
+			.where(and(eq(eventsToSounds.eventId, eventId), eq(eventsToSounds.soundKey, key)));
+		return;
+	}
+
+	await db
+		.insert(eventsToSounds)
+		.values({
 			eventId,
 			customSoundId: soundId,
 			soundKey: key
+		})
+		.onConflictDoUpdate({
+			target: [eventsToSounds.eventId, eventsToSounds.soundKey],
+			set: {
+				customSoundId: soundId
+			}
 		});
-	} else {
-		// No existing entry and soundId is null, do nothing
-	}
 }
 
 export async function createCustomSound(

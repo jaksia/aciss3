@@ -1,14 +1,14 @@
-import { isNull, lt, or, relations, sql } from 'drizzle-orm';
-import { EventStyle } from '../../themes';
+import { isNull, lt, or, sql } from 'drizzle-orm';
+import { EventStyle } from '$lib/themes';
 
 import {
 	ActivityType,
 	AdditionalInfo,
 	ConfigurableSounds,
 	ParticipantNeeds
-} from '../../types/enums';
+} from '$lib/types/enums';
 
-import { pgTable } from 'drizzle-orm/pg-core';
+import { snakeCase } from 'drizzle-orm/pg-core';
 import * as t from 'drizzle-orm/pg-core';
 
 // ------------------------------
@@ -17,37 +17,33 @@ import * as t from 'drizzle-orm/pg-core';
 export const configurableSoundsEnum = t.pgEnum('ConfigurableSounds', ConfigurableSounds);
 export const eventStylesEnum = t.pgEnum('EventStyles', EventStyle);
 
-export const customSounds = pgTable('custom_sounds', {
-	id: t.serial('id').primaryKey(),
-	key: configurableSoundsEnum('key').notNull(),
-	description: t.char('description', { length: 64 }),
-	path: t.text('path').notNull(),
-	default: t.boolean('default').notNull().default(false)
+export const customSounds = snakeCase.table('custom_sounds', {
+	id: t.serial().primaryKey(),
+	key: configurableSoundsEnum().notNull(),
+	description: t.char({ length: 64 }),
+	path: t.text().notNull(),
+	default: t.boolean().notNull().default(false)
 });
 
-export const events = pgTable('events', {
-	id: t.serial('id').primaryKey(),
-	style: eventStylesEnum('style').notNull().default(EventStyle.DEFAULT),
-	name: t.text('name').notNull(),
-	startDate: t.date('start_date').notNull(),
-	endDate: t.date('end_date').notNull(),
-	location: t.text('location'),
-	adminPasswordHash: t.text('admin_password_hash')
+export const events = snakeCase.table('events', {
+	id: t.serial().primaryKey(),
+	style: eventStylesEnum().notNull().default(EventStyle.DEFAULT),
+	name: t.text().notNull(),
+	startDate: t.date().notNull(),
+	endDate: t.date().notNull(),
+	location: t.text(),
+	adminPasswordHash: t.text()
 });
 
-export const eventsRelations = relations(events, ({ many }) => ({
-	eventsToSounds: many(eventsToSounds)
-}));
-
-export const eventsToSounds = pgTable(
+export const eventsToSounds = snakeCase.table(
 	'events_to_sounds',
 	{
 		eventId: t
-			.integer('event_id')
+			.integer()
 			.notNull()
 			.references(() => events.id, { onDelete: 'cascade' }),
 		customSoundId: t
-			.integer('custom_sound_id')
+			.integer()
 			.notNull()
 			.references(() => customSounds.id, { onDelete: 'cascade' }),
 		soundKey: configurableSoundsEnum('sound_key').notNull()
@@ -60,44 +56,28 @@ export const eventsToSounds = pgTable(
 	]
 );
 
-export const eventsToSoundsRelations = relations(eventsToSounds, ({ one }) => ({
-	event: one(events, {
-		fields: [eventsToSounds.eventId],
-		references: [events.id]
-	}),
-	customSound: one(customSounds, {
-		fields: [eventsToSounds.customSoundId],
-		references: [customSounds.id]
-	})
-}));
-
 // ------------------------------
 //           LOCATIONS
 // ------------------------------
+export const locations = snakeCase.table('locations', {
+	id: t.serial().primaryKey(),
 
-export const locations = pgTable('locations', {
-	id: t.serial('id').primaryKey(),
+	name: t.text().notNull(),
+	content: t.text().notNull(),
+	path: t.text().notNull(),
 
-	name: t.text('name').notNull(),
-	content: t.text('content').notNull(),
-	path: t.text('path').notNull(),
-
-	isStatic: t.boolean('is_static').notNull().default(false)
+	isStatic: t.boolean().notNull().default(false)
 });
 
-export const locationsRelations = relations(locations, ({ many }) => ({
-	eventsToLocations: many(eventsToLocations)
-}));
-
-export const eventsToLocations = pgTable(
+export const eventsToLocations = snakeCase.table(
 	'events_to_locations',
 	{
 		eventId: t
-			.integer('event_id')
+			.integer()
 			.notNull()
 			.references(() => events.id, { onDelete: 'cascade' }),
 		locationId: t
-			.integer('location_id')
+			.integer()
 			.notNull()
 			.references(() => locations.id, { onDelete: 'cascade' })
 	},
@@ -108,17 +88,6 @@ export const eventsToLocations = pgTable(
 	]
 );
 
-export const eventsToLocationsRelations = relations(eventsToLocations, ({ one }) => ({
-	event: one(events, {
-		fields: [eventsToLocations.eventId],
-		references: [events.id]
-	}),
-	location: one(locations, {
-		fields: [eventsToLocations.locationId],
-		references: [locations.id]
-	})
-}));
-
 // ------------------------------
 //           ACTIVITIES
 // ------------------------------
@@ -126,22 +95,22 @@ export const activityTypeEnum = t.pgEnum('ActivityType', ActivityType);
 export const participantNeedsEnum = t.pgEnum('ParticipantNeeds', ParticipantNeeds);
 export const additionalInfoEnum = t.pgEnum('AdditionalInfo', AdditionalInfo);
 
-export const activities = pgTable(
+export const activities = snakeCase.table(
 	'activities',
 	{
-		id: t.serial('id').primaryKey(),
+		id: t.serial().primaryKey(),
 		eventId: t
-			.integer('event_id')
+			.integer()
 			.notNull()
 			.references(() => events.id, { onDelete: 'cascade' }),
-		name: t.text('name').notNull(),
-		startTime: t.timestamp('start_time').notNull(),
-		endTime: t.timestamp('end_time').notNull(),
-		zvolavanie: t.boolean('zvolavanie').notNull().default(true),
-		delay: t.integer('delay'),
-		type: activityTypeEnum('type').notNull(),
+		name: t.text().notNull(),
+		startTime: t.timestamp().notNull(),
+		endTime: t.timestamp().notNull(),
+		zvolavanie: t.boolean().notNull().default(true),
+		delay: t.integer(),
+		type: activityTypeEnum().notNull(),
 		locationId: t
-			.integer('location_id')
+			.integer()
 			.notNull()
 			.references(() => locations.id, { onDelete: 'restrict' })
 	},
@@ -151,37 +120,23 @@ export const activities = pgTable(
 	]
 );
 
-export const activitiesRelations = relations(activities, ({ many, one }) => ({
-	event: one(events, {
-		fields: [activities.eventId],
-		references: [events.id]
-	}),
-	location: one(locations, {
-		fields: [activities.locationId],
-		references: [locations.id]
-	}),
-	alertTimes: many(activityAlertTimes),
-	participantNeeds: many(activityParticipantNeeds),
-	additionalInfos: many(activityAdditionalInfos)
-}));
-
-export const activityAlertTimes = pgTable(
+export const activityAlertTimes = snakeCase.table(
 	'activity_alert_times',
 	{
 		activityId: t
-			.integer('activity_id')
+			.integer()
 			.notNull()
 			.references(() => activities.id, { onDelete: 'cascade' }),
-		minutes: t.integer('minutes').notNull()
+		minutes: t.integer().notNull()
 	},
 	(table) => [t.primaryKey({ columns: [table.activityId, table.minutes] })]
 );
 
-export const activityParticipantNeeds = pgTable(
+export const activityParticipantNeeds = snakeCase.table(
 	'activity_participant_needs',
 	{
 		activityId: t
-			.integer('activity_id')
+			.integer()
 			.notNull()
 			.references(() => activities.id, { onDelete: 'cascade' }),
 		need: participantNeedsEnum('need').notNull()
@@ -189,11 +144,11 @@ export const activityParticipantNeeds = pgTable(
 	(table) => [t.primaryKey({ columns: [table.activityId, table.need] })]
 );
 
-export const activityAdditionalInfos = pgTable(
+export const activityAdditionalInfos = snakeCase.table(
 	'activity_additional_infos',
 	{
 		activityId: t
-			.integer('activity_id')
+			.integer()
 			.notNull()
 			.references(() => activities.id, { onDelete: 'cascade' }),
 		info: additionalInfoEnum('info').notNull()
@@ -201,24 +156,23 @@ export const activityAdditionalInfos = pgTable(
 	(table) => [t.primaryKey({ columns: [table.activityId, table.info] })]
 );
 
-export const session = pgTable('session', {
-	id: t.varchar('id', { length: 64 }).primaryKey(),
-	expiresAt: t.timestamp('expires_at', { mode: 'date' }).notNull(),
-	socketCodeHash: t.varchar('socket_code_hash', { length: 64 }).notNull()
+export const session = snakeCase.table('session', {
+	id: t.varchar({ length: 64 }).primaryKey(),
+	expiresAt: t.timestamp({ mode: 'date' }).notNull(),
+	socketCodeHash: t.varchar({ length: 64 }).notNull()
 });
 
-export const sessionAllowedEvents = pgTable(
+export const sessionAllowedEvents = snakeCase.table(
 	'session_allowed_events',
 	{
 		sessionId: t
-			.text('session_id')
+			.text()
 			.notNull()
 			.references(() => session.id, { onDelete: 'cascade' }),
 		eventId: t
-			.integer('event_id')
+			.integer()
 			.notNull()
-			.references(() => events.id, { onDelete: 'cascade' }),
-		expiresAt: t.timestamp('expires_at', { mode: 'date' }).notNull()
+			.references(() => events.id, { onDelete: 'cascade' })
 	},
 	(table) => [t.primaryKey({ columns: [table.sessionId, table.eventId] })]
 );

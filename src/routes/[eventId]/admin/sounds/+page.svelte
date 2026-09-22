@@ -5,7 +5,13 @@
 		ActivityType,
 		AdditionalInfo,
 		ConfigurableSounds,
-		ParticipantNeeds, NumberSounds, OtherSounds, type FixedSounds, type AddAlertFunction, type ActivityLocation } from '$lib/types';
+		ParticipantNeeds,
+		NumberSounds,
+		OtherSounds,
+		type FixedSounds,
+		type AddAlertFunction,
+		type ActivityLocation
+	} from '$lib/types';
 	import SoundSelector from '$lib/components/dialogs/SoundSelector.svelte';
 	import { getContext } from 'svelte';
 	import type { EventState } from '$lib/state.svelte';

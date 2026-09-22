@@ -7,34 +7,37 @@ export async function getEvent(
 	eventId: Event['id'],
 	options: { returnPasswordHash?: boolean; includeLocations?: boolean } = {}
 ) {
-	const [baseEvent] = await db.select().from(events).where(eq(events.id, eventId));
+	const baseEvent = await db.query.events.findFirst({
+		where: {
+			id: eventId
+		},
+		with: {
+			sounds: true
+		}
+	});
 	if (!baseEvent) return null;
-	const sounds = await db
-		.select()
-		.from(eventsToSounds)
-		.where(eq(eventsToSounds.eventId, eventId))
-		.innerJoin(customSounds, eq(eventsToSounds.customSoundId, customSounds.id));
+
 	return {
 		...baseEvent,
+		sounds: baseEvent.sounds.reduce(
+			(acc, es) => {
+				acc[es.key] = es;
+				return acc;
+			},
+			{} as Record<CustomSound['key'], CustomSound>
+		),
 		adminPasswordHash: options.returnPasswordHash
 			? baseEvent.adminPasswordHash
 			: baseEvent.adminPasswordHash === null
 				? null
 				: '*******',
 		startDate: new Date(baseEvent.startDate),
-		endDate: new Date(baseEvent.endDate),
-		sounds: sounds.reduce(
-			(acc, es) => {
-				acc[es.custom_sounds.key] = es.custom_sounds;
-				return acc;
-			},
-			{} as Record<CustomSound['key'], CustomSound>
-		)
+		endDate: new Date(baseEvent.endDate)
 	} as Event;
 }
 
 export async function getEvents() {
-	const result: BaseEvent[] = await db.select().from(events);
+	const result: BaseEvent[] = await db.query.events.findMany();
 	return result.map((event) => ({
 		...event,
 		adminPasswordHash: event.adminPasswordHash === null ? null : '*******',
@@ -74,7 +77,11 @@ export async function createEvent(eventData: Omit<BaseEvent, 'id'>): Promise<Eve
 }
 
 export async function eventExists(eventId: Event['id']): Promise<boolean> {
-	const [event] = await db.select().from(events).where(eq(events.id, eventId));
+	const event = await db.query.events.findFirst({
+		where: {
+			id: eventId
+		}
+	});
 	return !!event;
 }
 

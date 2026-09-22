@@ -13,7 +13,7 @@ export const load: PageServerLoad = async ({ params, locals, parent }) => {
 		redirect(302, `/${params.eventId}/admin`);
 	}
 
-	if (locals.session && locals.session.allowedEvents.some((e) => e.eventId === event.id)) {
+	if (locals.session && locals.session.allowedEvents.some((e) => e === event.id)) {
 		return redirect(302, `/${params.eventId}/admin`);
 	}
 
@@ -25,7 +25,6 @@ export const actions: Actions = {
 		const { request, params, locals } = requestEvent;
 		const formData = await request.formData();
 		const password = formData.get('eventPassword');
-		const remember = formData.get('rememberMe') === 'on';
 
 		if (!password || typeof password !== 'string') {
 			return fail(400, { message: 'Password is required' });
@@ -55,7 +54,7 @@ export const actions: Actions = {
 			const sessionToken = auth.generateSessionToken();
 			const { session, socketCode } = await auth.createSession(sessionToken);
 			auth.setSessionCookies(requestEvent, sessionToken, socketCode, session.expiresAt);
-			auth.addAllowedEventToSession(session.id, event.id, remember);
+			auth.addAllowedEventToSession(session.id, event.id);
 		}
 
 		return redirect(302, `/${event.id}/admin`);

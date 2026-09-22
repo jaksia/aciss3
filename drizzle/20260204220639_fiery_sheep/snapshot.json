@@ -1,0 +1,1039 @@
+{
+  "id": "88508ce7-4808-40c4-b9e9-9c8535a6a050",
+  "prevIds": [
+    "a651ef65-4f82-4603-b6d0-01656825cdbb"
+  ],
+  "version": "8",
+  "dialect": "postgres",
+  "ddl": [
+    {
+      "isRlsEnabled": false,
+      "name": "activities",
+      "schema": "public",
+      "entityType": "tables"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "activities_pkey",
+      "schema": "public",
+      "table": "activities",
+      "entityType": "pks"
+    },
+    {
+      "type": "serial",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "schema": "public",
+      "table": "activities",
+      "entityType": "columns"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "event_id",
+      "schema": "public",
+      "table": "activities",
+      "entityType": "columns"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "schema": "public",
+      "table": "activities",
+      "entityType": "columns"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "start_time",
+      "schema": "public",
+      "table": "activities",
+      "entityType": "columns"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "end_time",
+      "schema": "public",
+      "table": "activities",
+      "entityType": "columns"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "true",
+      "generated": null,
+      "identity": null,
+      "name": "zvolavanie",
+      "schema": "public",
+      "table": "activities",
+      "entityType": "columns"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "delay",
+      "schema": "public",
+      "table": "activities",
+      "entityType": "columns"
+    },
+    {
+      "type": "ActivityType",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "type",
+      "schema": "public",
+      "table": "activities",
+      "entityType": "columns"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "location_id",
+      "schema": "public",
+      "table": "activities",
+      "entityType": "columns"
+    },
+    {
+      "value": "\"activities\".\"start_time\" < \"activities\".\"end_time\"",
+      "name": "start_before_end",
+      "schema": "public",
+      "table": "activities",
+      "entityType": "checks"
+    },
+    {
+      "value": "(\"activities\".\"delay\" is null or \"activities\".\"delay\" > 0)",
+      "name": "positive_or_null_delay",
+      "schema": "public",
+      "table": "activities",
+      "entityType": "checks"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "event_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "events",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "activities_event_id_events_id_fk",
+      "schema": "public",
+      "table": "activities",
+      "entityType": "fks"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "location_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "locations",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "RESTRICT",
+      "name": "activities_location_id_locations_id_fk",
+      "schema": "public",
+      "table": "activities",
+      "entityType": "fks"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "activity_additional_infos",
+      "schema": "public",
+      "entityType": "tables"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "activity_id",
+      "schema": "public",
+      "table": "activity_additional_infos",
+      "entityType": "columns"
+    },
+    {
+      "type": "AdditionalInfo",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "info",
+      "schema": "public",
+      "table": "activity_additional_infos",
+      "entityType": "columns"
+    },
+    {
+      "columns": [
+        "activity_id",
+        "info"
+      ],
+      "nameExplicit": false,
+      "name": "activity_additional_infos_activity_id_info_pk",
+      "schema": "public",
+      "table": "activity_additional_infos",
+      "entityType": "pks"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "activity_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "activities",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "activity_additional_infos_activity_id_activities_id_fk",
+      "schema": "public",
+      "table": "activity_additional_infos",
+      "entityType": "fks"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "activity_alert_times",
+      "schema": "public",
+      "entityType": "tables"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "activity_id",
+      "schema": "public",
+      "table": "activity_alert_times",
+      "entityType": "columns"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "minutes",
+      "schema": "public",
+      "table": "activity_alert_times",
+      "entityType": "columns"
+    },
+    {
+      "columns": [
+        "activity_id",
+        "minutes"
+      ],
+      "nameExplicit": false,
+      "name": "activity_alert_times_activity_id_minutes_pk",
+      "schema": "public",
+      "table": "activity_alert_times",
+      "entityType": "pks"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "activity_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "activities",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "activity_alert_times_activity_id_activities_id_fk",
+      "schema": "public",
+      "table": "activity_alert_times",
+      "entityType": "fks"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "activity_participant_needs",
+      "schema": "public",
+      "entityType": "tables"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "activity_id",
+      "schema": "public",
+      "table": "activity_participant_needs",
+      "entityType": "columns"
+    },
+    {
+      "type": "ParticipantNeeds",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "need",
+      "schema": "public",
+      "table": "activity_participant_needs",
+      "entityType": "columns"
+    },
+    {
+      "columns": [
+        "activity_id",
+        "need"
+      ],
+      "nameExplicit": false,
+      "name": "activity_participant_needs_activity_id_need_pk",
+      "schema": "public",
+      "table": "activity_participant_needs",
+      "entityType": "pks"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "activity_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "activities",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "activity_participant_needs_activity_id_activities_id_fk",
+      "schema": "public",
+      "table": "activity_participant_needs",
+      "entityType": "fks"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "custom_sounds",
+      "schema": "public",
+      "entityType": "tables"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "custom_sounds_pkey",
+      "schema": "public",
+      "table": "custom_sounds",
+      "entityType": "pks"
+    },
+    {
+      "type": "serial",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "schema": "public",
+      "table": "custom_sounds",
+      "entityType": "columns"
+    },
+    {
+      "type": "ConfigurableSounds",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "key",
+      "schema": "public",
+      "table": "custom_sounds",
+      "entityType": "columns"
+    },
+    {
+      "type": "char(64)",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "description",
+      "schema": "public",
+      "table": "custom_sounds",
+      "entityType": "columns"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "path",
+      "schema": "public",
+      "table": "custom_sounds",
+      "entityType": "columns"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "name": "default",
+      "schema": "public",
+      "table": "custom_sounds",
+      "entityType": "columns"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "events",
+      "schema": "public",
+      "entityType": "tables"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "events_pkey",
+      "schema": "public",
+      "table": "events",
+      "entityType": "pks"
+    },
+    {
+      "type": "serial",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "schema": "public",
+      "table": "events",
+      "entityType": "columns"
+    },
+    {
+      "type": "EventStyles",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "'default'",
+      "generated": null,
+      "identity": null,
+      "name": "style",
+      "schema": "public",
+      "table": "events",
+      "entityType": "columns"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "schema": "public",
+      "table": "events",
+      "entityType": "columns"
+    },
+    {
+      "type": "date",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "start_date",
+      "schema": "public",
+      "table": "events",
+      "entityType": "columns"
+    },
+    {
+      "type": "date",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "end_date",
+      "schema": "public",
+      "table": "events",
+      "entityType": "columns"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "location",
+      "schema": "public",
+      "table": "events",
+      "entityType": "columns"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "admin_password_hash",
+      "schema": "public",
+      "table": "events",
+      "entityType": "columns"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "events_to_locations",
+      "schema": "public",
+      "entityType": "tables"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "event_id",
+      "schema": "public",
+      "table": "events_to_locations",
+      "entityType": "columns"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "location_id",
+      "schema": "public",
+      "table": "events_to_locations",
+      "entityType": "columns"
+    },
+    {
+      "columns": [
+        "event_id",
+        "location_id"
+      ],
+      "nameExplicit": false,
+      "name": "events_to_locations_event_id_location_id_pk",
+      "schema": "public",
+      "table": "events_to_locations",
+      "entityType": "pks"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "event_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "events",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "events_to_locations_event_id_events_id_fk",
+      "schema": "public",
+      "table": "events_to_locations",
+      "entityType": "fks"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "location_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "locations",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "events_to_locations_location_id_locations_id_fk",
+      "schema": "public",
+      "table": "events_to_locations",
+      "entityType": "fks"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "events_to_sounds",
+      "schema": "public",
+      "entityType": "tables"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "event_id",
+      "schema": "public",
+      "table": "events_to_sounds",
+      "entityType": "columns"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "custom_sound_id",
+      "schema": "public",
+      "table": "events_to_sounds",
+      "entityType": "columns"
+    },
+    {
+      "type": "ConfigurableSounds",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "sound_key",
+      "schema": "public",
+      "table": "events_to_sounds",
+      "entityType": "columns"
+    },
+    {
+      "columns": [
+        "event_id",
+        "custom_sound_id"
+      ],
+      "nameExplicit": false,
+      "name": "events_to_sounds_event_id_custom_sound_id_pk",
+      "schema": "public",
+      "table": "events_to_sounds",
+      "entityType": "pks"
+    },
+    {
+      "nameExplicit": true,
+      "columns": [
+        "event_id",
+        "sound_key"
+      ],
+      "nullsNotDistinct": false,
+      "name": "one_sound_key_per_event",
+      "schema": "public",
+      "table": "events_to_sounds",
+      "entityType": "uniques"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "event_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "events",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "events_to_sounds_event_id_events_id_fk",
+      "schema": "public",
+      "table": "events_to_sounds",
+      "entityType": "fks"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "custom_sound_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "custom_sounds",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "events_to_sounds_custom_sound_id_custom_sounds_id_fk",
+      "schema": "public",
+      "table": "events_to_sounds",
+      "entityType": "fks"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "locations",
+      "schema": "public",
+      "entityType": "tables"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "locations_pkey",
+      "schema": "public",
+      "table": "locations",
+      "entityType": "pks"
+    },
+    {
+      "type": "serial",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "schema": "public",
+      "table": "locations",
+      "entityType": "columns"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "name",
+      "schema": "public",
+      "table": "locations",
+      "entityType": "columns"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "content",
+      "schema": "public",
+      "table": "locations",
+      "entityType": "columns"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "path",
+      "schema": "public",
+      "table": "locations",
+      "entityType": "columns"
+    },
+    {
+      "type": "boolean",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": "false",
+      "generated": null,
+      "identity": null,
+      "name": "is_static",
+      "schema": "public",
+      "table": "locations",
+      "entityType": "columns"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "session",
+      "schema": "public",
+      "entityType": "tables"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "session_pkey",
+      "schema": "public",
+      "table": "session",
+      "entityType": "pks"
+    },
+    {
+      "type": "varchar(64)",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "id",
+      "schema": "public",
+      "table": "session",
+      "entityType": "columns"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "expires_at",
+      "schema": "public",
+      "table": "session",
+      "entityType": "columns"
+    },
+    {
+      "type": "varchar(64)",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "socket_code_hash",
+      "schema": "public",
+      "table": "session",
+      "entityType": "columns"
+    },
+    {
+      "isRlsEnabled": false,
+      "name": "session_allowed_events",
+      "schema": "public",
+      "entityType": "tables"
+    },
+    {
+      "type": "text",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "session_id",
+      "schema": "public",
+      "table": "session_allowed_events",
+      "entityType": "columns"
+    },
+    {
+      "type": "integer",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "event_id",
+      "schema": "public",
+      "table": "session_allowed_events",
+      "entityType": "columns"
+    },
+    {
+      "type": "timestamp",
+      "typeSchema": null,
+      "notNull": true,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "expires_at",
+      "schema": "public",
+      "table": "session_allowed_events",
+      "entityType": "columns"
+    },
+    {
+      "columns": [
+        "session_id",
+        "event_id"
+      ],
+      "nameExplicit": false,
+      "name": "session_allowed_events_session_id_event_id_pk",
+      "schema": "public",
+      "table": "session_allowed_events",
+      "entityType": "pks"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "session_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "session",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "session_allowed_events_session_id_session_id_fk",
+      "schema": "public",
+      "table": "session_allowed_events",
+      "entityType": "fks"
+    },
+    {
+      "nameExplicit": false,
+      "columns": [
+        "event_id"
+      ],
+      "schemaTo": "public",
+      "tableTo": "events",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "CASCADE",
+      "name": "session_allowed_events_event_id_events_id_fk",
+      "schema": "public",
+      "table": "session_allowed_events",
+      "entityType": "fks"
+    },
+    {
+      "values": [
+        "Budíček",
+        "Rozcvička",
+        "Večierka",
+        "Raňajky",
+        "Obed",
+        "Večera",
+        "Hra na dnu",
+        "Hra vonku",
+        "Športy",
+        "Prednášky",
+        "Semináre",
+        "Vyhodnotenie"
+      ],
+      "name": "ActivityType",
+      "schema": "public",
+      "entityType": "enums"
+    },
+    {
+      "values": [
+        "Prezúvanie",
+        "Striedanie kroniky/služ. dňa",
+        "Upracte po sebe",
+        "Kľudový režim"
+      ],
+      "name": "AdditionalInfo",
+      "schema": "public",
+      "entityType": "enums"
+    },
+    {
+      "values": [
+        "alert_start",
+        "additional_jingle",
+        "alert_end",
+        "delay_start",
+        "delay_end",
+        "zvolavacka",
+        "vecernicek"
+      ],
+      "name": "ConfigurableSounds",
+      "schema": "public",
+      "entityType": "enums"
+    },
+    {
+      "values": [
+        "default",
+        "Pikomat",
+        "Pikofyz",
+        "Kockatý víkend"
+      ],
+      "name": "EventStyles",
+      "schema": "public",
+      "entityType": "enums"
+    },
+    {
+      "values": [
+        "Pero na osobu",
+        "Papier na osobu",
+        "Šatka na osobu",
+        "Pero na družinku",
+        "Papier na družinku",
+        "Šatka na družinku",
+        "Fyzická sila",
+        "Mentálna sila",
+        "Teplé oblečenie",
+        "Nepremokavé oblečenie",
+        "Športové oblečenie",
+        "Oblečenie na zničenie"
+      ],
+      "name": "ParticipantNeeds",
+      "schema": "public",
+      "entityType": "enums"
+    }
+  ],
+  "renames": []
+}

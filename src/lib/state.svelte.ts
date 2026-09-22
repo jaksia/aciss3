@@ -87,6 +87,7 @@ export class EventState {
 		});
 
 		$effect(() => {
+			// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 			this.activityList;
 			if (!this.soundProcessor) return;
 

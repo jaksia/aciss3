@@ -1,5 +1,5 @@
 import type { RequestEvent } from '@sveltejs/kit';
-import { and, eq, inArray } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeBase64url, encodeHexLowerCase } from '@oslojs/encoding';
 import { db } from '$lib/server/db';
@@ -8,10 +8,7 @@ import type { BaseSession, Event, Session } from '$lib/types';
 import { socketCodeCookieName } from '$lib/state.svelte';
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
-const SESSION_EXPIRATION_MS = DAY_IN_MS * 30;
-
-const EVENT_EXPIRATION_MS = DAY_IN_MS * 1;
-const EVENT_REMEMBERED_EXPIRATION_MS = DAY_IN_MS * 7;
+const SESSION_EXPIRATION_MS = DAY_IN_MS * 7;
 
 export const ARGON2_CONFIG = {
 	memoryCost: 19456,
@@ -43,93 +40,82 @@ export async function createSession(token: string) {
 
 export async function validateSessionToken(token: string): Promise<{ session: Session | null }> {
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
-	const [baseSession] = await db
-		.select()
-		.from(schema.session)
-		.where(eq(schema.session.id, sessionId));
+	const session = await db.query.session.findFirst({
+		where: {
+			id: sessionId
+		},
+		with: {
+			allowedEvents: {
+				columns: {
+					id: true
+				}
+			}
+		}
+	});
 
-	if (!baseSession) {
+	if (!session) {
 		return { session: null };
 	}
 
-	const sessionExpired = Date.now() >= baseSession.expiresAt.getTime();
+	const sessionExpired = Date.now() >= session.expiresAt.getTime();
 	if (sessionExpired) {
-		await db.delete(schema.session).where(eq(schema.session.id, baseSession.id));
+		await db.delete(schema.session).where(eq(schema.session.id, session.id));
 		return { session: null };
 	}
 
-	const renewSession = Date.now() >= baseSession.expiresAt.getTime() - SESSION_EXPIRATION_MS / 2;
+	const renewSession = Date.now() >= session.expiresAt.getTime() - SESSION_EXPIRATION_MS / 3;
 	if (renewSession) {
-		baseSession.expiresAt = new Date(Date.now() + SESSION_EXPIRATION_MS);
+		session.expiresAt = new Date(Date.now() + SESSION_EXPIRATION_MS);
 		await db
 			.update(schema.session)
-			.set({ expiresAt: baseSession.expiresAt })
-			.where(eq(schema.session.id, baseSession.id));
+			.set({ expiresAt: session.expiresAt })
+			.where(eq(schema.session.id, session.id));
 	}
-
-	const allowedEvents = await db
-		.select()
-		.from(schema.sessionAllowedEvents)
-		.where(eq(schema.sessionAllowedEvents.sessionId, baseSession.id));
-
-	const toRemove = allowedEvents.filter((event) => Date.now() >= event.expiresAt.getTime());
-	await db.delete(schema.sessionAllowedEvents).where(
-		inArray(
-			schema.sessionAllowedEvents.eventId,
-			toRemove.map((e) => e.eventId)
-		)
-	);
 
 	return {
 		session: {
-			...baseSession,
-			allowedEvents: allowedEvents.filter((event) => Date.now() < event.expiresAt.getTime())
+			...session,
+			allowedEvents: session.allowedEvents.map((e) => e.id)
 		}
 	};
 }
 
-export async function validateSocketCode(socketCodeHash: string) {
-	const [baseSession] = await db
-		.select()
-		.from(schema.session)
-		.where(eq(schema.session.socketCodeHash, socketCodeHash));
+export async function validateSocketCode(
+	socketCodeHash: string
+): Promise<{ session: Session | null }> {
+	const session = await db.query.session.findFirst({
+		where: {
+			socketCodeHash: socketCodeHash
+		},
+		with: {
+			allowedEvents: true
+		}
+	});
 
-	if (!baseSession) {
+	if (!session) {
 		return { session: null };
 	}
 
-	const sessionExpired = Date.now() >= baseSession.expiresAt.getTime();
+	const sessionExpired = Date.now() >= session.expiresAt.getTime();
 	if (sessionExpired) {
-		await db.delete(schema.session).where(eq(schema.session.id, baseSession.id));
+		await db.delete(schema.session).where(eq(schema.session.id, session.id));
 		return { session: null };
 	}
-
-	const allowedEvents = await db
-		.select()
-		.from(schema.sessionAllowedEvents)
-		.where(eq(schema.sessionAllowedEvents.sessionId, baseSession.id));
 
 	return {
 		session: {
-			...baseSession,
-			allowedEvents
+			...session,
+			allowedEvents: session.allowedEvents.map((e) => e.id)
 		}
 	};
 }
 
 export type SessionValidationResult = Awaited<ReturnType<typeof validateSessionToken>>;
 
-export async function addAllowedEventToSession(
-	sessionId: Session['id'],
-	eventId: Event['id'],
-	remember = false
-) {
+export async function addAllowedEventToSession(sessionId: Session['id'], eventId: Event['id']) {
 	await db.insert(schema.sessionAllowedEvents).values({
 		sessionId,
-		eventId,
-		expiresAt: new Date(
-			Date.now() + (remember ? EVENT_REMEMBERED_EXPIRATION_MS : EVENT_EXPIRATION_MS)
-		)
+		eventId
 	});
 }
 

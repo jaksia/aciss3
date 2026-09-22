@@ -90,7 +90,7 @@ async function attachSocketListeners(io: SocketIO, socket: SocketClient) {
 				socket.data.session = session;
 			}
 
-			if (!socket.data.session.allowedEvents.some((e) => e.eventId === socket.data.activeEventId)) {
+			if (!socket.data.session.allowedEvents.some((e) => e === socket.data.activeEventId)) {
 				return callback({ success: false, error: 'No permission for this event' });
 			}
 		}

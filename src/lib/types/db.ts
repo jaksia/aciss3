@@ -44,5 +44,5 @@ export type EditableActivityServer = Omit<EditableActivity, 'day'>;
 export type BaseSession = typeof schema.session.$inferSelect;
 export type SessionAllowedEvent = typeof schema.sessionAllowedEvents.$inferSelect;
 export type Session = BaseSession & {
-	allowedEvents: SessionAllowedEvent[];
+	allowedEvents: Event['id'][];
 };

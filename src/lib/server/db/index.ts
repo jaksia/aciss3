@@ -1,13 +1,11 @@
 import { drizzle, type PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import * as schema from './schema';
+import { relations } from './relations';
 
-export let db: PostgresJsDatabase<typeof schema> & {
+export let db: PostgresJsDatabase<typeof relations> & {
 	$client: postgres.Sql;
 } = null as never;
 
 export function initDB(db_url: string) {
-	const client = postgres(db_url);
-
-	db = drizzle(client, { schema });
+	db = drizzle(db_url, { relations });
 }
