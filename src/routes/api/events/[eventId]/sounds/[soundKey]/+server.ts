@@ -1,8 +1,8 @@
-import { createCustomSound, getEvent } from '$lib/server/db/utils';
-import { saveSoundFiles } from '$lib/server/files/sounds';
-import { triggerEventUpdate } from '$lib/server/socket';
-import { ConfigurableSounds } from '$lib/types';
-import { jsonError, jsonResponse } from '$lib/utils';
+import { createCustomSound, getEvent } from '#lib/server/db/utils/index.js';
+import { saveSoundFiles } from '#lib/server/files/sounds.js';
+import { triggerEventUpdate } from '#lib/server/socket.js';
+import { ConfigurableSounds } from '#lib/types/index.js';
+import { jsonError, jsonResponse } from '#lib/utils.js';
 
 export const POST = async ({ request, params }) => {
 	const eventId = Number.parseInt(params.eventId);

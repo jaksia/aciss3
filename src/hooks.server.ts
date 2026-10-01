@@ -1,9 +1,9 @@
-import * as auth from '$lib/server/session';
-import type { ServerInit, Handle } from '@sveltejs/kit';
-import { initSocket } from '$lib/server/socket';
-import { initDB } from '$lib/server/db';
+import type { ServerInit, Handle } from '@sveltejs/kit/hooks';
+import * as auth from '#lib/server/session.js';
+import { initSocket } from '#lib/server/socket.js';
+import { initDB } from '#lib/server/db/index.js';
 import { env } from '$env/dynamic/private';
-import { socketCodeCookieName } from '$lib/state.svelte';
+import { socketCodeCookieName } from '#lib/state.svelte.js';
 
 let socketInitialized = false;
 

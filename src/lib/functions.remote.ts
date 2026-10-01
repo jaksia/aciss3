@@ -1,15 +1,15 @@
 import * as v from 'valibot';
 import { command, form, query } from '$app/server';
 
-import * as dbUtils from '$lib/server/db/utils';
-import { ConfigurableSounds } from '$lib/types';
-import { configurableSoundsData } from '$lib/sounds/configurable';
+import * as dbUtils from '#lib/server/db/utils/index.js';
+import { ConfigurableSounds } from '#lib/types/index.js';
+import { configurableSoundsData } from '#lib/sounds/configurable.js';
 import {
 	triggerActivitiesUpdate,
 	triggerEventUpdate,
 	triggerLocationsUpdate
-} from '$lib/server/socket';
-import { saveSoundFiles } from '$lib/server/files/sounds';
+} from '#lib/server/socket.js';
+import { saveSoundFiles } from '#lib/server/files/sounds.js';
 import {
 	activityFormValidator,
 	audioFileSchema,
@@ -17,14 +17,14 @@ import {
 	eventChangePasswordValidator,
 	eventDataValidator,
 	getCreateEventSchema
-} from '$lib/schemas';
+} from '#lib/schemas.js';
 import { env } from '$env/dynamic/private';
 import { hash, verify } from '@node-rs/argon2';
-import { ARGON2_CONFIG } from '$lib/server/session';
+import { ARGON2_CONFIG } from '#lib/server/session.js';
 import { invalid, redirect } from '@sveltejs/kit';
 import { resolve } from '$app/paths';
 import { db } from './server/db';
-import * as schema from '$lib/server/db/schema';
+import * as schema from '#lib/server/db/schema.js';
 import { eq } from 'drizzle-orm';
 
 const eventIdValidator = v.pipeAsync(

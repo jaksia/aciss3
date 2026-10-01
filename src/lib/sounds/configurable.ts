@@ -1,5 +1,5 @@
 import { env } from '$env/dynamic/public';
-import { ConfigurableSounds } from '$lib/types';
+import { ConfigurableSounds } from '#lib/types/index.js';
 
 type ConfigurableSoundData = {
 	adminLabel: string;

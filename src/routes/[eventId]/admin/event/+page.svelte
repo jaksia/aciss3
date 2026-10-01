@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { EventStyle } from '$lib/themes';
+	import { EventStyle } from '#lib/themes.js';
 	import { DatePicker } from '@svelte-plugins/datepicker';
-	import type { Event } from '$lib/types';
-	import { changeEventPassword, updateEvent } from '$lib/functions.remote';
-	import { getAddAlert, getEventState } from '$lib/context';
+	import type { Event } from '#lib/types/index.js';
+	import { changeEventPassword, updateEvent } from '#lib/functions.remote.js';
+	import { getAddAlert, getEventState } from '#lib/context.js';
 
 	const eventState = getEventState();
 	const addAlert = getAddAlert();

@@ -1,12 +1,12 @@
 import { isNull, lt, or, sql } from 'drizzle-orm';
-import { EventStyle } from '$lib/themes';
+import { EventStyle } from '#lib/themes.js';
 
 import {
 	ActivityType,
 	AdditionalInfo,
 	ConfigurableSounds,
 	ParticipantNeeds
-} from '$lib/types/enums';
+} from '#lib/types/enums.js';
 
 import { snakeCase } from 'drizzle-orm/pg-core';
 import * as t from 'drizzle-orm/pg-core';

@@ -2,10 +2,10 @@ import type { RequestEvent } from '@sveltejs/kit';
 import { and, eq } from 'drizzle-orm';
 import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeBase64url, encodeHexLowerCase } from '@oslojs/encoding';
-import { db } from '$lib/server/db';
-import * as schema from '$lib/server/db/schema';
-import type { BaseSession, Event, Session } from '$lib/types';
-import { socketCodeCookieName } from '$lib/state.svelte';
+import { db } from '#lib/server/db/index.js';
+import * as schema from '#lib/server/db/schema.js';
+import type { BaseSession, Event, Session } from '#lib/types/index.js';
+import { socketCodeCookieName } from '#lib/state.svelte.js';
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 const SESSION_EXPIRATION_MS = DAY_IN_MS * 7;

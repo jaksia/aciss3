@@ -1,5 +1,5 @@
 import * as v from 'valibot';
-import { EventStyle } from '$lib/themes';
+import { EventStyle } from '#lib/themes.js';
 import { ActivityType, AdditionalInfo, ParticipantNeeds } from './types/enums';
 
 export const audioFileSchema = v.pipe(

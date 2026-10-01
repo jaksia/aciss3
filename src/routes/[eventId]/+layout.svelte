@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { styleData } from '$lib/themes';
+	import { styleData } from '#lib/themes.js';
 	import type { LayoutProps } from './$types';
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
-	import { getAddAlert, setEventState } from '$lib/context';
-	import { EventState } from '$lib/state.svelte';
+	import { getAddAlert, setEventState } from '#lib/context.js';
+	import { EventState } from '#lib/state.svelte.js';
 
 	const adminSection = $derived.by(() => {
 		return page.url.pathname.includes('/admin') ? page.url.pathname.split('/admin')[1] : null;

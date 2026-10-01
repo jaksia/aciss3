@@ -1,4 +1,4 @@
-import { getEvent, getActivities, getEventLocations } from '$lib/server/db/utils';
+import { getEvent, getActivities, getEventLocations } from '#lib/server/db/utils/index.js';
 import { error } from '@sveltejs/kit';
 import type { LayoutServerLoad } from './$types';
 

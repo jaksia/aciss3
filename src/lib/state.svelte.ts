@@ -8,9 +8,9 @@ import {
 	type ClientToServerEvents,
 	type PlayerControl,
 	type ServerToClientEvents
-} from '$lib/types';
-import type { SoundProcessor } from '$lib/sounds/processor.svelte';
-import { builder } from '$lib/sounds/builder';
+} from '#lib/types/index.js';
+import type { SoundProcessor } from '#lib/sounds/processor.svelte.js';
+import { builder } from '#lib/sounds/builder.js';
 import { SvelteDate, SvelteMap } from 'svelte/reactivity';
 import { env } from '$env/dynamic/public';
 import type { AddAlertFunction } from './types/other';

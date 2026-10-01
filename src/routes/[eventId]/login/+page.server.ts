@@ -1,10 +1,10 @@
 import { verify } from '@node-rs/argon2';
 import { fail, redirect } from '@sveltejs/kit';
-import * as auth from '$lib/server/session';
+import * as auth from '#lib/server/session.js';
 import type { Actions, PageServerLoad } from './$types';
-import { getEvent } from '$lib/server/db/utils';
-import { ARGON2_CONFIG } from '$lib/server/session';
-import { markSessionAsUpdated } from '$lib/server/socket';
+import { getEvent } from '#lib/server/db/utils/index.js';
+import { ARGON2_CONFIG } from '#lib/server/session.js';
+import { markSessionAsUpdated } from '#lib/server/socket.js';
 
 export const load: PageServerLoad = async ({ params, locals, parent }) => {
 	const { event } = await parent();

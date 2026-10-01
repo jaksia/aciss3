@@ -1,6 +1,6 @@
 import type { PageServerLoad } from './$types';
 import { verify } from '@node-rs/argon2';
-import { ARGON2_CONFIG } from '$lib/server/session';
+import { ARGON2_CONFIG } from '#lib/server/session.js';
 import { env } from '$env/dynamic/private';
 
 const hasRootPassword = env.ROOT_ADMIN_PASSWORD_HASH ? true : false;

@@ -6,7 +6,7 @@ import type {
 	InterServerEvents,
 	ServerToClientEvents,
 	SocketData
-} from '$lib/types';
+} from '#lib/types/index.js';
 import { Server, type Socket } from 'socket.io';
 import { getActivities, getActivity, getEvent, getEventLocations } from './db/utils';
 import { validateSocketCode } from './session';

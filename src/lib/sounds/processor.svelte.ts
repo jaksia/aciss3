@@ -8,13 +8,13 @@ import {
 	type CompiledSound,
 	OtherSounds,
 	type TimedAlerts
-} from '$lib/types';
+} from '#lib/types/index.js';
 import { SvelteMap } from 'svelte/reactivity';
 import { fixedSounds } from './fixed';
 import { configurableSoundsData, getConfigurableSoundRoot } from './configurable';
 import { builder as builder, SoundBuilder } from './builder';
-import { logFunctions } from '$lib/utils';
-import type { EventState } from '$lib/state.svelte';
+import { logFunctions } from '#lib/utils.js';
+import type { EventState } from '#lib/state.svelte.js';
 import { untrack } from 'svelte';
 
 const log = logFunctions('SoundProcessor');
