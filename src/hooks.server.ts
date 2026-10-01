@@ -1,20 +1,20 @@
-import * as auth from '$lib/server/session';
-import type { ServerInit, Handle } from '@sveltejs/kit';
-import { initSocket } from '$lib/server/socket';
-import { initDB } from '$lib/server/db';
-import { env } from '$env/dynamic/private';
-import { socketCodeCookieName } from '$lib/state.svelte';
+import type { ServerInit, Handle } from '@sveltejs/kit/hooks';
+import * as auth from '#lib/server/session.js';
+import { initSocket } from '#lib/server/socket.js';
+import { initDB } from '#lib/server/db/index.js';
+import { DATABASE_URL, SOCKETIO_PORT } from '$app/env/private';
+import { socketCodeCookieName } from '#lib/state.svelte.js';
 
 let socketInitialized = false;
 
 export const init: ServerInit = async () => {
-	const db_url = env.DATABASE_URL;
+	const db_url = DATABASE_URL;
 
 	if (!db_url) throw new Error('DATABASE_URL environment variable is not set.');
 
 	initDB(db_url);
 
-	const port = env.SOCKETIO_PORT;
+	const port = SOCKETIO_PORT;
 
 	if (!port) throw new Error('SOCKETIO_PORT environment variable is not set.');
 

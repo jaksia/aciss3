@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { dev } from '$app/environment';
+	import { dev } from '$app/env';
 	import { page } from '$app/state';
-	import { getEventState } from '$lib/context.js';
-	import { SoundProcessor } from '$lib/sounds/processor.svelte';
-	import { ConfigurableSounds, type Activity } from '$lib/types';
+	import { getEventState } from '#lib/context.js';
+	import { SoundProcessor } from '#lib/sounds/processor.svelte.js';
+	import { ConfigurableSounds, type Activity } from '#lib/types/index.js';
 	import { tick } from 'svelte';
 
 	const debug = $derived(dev || page.url.searchParams.has('debug'));

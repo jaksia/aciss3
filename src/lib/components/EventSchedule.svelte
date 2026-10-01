@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Activity, Event } from '$lib/types';
+	import type { Activity, Event } from '#lib/types/index.js';
 	import { SvelteDate } from 'svelte/reactivity';
 	import ScheduleTable from './ScheduleTable.svelte';
 

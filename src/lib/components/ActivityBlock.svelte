@@ -1,11 +1,11 @@
 <script lang="ts">
-	import type { Activity } from '$lib/types';
+	import type { Activity } from '#lib/types/index.js';
 	import { fly } from 'svelte/transition';
 	import ExpandedActivity from './ExpandedActivity.svelte';
-	import { browser } from '$app/environment';
+	import { browser } from '$app/env';
 	import { SvelteDate } from 'svelte/reactivity';
 
-	import { getEventState } from '$lib/context';
+	import { getEventState } from '#lib/context.js';
 	const eventState = getEventState();
 
 	let {

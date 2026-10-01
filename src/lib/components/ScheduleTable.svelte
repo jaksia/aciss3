@@ -1,12 +1,12 @@
 <script lang="ts">
-	import type { Activity } from '$lib/types';
+	import type { Activity } from '#lib/types/index.js';
 	import { usePinch, type PinchCustomEvent, usePan, type PanCustomEvent } from 'svelte-gestures';
 	import ActivityBlock from './ActivityBlock.svelte';
 	import { onMount, tick } from 'svelte';
 	import { SvelteDate } from 'svelte/reactivity';
-	import { dev } from '$app/environment';
+	import { dev } from '$app/env';
 	import { page } from '$app/state';
-	import { getEventState, getCreateActivity } from '$lib/context';
+	import { getEventState, getCreateActivity } from '#lib/context.js';
 
 	const debug = $derived(dev || page.url.searchParams.has('debug'));
 

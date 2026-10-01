@@ -1,9 +1,10 @@
-import { env } from '$env/dynamic/private';
+import { SOUND_FILES_PATH } from '$app/env/private';
+import { PUBLIC_SOUND_FILES_PATH } from '$app/env/public';
 import { createReadStream, statSync, writeFileSync } from 'fs';
 import { lookup as lookupMime } from 'mime-types';
 
-const rootDir = env.SOUND_FILES_PATH;
-const publicRootDir = env.PUBLIC_SOUND_FILES_PATH;
+const rootDir = SOUND_FILES_PATH;
+const publicRootDir = PUBLIC_SOUND_FILES_PATH;
 
 const allowedAudioExtensions = ['mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a'];
 

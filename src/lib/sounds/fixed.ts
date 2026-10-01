@@ -5,7 +5,7 @@ import {
 	type FixedSoundMap,
 	NumberSounds,
 	OtherSounds
-} from '$lib/types';
+} from '#lib/types/index.js';
 
 export const fixedSounds: FixedSoundMap = {
 	[NumberSounds.ONE]: { path: '/sounds/numbers/1.mp3', content: '1' },

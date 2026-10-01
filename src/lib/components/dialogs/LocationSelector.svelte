@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { ActivityLocation } from '$lib/types';
+	import type { ActivityLocation } from '#lib/types/index.js';
 
-	import { getEventState } from '$lib/context';
+	import { getEventState } from '#lib/context.js';
 	const eventState = getEventState();
 
 	let {

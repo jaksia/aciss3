@@ -1,4 +1,4 @@
-import type { Event, CustomSound, ConfigurableSounds } from '$lib/types';
+import type { Event, CustomSound, ConfigurableSounds } from '#lib/types/index.js';
 import { eq, and } from 'drizzle-orm';
 import { db } from '..';
 import { customSounds, eventsToSounds } from '../schema';

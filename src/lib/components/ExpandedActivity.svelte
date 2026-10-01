@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { clickOutside } from '$lib/utils';
-	import type { Activity } from '$lib/types';
+	import { clickOutside } from '#lib/utils.js';
+	import type { Activity } from '#lib/types/index.js';
 	import Icon from '@iconify/svelte';
 	import ActivityDelay from './ActivityDelay.svelte';
 	import { fly } from 'svelte/transition';
 	import { SvelteDate } from 'svelte/reactivity';
-	import { getEventState, getDeleteActivity, getEditActivity } from '$lib/context';
+	import { getEventState, getDeleteActivity, getEditActivity } from '#lib/context.js';
 
 	const eventState = getEventState();
 	const openActivityEditor = getEditActivity();

@@ -1,4 +1,4 @@
-import type * as schema from '$lib/server/db/schema';
+import type * as schema from '#lib/server/db/schema.js';
 
 export type BaseEvent = typeof schema.events.$inferSelect;
 export type Event = Omit<BaseEvent, 'startDate' | 'endDate'> & {

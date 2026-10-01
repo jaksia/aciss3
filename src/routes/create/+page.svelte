@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { EventStyle } from '$lib/themes';
+	import { EventStyle } from '#lib/themes.js';
 	import { DatePicker } from '@svelte-plugins/datepicker';
 	import type { PageProps } from './$types';
-	import { createEvent } from '$lib/functions.remote';
-	import { getCreateEventSchema } from '$lib/schemas';
+	import { createEvent } from '#lib/functions.remote.js';
+	import { getCreateEventSchema } from '#lib/schemas.js';
 	import { onMount } from 'svelte';
-	import { getAddAlert } from '$lib/context';
+	import { getAddAlert } from '#lib/context.js';
 
 	let { data }: PageProps = $props();
 

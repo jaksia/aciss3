@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { getEditActivity } from '$lib/context';
-	import type { Activity, Event } from '$lib/types';
+	import { getEditActivity } from '#lib/context.js';
+	import type { Activity, Event } from '#lib/types/index.js';
 	import Icon from '@iconify/svelte';
 
 	const editActivity = getEditActivity();

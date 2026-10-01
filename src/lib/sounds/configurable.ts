@@ -1,5 +1,5 @@
-import { env } from '$env/dynamic/public';
-import { ConfigurableSounds } from '$lib/types';
+import { PUBLIC_SOUND_FILES_PATH } from '$app/env/public';
+import { ConfigurableSounds } from '#lib/types/index.js';
 
 type ConfigurableSoundData = {
 	adminLabel: string;
@@ -49,8 +49,8 @@ export const configurableSoundsData: Record<ConfigurableSounds, ConfigurableSoun
 };
 
 export function getConfigurableSoundRoot(): string {
-	if (env.PUBLIC_SOUND_FILES_PATH) {
-		return env.PUBLIC_SOUND_FILES_PATH;
+	if (PUBLIC_SOUND_FILES_PATH) {
+		return PUBLIC_SOUND_FILES_PATH;
 	} else {
 		return '/sounds/custom/';
 	}

@@ -1,11 +1,11 @@
 import type { PageServerLoad } from './$types';
 import { verify } from '@node-rs/argon2';
-import { ARGON2_CONFIG } from '$lib/server/session';
-import { env } from '$env/dynamic/private';
+import { ARGON2_CONFIG } from '#lib/server/session.js';
+import { ROOT_ADMIN_PASSWORD_HASH } from '$app/env/private';
 
-const hasRootPassword = env.ROOT_ADMIN_PASSWORD_HASH ? true : false;
+const hasRootPassword = ROOT_ADMIN_PASSWORD_HASH ? true : false;
 const validRootPassword = hasRootPassword
-	? await verify(env.ROOT_ADMIN_PASSWORD_HASH!, 'test', ARGON2_CONFIG)
+	? await verify(ROOT_ADMIN_PASSWORD_HASH!, 'test', ARGON2_CONFIG)
 			.then(() => true)
 			.catch(() => false)
 	: true;

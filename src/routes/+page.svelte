@@ -43,7 +43,7 @@
 		{/each}
 		<li>
 			<a
-				href={resolve('/create')}
+				href={resolve('create')}
 				class="flex items-center justify-center gap-2 p-4 hover:bg-gray-100"
 			>
 				<Icon icon="mdi:plus-circle-outline" class="text-2xl" />

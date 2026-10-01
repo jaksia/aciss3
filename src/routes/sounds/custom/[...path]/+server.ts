@@ -1,10 +1,10 @@
-import { env } from '$env/dynamic/public';
-import { getSoundFile } from '$lib/server/files/sounds';
+import { PUBLIC_SOUND_FILES_PATH } from '$app/env/public';
+import { getSoundFile } from '#lib/server/files/sounds.js';
 import { error } from '@sveltejs/kit';
 import { Readable } from 'stream';
 
 export const GET = async ({ params }) => {
-	if (!env.PUBLIC_SOUND_FILES_PATH) {
+	if (!PUBLIC_SOUND_FILES_PATH) {
 		error(404);
 	}
 	const { path } = params;

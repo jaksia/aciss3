@@ -1,11 +1,11 @@
 <script lang="ts">
 	import '../app.css';
-	import favicon from '$lib/assets/favicon.svg';
-	import type { AddAlertFunction, Alert } from '$lib/types';
+	import favicon from '#lib/assets/favicon.svg';
+	import type { AddAlertFunction, Alert } from '#lib/types/index.js';
 	import { onMount } from 'svelte';
 	import Icon from '@iconify/svelte';
 	import { fade, fly } from 'svelte/transition';
-	import { setAddAlert } from '$lib/context';
+	import { setAddAlert } from '#lib/context.js';
 
 	let { children } = $props();
 

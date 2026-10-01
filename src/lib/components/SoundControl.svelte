@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { type ActivityLocation, ConfigurableSounds, OtherSounds } from '$lib/types';
-	import { builder } from '$lib/sounds/builder';
-	import { getAddAlert, getEventState } from '$lib/context';
+	import { type ActivityLocation, ConfigurableSounds, OtherSounds } from '#lib/types/index.js';
+	import { builder } from '#lib/sounds/builder.js';
+	import { getAddAlert, getEventState } from '#lib/context.js';
 
 	let {
 		locationSelector

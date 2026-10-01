@@ -1,25 +1,25 @@
 <script lang="ts">
-	import ConfirmActivityDeletion from '$lib/components/dialogs/ConfirmActivityDeletion.svelte';
-	import EventSchedule from '$lib/components/EventSchedule.svelte';
-	import { styleData } from '$lib/themes';
-	import type { Activity, ActivityLocation } from '$lib/types';
+	import ConfirmActivityDeletion from '#lib/components/dialogs/ConfirmActivityDeletion.svelte';
+	import EventSchedule from '#lib/components/EventSchedule.svelte';
+	import { styleData } from '#lib/themes.js';
+	import type { Activity, ActivityLocation } from '#lib/types/index.js';
 	import Icon from '@iconify/svelte';
 	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
-	import OrphanedActivities from '$lib/components/dialogs/OrphanedActivities.svelte';
-	import LocationSelector from '$lib/components/dialogs/LocationSelector.svelte';
+	import OrphanedActivities from '#lib/components/dialogs/OrphanedActivities.svelte';
+	import LocationSelector from '#lib/components/dialogs/LocationSelector.svelte';
 	import { SvelteDate } from 'svelte/reactivity';
-	import { deleteActivity as deleteActivityFunc } from '$lib/functions.remote';
-	import SoundControl from '$lib/components/SoundControl.svelte';
-	import Overlay from '$lib/components/Overlay.svelte';
-	import ActivityForm from '$lib/components/dialogs/ActivityForm.svelte';
+	import { deleteActivity as deleteActivityFunc } from '#lib/functions.remote.js';
+	import SoundControl from '#lib/components/SoundControl.svelte';
+	import Overlay from '#lib/components/Overlay.svelte';
+	import ActivityForm from '#lib/components/dialogs/ActivityForm.svelte';
 	import {
 		getAddAlert,
 		getEventState,
 		setOpenActivityCreator,
 		setOpenActivityDeletor,
 		setOpenActivityEditor
-	} from '$lib/context';
+	} from '#lib/context.js';
 
 	const eventState = getEventState();
 	const addAlert = getAddAlert();

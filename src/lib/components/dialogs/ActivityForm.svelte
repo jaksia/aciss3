@@ -1,14 +1,14 @@
 <script lang="ts">
-	import { getAddAlert, getEventState } from '$lib/context';
-	import { createUpdateActivity } from '$lib/functions.remote';
-	import { activityFormValidator } from '$lib/schemas';
+	import { getAddAlert, getEventState } from '#lib/context.js';
+	import { createUpdateActivity } from '#lib/functions.remote.js';
+	import { activityFormValidator } from '#lib/schemas.js';
 	import {
 		type Activity,
 		type Event,
 		ActivityType,
 		AdditionalInfo,
 		ParticipantNeeds
-	} from '$lib/types';
+	} from '#lib/types/index.js';
 	import Icon from '@iconify/svelte';
 	import { SvelteDate } from 'svelte/reactivity';
 

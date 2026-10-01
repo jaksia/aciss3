@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { setActivityDelay } from '$lib/functions.remote';
-	import type { Activity } from '$lib/types';
+	import { setActivityDelay } from '#lib/functions.remote.js';
+	import type { Activity } from '#lib/types/index.js';
 	import Icon from '@iconify/svelte';
-	import { getAddAlert, getEventState } from '$lib/context';
+	import { getAddAlert, getEventState } from '#lib/context.js';
 
 	const eventState = getEventState();
 	const addAlert = getAddAlert();

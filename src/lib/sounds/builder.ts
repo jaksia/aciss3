@@ -13,7 +13,7 @@ import {
 	type FixedSounds,
 	type Sound,
 	type SoundBuilderSound
-} from '$lib/types';
+} from '#lib/types/index.js';
 import { fixedSounds } from './fixed';
 
 if (

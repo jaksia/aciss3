@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { configurableSoundsData, getConfigurableSoundRoot } from '$lib/sounds/configurable';
-	import { fixedSounds } from '$lib/sounds/fixed';
+	import { configurableSoundsData, getConfigurableSoundRoot } from '#lib/sounds/configurable.js';
+	import { fixedSounds } from '#lib/sounds/fixed.js';
 	import {
 		ActivityType,
 		AdditionalInfo,
@@ -10,14 +10,14 @@
 		OtherSounds,
 		type FixedSounds,
 		type ActivityLocation
-	} from '$lib/types';
-	import SoundSelector from '$lib/components/dialogs/SoundSelector.svelte';
+	} from '#lib/types/index.js';
+	import SoundSelector from '#lib/components/dialogs/SoundSelector.svelte';
 	import Icon from '@iconify/svelte';
-	import NewLocation from '$lib/components/dialogs/NewLocation.svelte';
+	import NewLocation from '#lib/components/dialogs/NewLocation.svelte';
 	import { SvelteSet } from 'svelte/reactivity';
-	import { detachLocation } from '$lib/functions.remote';
-	import Overlay from '$lib/components/Overlay.svelte';
-	import { getAddAlert, getEventState } from '$lib/context';
+	import { detachLocation } from '#lib/functions.remote.js';
+	import Overlay from '#lib/components/Overlay.svelte';
+	import { getAddAlert, getEventState } from '#lib/context.js';
 
 	const confSoundsRoot = getConfigurableSoundRoot();
 
