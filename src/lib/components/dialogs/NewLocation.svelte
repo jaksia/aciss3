@@ -1,15 +1,15 @@
 <script lang="ts">
+	import { getAddAlert } from '$lib/context';
 	import {
 		assignLocation as assignLocationFunc,
 		getAvailableLocations,
 		createLocation as createLocationForm
 	} from '$lib/functions.remote';
 	import { createLocationSchema } from '$lib/schemas';
-	import type { ActivityLocation, Event, AddAlertFunction } from '$lib/types';
+	import type { ActivityLocation, Event } from '$lib/types';
 	import Icon from '@iconify/svelte';
-	import { getContext } from 'svelte';
 
-	const addAlert = getContext<AddAlertFunction>('addAlert');
+	const addAlert = getAddAlert();
 
 	let {
 		event,

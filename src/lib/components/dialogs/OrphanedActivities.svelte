@@ -1,11 +1,10 @@
 <script lang="ts">
+	import { getEditActivity } from '$lib/context';
 	import type { Activity, Event } from '$lib/types';
 	import Icon from '@iconify/svelte';
-	import { getContext } from 'svelte';
 
-	const openAcitvityEditor: (activityId: Activity['id']) => void = getContext('openActivityEditor');
-	const openActivityDeletor: (activityID: Activity['id']) => void =
-		getContext('openActivityDeletor');
+	const editActivity = getEditActivity();
+	const deleteActivity = getEditActivity();
 
 	let {
 		event,
@@ -41,15 +40,11 @@
 					<button
 						class="ea-top-btn hover:text-red-500"
 						title="Vymazať"
-						onclick={() => openActivityDeletor(activity.id)}
+						onclick={() => deleteActivity(activity.id)}
 					>
 						<Icon icon="mdi:trash-can-outline" />
 					</button>
-					<button
-						class="ea-top-btn"
-						title="Upraviť"
-						onclick={() => openAcitvityEditor(activity.id)}
-					>
+					<button class="ea-top-btn" title="Upraviť" onclick={() => editActivity(activity.id)}>
 						<Icon icon="mdi:pencil-outline" />
 					</button>
 				</div>

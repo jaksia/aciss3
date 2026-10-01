@@ -1,9 +1,8 @@
 <script lang="ts">
-	import type { EventState } from '$lib/state.svelte';
 	import type { ActivityLocation } from '$lib/types';
-	import { getContext } from 'svelte';
 
-	const eventState = getContext<() => EventState>('getEventState')();
+	import { getEventState } from '$lib/context';
+	const eventState = getEventState();
 
 	let {
 		purpose,

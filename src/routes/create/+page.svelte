@@ -4,12 +4,12 @@
 	import type { PageProps } from './$types';
 	import { createEvent } from '$lib/functions.remote';
 	import { getCreateEventSchema } from '$lib/schemas';
-	import { getContext, onMount } from 'svelte';
-	import type { AddAlertFunction } from '$lib/types';
+	import { onMount } from 'svelte';
+	import { getAddAlert } from '$lib/context';
 
 	let { data }: PageProps = $props();
 
-	const addAlert = getContext<AddAlertFunction>('addAlert');
+	const addAlert = getAddAlert();
 
 	let datePickerOpen = $state(false);
 

@@ -2,16 +2,14 @@
 	import '../app.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import type { AddAlertFunction, Alert } from '$lib/types';
-	import { setContext } from 'svelte';
+	import { onMount } from 'svelte';
 	import Icon from '@iconify/svelte';
 	import { fade, fly } from 'svelte/transition';
+	import { setAddAlert } from '$lib/context';
 
 	let { children } = $props();
 
 	let now = $state(new Date());
-	setInterval(() => {
-		now = new Date();
-	}, 20);
 	let alerts = $state<Alert[]>([]);
 
 	const addAlert: AddAlertFunction = function (alert) {
@@ -24,11 +22,21 @@
 		}, alert.timeout);
 		return id;
 	};
-	setContext('addAlert', addAlert);
 
 	function dismissAlert(id: string) {
 		alerts = alerts.filter((a) => a.id !== id);
 	}
+
+	setAddAlert(addAlert);
+
+	onMount(() => {
+		const nowInterval = setInterval(() => {
+			now = new Date();
+		}, 20);
+		return () => {
+			clearInterval(nowInterval);
+		};
+	});
 </script>
 
 <svelte:head>

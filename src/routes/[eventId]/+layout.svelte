@@ -2,10 +2,9 @@
 	import { styleData } from '$lib/themes';
 	import type { LayoutProps } from './$types';
 	import { page } from '$app/state';
-	import { getContext, setContext } from 'svelte';
-	import { EventState } from '$lib/state.svelte';
-	import type { AddAlertFunction } from '$lib/types';
 	import { resolve } from '$app/paths';
+	import { getAddAlert, setEventState } from '$lib/context';
+	import { EventState } from '$lib/state.svelte';
 
 	const adminSection = $derived.by(() => {
 		return page.url.pathname.includes('/admin') ? page.url.pathname.split('/admin')[1] : null;
@@ -14,14 +13,16 @@
 	let { children, data }: LayoutProps = $props();
 
 	// svelte-ignore state_referenced_locally
-	const eventState = new EventState(data.event, Object.values(data.activities), data.locations);
-	setContext('getEventState', () => eventState);
+	const eventState = new EventState(data.event, data.activities, data.locations);
+	eventState.setAlertHandler(getAddAlert());
+	setEventState(eventState);
+
+	$effect(() => {
+		eventState.changeEvent(data.event, data.activities, data.locations);
+	});
 
 	const event = $derived(eventState.event);
 	const styles = $derived(styleData[event.style]);
-
-	const addAlert = getContext<AddAlertFunction>('addAlert');
-	eventState.setAlertHandler(addAlert);
 </script>
 
 <div class="text-base-content flex min-h-screen flex-col">
@@ -51,8 +52,8 @@
 					class={['navbar-btn text-lg', adminSection === '/sounds' && 'active']}>Zvuky</a
 				>
 				<a
-					href={resolve('/[eventId]/admin', { eventId: event.id.toString() })}
-					class={['navbar-btn text-lg', adminSection === '' && 'active']}>Program</a
+					href={resolve('/[eventId]/admin/schedule', { eventId: event.id.toString() })}
+					class={['navbar-btn text-lg', adminSection === '/schedule' && 'active']}>Program</a
 				>
 				<a
 					href={resolve('/[eventId]/admin/event', { eventId: event.id.toString() })}

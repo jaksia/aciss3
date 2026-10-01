@@ -346,6 +346,12 @@ export class SoundProcessor {
 		return timedAlerts;
 	}
 
+	public async compileAndScheduleActivities(activities: Activity[]) {
+		for (const activity of activities) {
+			await this.compileAndScheduleActivity(activity);
+		}
+	}
+
 	private scheduleAlertCheck() {
 		if (this.alertSchedulerTimeout) clearTimeout(this.alertSchedulerTimeout);
 		if (this.scheduledAlerts.size === 0) return;

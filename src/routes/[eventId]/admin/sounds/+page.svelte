@@ -9,22 +9,21 @@
 		NumberSounds,
 		OtherSounds,
 		type FixedSounds,
-		type AddAlertFunction,
 		type ActivityLocation
 	} from '$lib/types';
 	import SoundSelector from '$lib/components/dialogs/SoundSelector.svelte';
-	import { getContext } from 'svelte';
-	import type { EventState } from '$lib/state.svelte';
 	import Icon from '@iconify/svelte';
 	import NewLocation from '$lib/components/dialogs/NewLocation.svelte';
 	import { SvelteSet } from 'svelte/reactivity';
 	import { detachLocation } from '$lib/functions.remote';
 	import Overlay from '$lib/components/Overlay.svelte';
+	import { getAddAlert, getEventState } from '$lib/context';
 
 	const confSoundsRoot = getConfigurableSoundRoot();
 
-	const eventState = getContext<() => EventState>('getEventState')();
-	const addAlert = getContext<AddAlertFunction>('addAlert');
+	const eventState = getEventState();
+	const addAlert = getAddAlert();
+
 	const event = $derived(eventState.event);
 
 	const fixedSoundSections = [
@@ -36,7 +35,7 @@
 	];
 
 	let addLocationDialog = $state(false);
-	let soundSelectorKey: ConfigurableSounds | null = $state(null);
+	let soundSelectorKey = $state<ConfigurableSounds | null>(null);
 
 	let pendingLocationIds = new SvelteSet<ActivityLocation['id']>();
 </script>
@@ -80,7 +79,7 @@
 		<h2 class="mb-3 text-3xl font-bold">Nastaviteľné zvuky</h2>
 		<div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
 			{#each Object.values(ConfigurableSounds) as soundKey (soundKey)}
-				{@const soundData = configurableSoundsData[soundKey]}
+				{const soundData = $derived(configurableSoundsData[soundKey])}
 				<div class="mt-2 flex flex-col space-y-2">
 					<strong
 						>{soundData.adminLabel}
@@ -118,7 +117,7 @@
 					<div class="flex">
 						<strong>{location.name}</strong>
 						{#if !location.isStatic}
-							{const isUsed = eventState.usedLocationIds.has(locId)}
+							{const isUsed = $derived(eventState.usedLocationIds.has(locId))}
 							<button
 								class={[
 									'ml-auto cursor-pointer transition-colors',
@@ -189,7 +188,7 @@
 				<div class="mt-2 flex flex-col space-y-2">
 					<h3 class="text-2xl font-semibold">{sectionTitle}</h3>
 					{#each soundKeys as soundKey (soundKey)}
-						{@const sound = fixedSounds[soundKey as unknown as FixedSounds]}
+						{const sound = $derived(fixedSounds[soundKey as FixedSounds])}
 						<div class="flex-col items-center space-x-4">
 							{#if sound}
 								<div class="flex">

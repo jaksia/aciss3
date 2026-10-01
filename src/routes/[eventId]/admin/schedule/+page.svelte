@@ -1,11 +1,10 @@
 <script lang="ts">
 	import ConfirmActivityDeletion from '$lib/components/dialogs/ConfirmActivityDeletion.svelte';
 	import EventSchedule from '$lib/components/EventSchedule.svelte';
-	import type { EventState } from '$lib/state.svelte';
 	import { styleData } from '$lib/themes';
-	import type { Activity, ActivityLocation, AddAlertFunction } from '$lib/types';
+	import type { Activity, ActivityLocation } from '$lib/types';
 	import Icon from '@iconify/svelte';
-	import { getContext, onMount, setContext } from 'svelte';
+	import { onMount } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import OrphanedActivities from '$lib/components/dialogs/OrphanedActivities.svelte';
 	import LocationSelector from '$lib/components/dialogs/LocationSelector.svelte';
@@ -14,9 +13,16 @@
 	import SoundControl from '$lib/components/SoundControl.svelte';
 	import Overlay from '$lib/components/Overlay.svelte';
 	import ActivityForm from '$lib/components/dialogs/ActivityForm.svelte';
+	import {
+		getAddAlert,
+		getEventState,
+		setOpenActivityCreator,
+		setOpenActivityDeletor,
+		setOpenActivityEditor
+	} from '$lib/context';
 
-	const eventState = getContext<() => EventState>('getEventState')();
-	const addAlert = getContext<AddAlertFunction>('addAlert');
+	const eventState = getEventState();
+	const addAlert = getAddAlert();
 
 	const event = $derived(eventState.event);
 
@@ -33,15 +39,14 @@
 	let locationSelectorResolve: ((location: ActivityLocation | null) => void) | null = $state(null);
 	let locationSelectorPurpose: string = $state('');
 	let orphanedDialogShown = $state(false);
-	let soundControlOpen = $state(false);
 
-	setContext('openActivityCreator', (initial?: { startTime?: Date; endTime?: Date }) => {
+	setOpenActivityCreator((initial?: { startTime?: Date; endTime?: Date }) => {
 		createActivity = initial || true;
 	});
-	setContext('openActivityEditor', (activityId: Activity['id']) => {
+	setOpenActivityEditor((activityId: Activity['id']) => {
 		editorActivityId = activityId;
 	});
-	setContext('openActivityDeletor', (activityId: Activity['id']) => {
+	setOpenActivityDeletor((activityId: Activity['id']) => {
 		deletorActivityId = activityId;
 	});
 
@@ -213,7 +218,14 @@
 		<button class="btn border-0! hover:bg-black/20" onclick={() => (createActivity = true)}>
 			Pridať aktivitu
 		</button>
-		<div class="group relative inline-block">
+		{let soundControlOpen = $state(false),
+			soundControlHover = $state(false)}
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
+		<div
+			class="group relative inline-block"
+			onmouseenter={() => (soundControlHover = true)}
+			onmouseleave={() => (soundControlHover = false)}
+		>
 			<button
 				class={[
 					'btn ml-1 inline-flex items-center border-0! pr-1! hover:bg-black/20',
@@ -224,16 +236,13 @@
 				Okamžité hlásenie
 				<Icon icon="mdi:chevron-down" class="text-2xl" />
 			</button>
-			<div
-				class={[
-					'absolute top-full right-0 z-10 w-48 cursor-default pt-1 group-hover:block',
-					soundControlOpen ? 'block' : 'hidden'
-				]}
-			>
-				<div class="bg-base-100 rounded p-2 shadow-lg" transition:slide>
-					<SoundControl {locationSelector} />
+			{#if soundControlOpen || soundControlHover}
+				<div class="absolute top-full right-0 z-10 w-48 cursor-default pt-1">
+					<div class="bg-base-100 rounded p-2 shadow-lg" transition:slide>
+						<SoundControl {locationSelector} />
+					</div>
 				</div>
-			</div>
+			{/if}
 		</div>
 	</div>
 </div>

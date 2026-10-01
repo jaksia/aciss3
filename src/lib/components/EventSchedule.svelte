@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Activity, Event, GlobalBlockProps } from '$lib/types';
+	import type { Activity, Event } from '$lib/types';
 	import { SvelteDate } from 'svelte/reactivity';
 	import ScheduleTable from './ScheduleTable.svelte';
 
@@ -32,12 +32,7 @@
 		return perDay;
 	});
 
-	const globalBlockProps: GlobalBlockProps = $state({
-		expandedActivityId: null,
-		expandActivity: (id: number | null) => {
-			globalBlockProps.expandedActivityId = id;
-		}
-	});
+	let expandedActivityId = $state<Activity['id'] | null>(null);
 </script>
 
-<ScheduleTable {days} {perDayActivities} {globalBlockProps} />
+<ScheduleTable {days} {perDayActivities} bind:expandedActivityId />

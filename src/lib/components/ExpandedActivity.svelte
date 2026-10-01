@@ -2,16 +2,14 @@
 	import { clickOutside } from '$lib/utils';
 	import type { Activity } from '$lib/types';
 	import Icon from '@iconify/svelte';
-	import { getContext } from 'svelte';
 	import ActivityDelay from './ActivityDelay.svelte';
 	import { fly } from 'svelte/transition';
-	import type { EventState } from '$lib/state.svelte';
 	import { SvelteDate } from 'svelte/reactivity';
+	import { getEventState, getDeleteActivity, getEditActivity } from '$lib/context';
 
-	const eventState = getContext<() => EventState>('getEventState')();
-	const openActivityEditor: (activityId: Activity['id']) => void = getContext('openActivityEditor');
-	const openActivityDeletor: (activityID: Activity['id']) => void =
-		getContext('openActivityDeletor');
+	const eventState = getEventState();
+	const openActivityEditor = getEditActivity();
+	const openActivityDeletor = getDeleteActivity();
 
 	let {
 		activity,

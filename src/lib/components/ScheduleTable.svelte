@@ -1,20 +1,17 @@
 <script lang="ts">
-	/* eslint-disable svelte/require-each-key */
-
-	import type { Activity, GlobalBlockProps } from '$lib/types';
+	import type { Activity } from '$lib/types';
 	import { usePinch, type PinchCustomEvent, usePan, type PanCustomEvent } from 'svelte-gestures';
 	import ActivityBlock from './ActivityBlock.svelte';
-	import { getContext, onMount, tick } from 'svelte';
-	import type { EventState } from '$lib/state.svelte';
+	import { onMount, tick } from 'svelte';
 	import { SvelteDate } from 'svelte/reactivity';
 	import { dev } from '$app/environment';
 	import { page } from '$app/state';
+	import { getEventState, getCreateActivity } from '$lib/context';
 
-	const debug = dev || page.url.searchParams.has('debug');
+	const debug = $derived(dev || page.url.searchParams.has('debug'));
 
-	const eventState = getContext<() => EventState>('getEventState')();
-	const openActivityCreator =
-		getContext<(initial?: { startTime?: Date; endTime?: Date }) => void>('openActivityCreator');
+	const eventState = getEventState();
+	const createActivity = getCreateActivity();
 
 	// On 1920px width, this shows approx. 7:00 - 22:00
 	const DEFAULT_SCALE = 1.56;
@@ -26,16 +23,12 @@
 	let {
 		days,
 		perDayActivities,
-		globalBlockProps
+		expandedActivityId = $bindable(null)
 	}: {
 		days: Date[];
 		perDayActivities: Record<number, Activity[]>;
-		globalBlockProps: GlobalBlockProps;
+		expandedActivityId: Activity['id'] | null;
 	} = $props();
-
-	function formatDayDate(date: Date) {
-		return `${date.getDate()}. ${date.getMonth() + 1}. ${date.getFullYear()}`;
-	}
 
 	// Used for anything that needs to react to viewport changes
 	// needed, as there is no built-in way to get reactive element positions
@@ -48,15 +41,13 @@
 	let chartElement: HTMLDivElement | null = $state(null);
 	let chartWidth = $state(0);
 
-	let lastPinchScale: number | null = $state(null);
-	let lastPanX: number | null = $state(null);
-
 	let scale = $state(DEFAULT_SCALE);
 	let startingMinutes = $state(DEFAULT_STARTING_MINUTES);
 
-	let hourWidth = $derived(scale * (chartWidth / 24));
-	let leftPx = $derived((startingMinutes / 60) * hourWidth);
+	const hourWidth = $derived(scale * (chartWidth / 24));
+	const leftPx = $derived((startingMinutes / 60) * hourWidth);
 
+	let lastPinchScale: number | null = $state(null);
 	function pinchHandler(event: PinchCustomEvent) {
 		const pinchX = event.detail.center.x - (chartElement?.getBoundingClientRect().left ?? 0);
 		const pinchMinutes = ((leftPx + pinchX) / hourWidth) * 60;
@@ -75,6 +66,7 @@
 		viewportReactivityTrigger++;
 	}
 
+	let lastPanX: number | null = $state(null);
 	function panHandler(event: PanCustomEvent) {
 		if (lastPanX === null) lastPanX = event.detail.x;
 		const deltaX = lastPanX! - event.detail.x;
@@ -133,10 +125,6 @@
 				day.getMonth() === now.getMonth() &&
 				day.getDate() === now.getDate()
 		);
-	});
-	const nowMinutes = $derived.by(() => {
-		const now = eventState.now;
-		return now.getHours() * 60 + now.getMinutes();
 	});
 
 	const tzBufferMinutes = 90; // 1.5 hours buffer around timezone change
@@ -218,7 +206,7 @@
 				class="absolute top-1/2 right-0 -translate-y-1/2 font-mono">Time</span
 			>
 		</div>
-		{#each days as day, index}
+		{#each days as day, index (day)}
 			<div
 				class="border-base-content/50 flex grow flex-col items-center border-b p-2"
 				bind:clientHeight={dayRowHeight[index]}
@@ -232,7 +220,9 @@
 					</div>
 					<span class="invisible text-xl">{index}.</span>
 				</div>
-				<div class="text-sm whitespace-nowrap">{formatDayDate(day)}</div>
+				<div class="text-sm whitespace-nowrap">
+					{day.getDate()}. {day.getMonth() + 1}. {day.getFullYear()}
+				</div>
 			</div>
 		{/each}
 	</div>
@@ -240,7 +230,7 @@
 		<div class="absolute" style="left: {-leftPx}px; top: 0;">
 			<div class="flex border-b" bind:clientHeight={timeRowHeight}>
 				<!-- eslint-disable-next-line @typescript-eslint/no-unused-vars -->
-				{#each Array(24) as _, hour}
+				{#each Array(24), hour}
 					<div
 						class="border-base-content/50 relative border-l px-2 py-0.5 text-center font-mono"
 						style="width: {hourWidth}px; writing-mode: sideways-lr;"
@@ -249,7 +239,7 @@
 					</div>
 				{/each}
 			</div>
-			{#each days as day, dayIndex}
+			{#each days as day, dayIndex (day)}
 				<div
 					class="border-base-content/50 relative flex border-b"
 					style="height: {dayRowHeight[dayIndex] + 1}px;"
@@ -266,7 +256,7 @@
 										startTime.setHours(hour, 0, 0, 0);
 										const endTime = new SvelteDate(startTime);
 										endTime.setHours(hour + 1, 0, 0, 0);
-										openActivityCreator({ startTime, endTime });
+										createActivity({ startTime, endTime });
 									}}
 								></button>
 								<button
@@ -277,7 +267,7 @@
 										startTime.setHours(hour, 30, 0, 0);
 										const endTime = new SvelteDate(startTime);
 										endTime.setHours(hour + 1, 0, 0, 0);
-										openActivityCreator({ startTime, endTime });
+										createActivity({ startTime, endTime });
 									}}
 								></button>
 							</div>
@@ -285,8 +275,9 @@
 					</div>
 					<div class="grid-miscs-lower contents">
 						{#if tzChangeDayIndex !== null && Math.abs(tzChangeDayIndex - dayIndex) <= 1}
-							{@const dayMinDiff = (tzChangeDayIndex - dayIndex) * 24 * 60}
-							{@const blockStartMinutes = tzStartMinutes + dayMinDiff - tzBufferMinutes}
+							{const dayMinDiff = $derived((tzChangeDayIndex - dayIndex) * 24 * 60)}
+							{const blockStartMinutes = $derived(tzStartMinutes + dayMinDiff - tzBufferMinutes)}
+
 							<div
 								class="tz-change-block absolute top-0"
 								title="Do tohto bloku neodporúčame dávať aktivity, kvôli zmene času."
@@ -313,10 +304,8 @@
 								class="absolute top-0 w-0.5 bg-red-500"
 								id="now-time-line"
 								title="Aktuálny čas"
-								style="
-								left: {(nowMinutes / 60) * hourWidth}px;
-								height: {dayRowHeight[dayIndex] + 1}px;
-							"
+								style="height: {dayRowHeight[dayIndex] + 1}px;
+									   left: {(eventState.now.getHours() + eventState.now.getMinutes() / 60) * hourWidth}px;"
 							></div>
 						{/if}
 					</div>
@@ -325,8 +314,8 @@
 							<ActivityBlock
 								{activity}
 								{hourWidth}
-								{...globalBlockProps}
 								{viewportReactivityTrigger}
+								bind:expandedActivityId
 							/>
 						{/each}
 					</div>

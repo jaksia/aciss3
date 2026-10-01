@@ -17,7 +17,6 @@ import type { AddAlertFunction } from './types/other';
 import { logFunctions } from './utils';
 import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeHexLowerCase } from '@oslojs/encoding';
-import { untrack } from 'svelte';
 
 export const socketCodeCookieName = 'socket-code';
 
@@ -26,12 +25,12 @@ const socketIOHost = env.PUBLIC_SOCKETIO_HOST;
 const log = logFunctions('EventState');
 
 export class EventState {
-	public now = new SvelteDate();
+	// eslint-disable-next-line svelte/prefer-svelte-reactivity
+	public now = $state(new Date());
 
 	private _event: Event;
 	private _activities = new SvelteMap<Activity['id'], Activity>();
 	private _locations = new SvelteMap<ActivityLocation['id'], ActivityLocation>();
-	private _socketActive: boolean;
 
 	private soundProcessor: SoundProcessor | null = null;
 	private addAlert: AddAlertFunction | null = null;
@@ -41,6 +40,8 @@ export class EventState {
 	private socketConnected = $state(false);
 
 	private listeningEventId: Event['id'] | null = $state(null);
+
+	private _socketActive = $derived(this.socketConnected && this.listeningEventId === this.event.id);
 
 	public get event() {
 		return this._event;
@@ -85,7 +86,6 @@ export class EventState {
 				this.connectToEvent(this.event.id);
 			}
 		});
-
 		$effect(() => {
 			// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 			this.activityList;
@@ -93,27 +93,34 @@ export class EventState {
 
 			log.debug('Activities changed, updating sound processor schedule');
 
-			this.soundProcessor!.clearSchedule();
-			// for some reason, this would cause infinite loop if we dont untrack
-			untrack(() =>
-				this.activityList.forEach((a) => this.soundProcessor!.compileAndScheduleActivity(a))
-			);
+			this.soundProcessor.clearSchedule();
+			this.soundProcessor.compileAndScheduleActivities(this.activityList);
 		});
 
-		this._socketActive = $derived(this.socketConnected && this.listeningEventId === this.event.id);
-
 		setInterval(() => {
-			this.now.setDate(Date.now());
+			// eslint-disable-next-line svelte/prefer-svelte-reactivity
+			this.now = new Date();
 		}, 500);
 
 		if (import.meta.hot) {
 			import.meta.hot.on('vite:beforeUpdate', () => {
 				log.debug('HMR update detected, disconnecting Socket.IO, detaching sound processor');
+				// @ts-expect-error Temporary flag to know if the socket was active before HMR update
+				this._wasSocketActiveBeforeHMR = this.socketActive;
 				this.socket?.disconnect();
 				this.socket = null;
 				this.soundProcessor = null;
 				this.listeningEventId = null;
 				this.socketConnected = false;
+			});
+			import.meta.hot.on('vite:afterUpdate', () => {
+				log.debug('HMR update finished, reconnecting Socket.IO, reattaching sound processor');
+				// @ts-expect-error Restore the socket state after HMR update
+				if (this._wasSocketActiveBeforeHMR) {
+					this.connectSocketIO();
+				}
+				// @ts-expect-error Delete the temporary flag
+				delete this._wasSocketActiveBeforeHMR;
 			});
 		}
 	}
@@ -312,6 +319,23 @@ export class EventState {
 
 	public setEvent(eventData: Event) {
 		this._event = this.parseJSONEvent(eventData);
+	}
+
+	public changeEvent(
+		event: Event,
+		activities: Record<Activity['id'], Activity>,
+		locations: Record<ActivityLocation['id'], ActivityLocation>
+	) {
+		this._event = this.parseJSONEvent(event);
+		this._activities.clear();
+		Object.values(activities).forEach((a) => {
+			const activity = this.parseJSONActivity(a);
+			this._activities.set(activity.id, activity);
+		});
+		this._locations.clear();
+		Object.values(locations).forEach((loc) => {
+			this._locations.set(loc.id, loc);
+		});
 	}
 
 	public setActivity(id: number, activityData: Activity) {

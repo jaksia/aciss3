@@ -1,13 +1,7 @@
 <script lang="ts">
-	import type { EventState } from '$lib/state.svelte';
-	import {
-		type ActivityLocation,
-		type AddAlertFunction,
-		ConfigurableSounds,
-		OtherSounds
-	} from '$lib/types';
-	import { getContext } from 'svelte';
+	import { type ActivityLocation, ConfigurableSounds, OtherSounds } from '$lib/types';
 	import { builder } from '$lib/sounds/builder';
+	import { getAddAlert, getEventState } from '$lib/context';
 
 	let {
 		locationSelector
@@ -15,8 +9,8 @@
 		locationSelector: (purpose: string) => Promise<ActivityLocation | null>;
 	} = $props();
 
-	const eventState = getContext<() => EventState>('getEventState')();
-	const addAlert = getContext<AddAlertFunction>('addAlert');
+	const eventState = getEventState();
+	const addAlert = getAddAlert();
 
 	let soundControlPending = $state(false);
 </script>

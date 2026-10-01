@@ -1,25 +1,24 @@
 <script lang="ts">
-	import type { Activity, GlobalBlockProps } from '$lib/types';
+	import type { Activity } from '$lib/types';
 	import { fly } from 'svelte/transition';
 	import ExpandedActivity from './ExpandedActivity.svelte';
 	import { browser } from '$app/environment';
-	import { getContext } from 'svelte';
-	import type { EventState } from '$lib/state.svelte';
 	import { SvelteDate } from 'svelte/reactivity';
 
-	const eventState = getContext<() => EventState>('getEventState')();
+	import { getEventState } from '$lib/context';
+	const eventState = getEventState();
 
-	const {
+	let {
 		activity,
 		hourWidth,
-		expandedActivityId,
-		expandActivity,
-		viewportReactivityTrigger
+		viewportReactivityTrigger,
+		expandedActivityId = $bindable(null)
 	}: {
 		activity: Activity;
 		hourWidth: number;
 		viewportReactivityTrigger?: number;
-	} & GlobalBlockProps = $props();
+		expandedActivityId: Activity['id'] | null;
+	} = $props();
 
 	const tzOffset = $derived(
 		eventState.now.getTimezoneOffset() - activity.startTime.getTimezoneOffset()
@@ -84,7 +83,7 @@
 	></div>
 {/if}
 
-{#each alertTimes as [alertTime, minutes] (alertTime)}
+{#each alertTimes as [alertTime, minutes] (minutes)}
 	<div
 		class="absolute top-0 h-full -translate-x-1/2"
 		style="left: {(alertTime / 60) * hourWidth}px; background-color: {color}; width: {Math.max(
@@ -107,8 +106,8 @@
 	onclick={(e) => {
 		if (expandElement && expandElement.contains(e.target as Node)) return;
 
-		if (expandedActivityId == activity.id) expandActivity(null);
-		else expandActivity(activity.id);
+		if (expandedActivityId == activity.id) expandedActivityId = null;
+		else expandedActivityId = activity.id;
 	}}
 >
 	<div class="h-full w-full text-sm text-white">
@@ -132,7 +131,7 @@
 				right={expandedDialogRight}
 				{activity}
 				activityElem={htmlElement}
-				close={() => expandActivity(null)}
+				close={() => (expandedActivityId = null)}
 			/>
 		</div>
 	{/if}

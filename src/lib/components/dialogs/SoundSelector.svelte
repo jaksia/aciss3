@@ -1,16 +1,11 @@
 <script lang="ts">
+	import { getAddAlert } from '$lib/context';
 	import { getAvailableSounds, setEventSound } from '$lib/functions.remote';
 	import { configurableSoundsData } from '$lib/sounds/configurable';
-	import {
-		type CustomSound,
-		type Event,
-		ConfigurableSounds,
-		type AddAlertFunction
-	} from '$lib/types';
+	import { type CustomSound, type Event, ConfigurableSounds } from '$lib/types';
 	import Icon from '@iconify/svelte';
-	import { getContext } from 'svelte';
 
-	const addAlert = getContext<AddAlertFunction>('addAlert');
+	const addAlert = getAddAlert();
 
 	let {
 		event,

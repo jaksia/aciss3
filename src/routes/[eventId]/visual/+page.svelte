@@ -1,16 +1,16 @@
 <script lang="ts">
 	import { dev } from '$app/environment';
 	import { page } from '$app/state';
-	import type { EventState } from '$lib/state.svelte';
+	import { getEventState } from '$lib/context.js';
 	import { SoundProcessor } from '$lib/sounds/processor.svelte';
 	import { ConfigurableSounds, type Activity } from '$lib/types';
-	import { getContext, tick } from 'svelte';
+	import { tick } from 'svelte';
 
-	const debug = dev || page.url.searchParams.has('debug');
+	const debug = $derived(dev || page.url.searchParams.has('debug'));
 
-	const eventState = getContext<() => EventState>('getEventState')();
+	const eventState = getEventState();
 
-	const soundProcessor = new SoundProcessor(eventState.event, eventState);
+	const soundProcessor = $derived(new SoundProcessor(eventState.event, eventState));
 
 	const [currentActivity, nextActivity] = $derived.by<[Activity | null, Activity | null]>(() => {
 		const now = eventState.now;
