@@ -1,6 +1,6 @@
 import * as v from 'valibot';
 import { EventStyle } from '#lib/themes.js';
-import { ActivityType, AdditionalInfo, ParticipantNeeds } from './types/enums';
+import { ActivityType, AdditionalInfo, ConfigurableSounds, ParticipantNeeds } from './types/enums';
 
 export const audioFileSchema = v.pipe(
 	v.file(),
@@ -137,3 +137,10 @@ export const activityFormValidator = v.pipe(
 		activityData: activityDataValidator
 	})
 );
+
+export const createEventSoundSchema = v.object({
+	eventId: v.number(),
+	key: v.enum(ConfigurableSounds, 'Invalid sound key'),
+	description: v.pipe(v.string(), v.nonEmpty('Sound description cannot be empty')),
+	file: audioFileSchema
+});

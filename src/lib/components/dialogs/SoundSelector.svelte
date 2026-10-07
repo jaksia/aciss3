@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getAddAlert } from '#lib/context.js';
-	import { getAvailableSounds, setEventSound } from '#lib/functions.remote.js';
+	import { createEventSound, getAvailableSounds, setEventSound } from '#lib/functions.remote.js';
 	import { configurableSoundsData } from '#lib/sounds/configurable.js';
 	import { type CustomSound, type Event, ConfigurableSounds } from '#lib/types/index.js';
 	import Icon from '@iconify/svelte';

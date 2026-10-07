@@ -13,6 +13,7 @@ import { saveSoundFiles } from '#lib/server/files/sounds.js';
 import {
 	activityFormValidator,
 	audioFileSchema,
+	createEventSoundSchema,
 	createLocationSchema,
 	eventChangePasswordValidator,
 	eventDataValidator,
@@ -365,6 +366,30 @@ export const changeEventPassword = form(eventChangePasswordValidator, async (dat
 		.delete(schema.sessionAllowedEvents)
 		.where(eq(schema.sessionAllowedEvents.eventId, data.eventId));
 	triggerEventUpdate(data.eventId);
+	return {
+		event: await dbUtils.getEvent(data.eventId)
+	};
+});
+
+export const createEventSound = form(createEventSoundSchema, async (data, issue) => {
+	if (!(await dbUtils.eventExists(data.eventId))) {
+		invalid(issue.eventId('Event to assign does not exist'));
+	}
+
+	const { upload } = await saveSoundFiles({ upload: data.file });
+	if (!upload.success) {
+		invalid(issue.file('File upload failed: ' + upload.error));
+	}
+
+	const location = await dbUtils.createCustomSound(
+		upload.path,
+		data.key,
+		data.description,
+		data.eventId
+	);
+
+	triggerEventUpdate(data.eventId);
+
 	return {
 		event: await dbUtils.getEvent(data.eventId)
 	};
