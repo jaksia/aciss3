@@ -20,8 +20,6 @@
 	} = $props();
 
 	let actionPending = $state(false);
-	let fileInput: FileList | null = $state(null);
-	let description: string = $state('');
 
 	async function setSound(soundId: CustomSound['id'] | null) {
 		actionPending = true;
@@ -41,46 +39,6 @@
 			console.error(error);
 		}
 		actionPending = false;
-	}
-
-	async function uploadSound() {
-		if (!fileInput || fileInput.length === 0) {
-			addAlert({
-				type: 'warning',
-				content: 'Prosím, vyberte súbor na nahratie'
-			});
-			return;
-		} else if (fileInput.length > 1) {
-			addAlert({
-				type: 'warning',
-				content: 'Nahrávanie viacerých súborov nie je podporované'
-			});
-			return;
-		}
-		actionPending = true;
-		const formData = new FormData();
-		formData.append('description', description);
-		formData.append('file', fileInput[0]);
-		const response = await fetch(`/api/events/${event.id}/sounds/${soundKey}`, {
-			method: 'POST',
-			body: formData
-		});
-		actionPending = false;
-		const data = await response.json();
-		if (!response.ok || !data.success) {
-			addAlert({
-				type: 'error',
-				content: 'Nastala chyba pri nahrávaní zvuku'
-			});
-			console.error(data);
-			return;
-		}
-		addAlert({
-			type: 'success',
-			content: 'Zvuk bol úspešne nahratý a nastavený'
-		});
-		setUpdatedEvent(data.event);
-		close();
 	}
 </script>
 
@@ -121,20 +79,48 @@
 				</button>
 			</div>
 		{/each}
-		<div class="sound-selector-block">
+		<form
+			class="sound-selector-block"
+			{...createEventSound.enhance(async (form) => {
+				try {
+					actionPending = true;
+					if (await form.submit()) {
+						addAlert({
+							type: 'success',
+							content: `Zvuk bol úspešne nahratý a nastavený.`
+						});
+						setUpdatedEvent(form.result!.event!);
+						close();
+					} else {
+						addAlert({
+							type: 'error',
+							content: 'Nastala chyba pri nahrávaní zvuku.'
+						});
+					}
+				} catch (error) {
+					addAlert({
+						type: 'error',
+						content: error instanceof Error ? error.message : 'Nastala chyba pri nahrávaní zvuku.'
+					});
+					console.error(error);
+				} finally {
+					actionPending = false;
+				}
+			})}
+		>
 			<strong>Nahrať nový zvuk</strong>
-			<input type="file" accept="audio/*" class="mt-2" bind:files={fileInput} />
-			<input type="text" placeholder="Popis zvuku" bind:value={description} />
-			<button
-				class="btn btn-secondary mt-2"
-				disabled={actionPending}
-				onclick={() => {
-					uploadSound();
-				}}
-			>
+			<input accept="audio/*" class="mt-2" {...createEventSound.fields.file.as('file')} />
+			{#each createEventSound.fields.file.issues() as issue (issue.message)}
+				<p class="text-sm text-red-500">{issue.message}</p>
+			{/each}
+			<input placeholder="Popis zvuku" {...createEventSound.fields.description.as('text')} />
+			{#each createEventSound.fields.description.issues() as issue (issue.message)}
+				<p class="text-sm text-red-500">{issue.message}</p>
+			{/each}
+			<button class="btn btn-secondary mt-2" disabled={actionPending}>
 				Nahrať a použiť tento zvuk
 			</button>
-		</div>
+		</form>
 		{#if !configurableSoundsData[soundKey].required && event.sounds[soundKey]}
 			<div class="sound-selector-block">
 				<strong>Odstrániť aktuálny zvuk</strong>

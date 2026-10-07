@@ -10,24 +10,21 @@
 
 	const event = $derived(eventState.event);
 
-	let datePickerOpen = $state(false);
+	$effect(() => {
+		if (event) initFormFromEvent(event);
+	});
 
 	function initFormFromEvent(event: Event) {
-		updateEvent.fields.eventId.set(event.id);
 		updateEvent.fields.name.set(event.name);
 		updateEvent.fields.location.set(event.location ?? undefined);
 		updateEvent.fields.style.set(event.style);
 		updateEvent.fields.startDate.set(event.startDate.valueOf());
 		updateEvent.fields.endDate.set(event.endDate.valueOf());
 
-		changeEventPassword.fields.eventId.set(event.id);
 		changeEventPassword.fields._currentPassword.set('');
 		changeEventPassword.fields._password.set('');
 		changeEventPassword.fields._passwordConfirm.set('');
 	}
-	$effect(() => {
-		if (event) initFormFromEvent(event);
-	});
 </script>
 
 <div class="flex h-full flex-col p-8">
@@ -86,24 +83,13 @@
 					<p class="mt-1 text-sm text-red-500">{issue.message}</p>
 				{/each}
 			</div>
-			<input
-				type="hidden"
-				name={updateEvent.fields.eventId.as('number').name}
-				value={updateEvent.fields.eventId.value()}
-			/>
-			<input
-				type="hidden"
-				name={updateEvent.fields.startDate.as('number').name}
-				value={updateEvent.fields.startDate.value()}
-			/>
-			<input
-				type="hidden"
-				name={updateEvent.fields.endDate.as('number').name}
-				value={updateEvent.fields.endDate.value()}
-			/>
+			<input {...updateEvent.fields.eventId.as('hidden', event.id)} />
+			<input {...updateEvent.fields.startDate.as('hidden', event.startDate.valueOf())} />
+			<input {...updateEvent.fields.endDate.as('hidden', event.endDate.valueOf())} />
 			<div>
 				<h3 class="mb-3 text-xl font-bold">Dátum akcie</h3>
 
+				{let datePickerOpen = $state(false)}
 				<DatePicker
 					isOpen={datePickerOpen}
 					bind:startDate={
@@ -174,11 +160,7 @@
 					}
 				})}
 			>
-				<input
-					type="hidden"
-					name={changeEventPassword.fields.eventId.as('number').name}
-					value={changeEventPassword.fields.eventId.value()}
-				/>
+				<input {...changeEventPassword.fields.eventId.as('hidden', event.id)} />
 				<div>
 					<label for="currentAdminPassword" class="mb-2 block text-lg font-semibold"
 						>Súčasné administrátorské heslo</label

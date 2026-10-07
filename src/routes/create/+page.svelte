@@ -92,14 +92,10 @@
 				{/each}
 			</div>
 			<input
-				type="hidden"
-				name={createEvent.fields.startDate.as('number').name}
-				value={createEvent.fields.startDate.value()}
+				{...createEvent.fields.startDate.as('hidden', createEvent.fields.startDate.value() ?? 0)}
 			/>
 			<input
-				type="hidden"
-				name={createEvent.fields.endDate.as('number').name}
-				value={createEvent.fields.endDate.value()}
+				{...createEvent.fields.endDate.as('hidden', createEvent.fields.endDate.value() ?? 0)}
 			/>
 			<div>
 				<h3 class="mb-3 text-xl font-bold">Dátum akcie</h3>

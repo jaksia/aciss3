@@ -1,6 +1,5 @@
 <script lang="ts">
 	import '../app.css';
-	import favicon from '#lib/assets/favicon.svg';
 	import type { AddAlertFunction, Alert } from '#lib/types/index.js';
 	import { onMount } from 'svelte';
 	import Icon from '@iconify/svelte';
@@ -38,10 +37,6 @@
 		};
 	});
 </script>
-
-<svelte:head>
-	<link rel="icon" href={favicon} />
-</svelte:head>
 
 <div id="alert-container" class="fixed right-4 bottom-4 z-50 text-stone-800">
 	{#each alerts as alert (alert.id)}

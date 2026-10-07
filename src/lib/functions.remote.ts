@@ -381,16 +381,11 @@ export const createEventSound = form(createEventSoundSchema, async (data, issue)
 		invalid(issue.file('File upload failed: ' + upload.error));
 	}
 
-	const location = await dbUtils.createCustomSound(
-		upload.path,
-		data.key,
-		data.description,
-		data.eventId
-	);
+	await dbUtils.createCustomSound(upload.path, data.key, data.description, data.eventId);
 
 	triggerEventUpdate(data.eventId);
 
 	return {
-		event: await dbUtils.getEvent(data.eventId)
+		event: await dbUtils.getEvent(data.eventId)!
 	};
 });
